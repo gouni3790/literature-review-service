@@ -28,7 +28,7 @@
 <div class="layout">
 
   <!-- 좌: 멤버 -->
-  <aside class="pane pane-sticky">
+  <aside class="pane pane-sticky" id="memberPane">
     <h2>Member <span class="pane-sub" id="memberTotal">-</span></h2>
     <input type="search" class="member-search" id="memberSearch"
            name="member-filter" autocomplete="off" autocapitalize="off"
@@ -39,6 +39,13 @@
     </button>
     <div id="memberList"></div>
   </aside>
+
+  <!-- 멤버 패널 폭 조절 핸들 (드래그 / 더블클릭 초기화 / 좌우 화살표) -->
+  <button class="pane-resizer" id="memberResizer" type="button"
+          role="separator" aria-orientation="vertical"
+          aria-label="멤버 패널 폭 조절"
+          aria-valuemin="170" aria-valuemax="520" aria-valuenow="250"
+          title="드래그해서 폭 조절 · 더블클릭하면 기본 폭"></button>
 
   <!-- 중앙: 피드 -->
   <main>
@@ -69,6 +76,18 @@
   <!-- 우: 대시보드 -->
   <aside class="pane pane-sticky pane-dash">
     <h2>대시보드 <span class="dash-period" id="dashPeriod">최근 7일</span></h2>
+
+    <!-- 매주 반복되는 서비스 전 과정이 지금 어디까지 왔는지 -->
+    <div class="stat-card live-card" id="liveCard">
+      <div class="live-head">
+        <span class="stat-label"><span class="live-dot" id="liveDot"></span>시스템 진행 상황</span>
+        <button class="live-refresh" id="liveRefresh" type="button"
+                title="지금 다시 확인">&#8635;</button>
+      </div>
+      <div class="live-now" id="liveNow">불러오는 중...</div>
+      <div class="cycle-list" id="cycleList"></div>
+      <div class="live-foot" id="liveFoot"></div>
+    </div>
 
     <div class="stat-card">
       <div class="stat-label" id="dashRecLabel">추천 논문</div>
@@ -139,7 +158,7 @@
              autocomplete="current-password">
     </div>
     <div style="display:flex; gap:8px; justify-content:flex-end;">
-      <a class="btn-ghost" href="/litreview/login" style="text-decoration:none;">회원가입</a>
+      <a class="btn-ghost" href="/litreview/register" style="text-decoration:none;">회원가입</a>
       <button class="btn-primary" id="loginSubmit">로그인</button>
     </div>
   </div>
@@ -215,6 +234,7 @@ async function init() {
   renderDashboard();
   loadNotifications();
   loadBatchStatus();
+  loadPipelineStatus();
   loadTrendingKeywords();
   loadJournalMonitoring();
   loadApiUsage();
@@ -283,50 +303,60 @@ function feedInfoFor(rid) {
   return state.feed.researchers.find((r) => r.id === rid) || null;
 }
 
+/** 직책에 Professor(교수)가 들어가면 연구실 책임자로 본다 */
+function isProfessor(r) {
+  return /professor|교수/i.test(r.role || "");
+}
+
+function memberItem(r, professor) {
+  const info = feedInfoFor(r.id);
+  const cnt = info ? info.count : 0;
+  const unread = info ? info.unread_count : 0;
+  const active = state.selected === r.id ? " active" : "";
+  // 추천이 아직 없으면(파이프라인 미실행) 본인 논문 수를 대신 보여준다
+  const badge = cnt > 0
+    ? `<span class="member-count" title="이번 기간 추천 ${cnt}편">${cnt}</span>`
+    : `<span class="member-count paper" title="본인 논문 ${r.paper_count}편">${r.paper_count}p</span>`;
+
+  return `
+    <button class="member-item${active}${professor ? " is-professor" : ""}" data-rid="${r.id}">
+      <span class="member-name">
+        ${unread > 0 ? '<span class="unread-dot"></span>' : ""}
+        <span class="nm-wrap">
+          <span class="nm-line">
+            <span class="nm">${esc(r.display_name || r.name)}</span>
+            ${professor ? '<span class="role-pill">Professor</span>' : ""}
+          </span>
+          <span class="member-role">${esc(shortRole(r.role))}</span>
+        </span>
+      </span>
+      ${badge}
+    </button>`;
+}
+
 function renderMembers() {
   const filter = $("memberSearch").value.trim().toLowerCase();
   const total = state.feed ? state.feed.totals.recommendations : 0;
   $("allCount").textContent = total;
   $("memberTotal").textContent = `${state.researchers.length}명`;
 
-  // 팀별로 묶는다. 팀 미배정은 맨 아래로 모은다.
-  const NO_TEAM = "\u200b팀 미배정";  // 정렬에서 마지막으로 가도록 zero-width space 접두
-  const groups = {};
-  for (const r of state.researchers) {
-    const hay = [r.display_name, r.name, r.name_en, r.role, r.group]
-      .filter(Boolean).join(" ").toLowerCase();
-    if (filter && !hay.includes(filter)) continue;
-    const g = r.group || NO_TEAM;
-    (groups[g] = groups[g] || []).push(r);
-  }
+  // 팀 그룹핑 없이 한 줄로 나열한다. 검색어는 팀 이름에도 계속 걸리게 둔다.
+  const matched = state.researchers.filter((r) => {
+    if (!filter) return true;
+    return [r.display_name, r.name, r.name_en, r.role, r.group]
+      .filter(Boolean).join(" ").toLowerCase().includes(filter);
+  });
 
-  let html = "";
-  for (const g of Object.keys(groups).sort()) {
-    const label = g === NO_TEAM ? "팀 미배정" : g;
-    html += `<div class="member-group-label">${esc(label)} <span class="mg-count">${groups[g].length}</span></div>`;
-    for (const r of groups[g]) {
-      const info = feedInfoFor(r.id);
-      const cnt = info ? info.count : 0;
-      const unread = info ? info.unread_count : 0;
-      const active = state.selected === r.id ? " active" : "";
-      // 추천이 아직 없으면(파이프라인 미실행) 본인 논문 수를 대신 보여준다
-      const badge = cnt > 0
-        ? `<span class="member-count" title="이번 기간 추천 ${cnt}편">${cnt}</span>`
-        : `<span class="member-count paper" title="본인 논문 ${r.paper_count}편">${r.paper_count}p</span>`;
-      html += `
-        <button class="member-item${active}" data-rid="${r.id}">
-          <span class="member-name">
-            ${unread > 0 ? '<span class="unread-dot"></span>' : ""}
-            <span class="nm-wrap">
-              <span class="nm">${esc(r.display_name || r.name)}</span>
-              <span class="member-role">${esc(shortRole(r.role))}</span>
-            </span>
-          </span>
-          ${badge}
-        </button>`;
-    }
-  }
-  $("memberList").innerHTML = html || '<div class="empty-note" style="padding:14px 0;">검색 결과 없음</div>';
+  // 교수님은 항상 맨 위. 나머지는 홈페이지가 정한 순서(roster_order) 그대로.
+  const professors = matched.filter(isProfessor);
+  const others = matched.filter((r) => !isProfessor(r));
+
+  let html = professors.map((r) => memberItem(r, true)).join("");
+  if (professors.length && others.length) html += '<div class="member-divider"></div>';
+  html += others.map((r) => memberItem(r, false)).join("");
+
+  $("memberList").innerHTML = html
+    || '<div class="empty-note" style="padding:14px 0;">검색 결과 없음</div>';
 }
 
 /** 직책을 좁은 사이드바에 맞게 줄인다 */
@@ -550,12 +580,26 @@ function paperCard(rec) {
   const summary = rec.recommendation_reason || rec.summary_core_topic;
   const isNew = !rec.is_read;
 
-  const detail = [
+  // 요약이 전문을 읽고 쓰였는지 초록만 보고 쓰였는지 밝힌다.
+  // core 등급이어도 구독 저널이 아니면 전문을 못 받으므로, 이 구분이 없으면
+  // 연구원이 요약의 신뢰 수준을 판단할 수 없다.
+  const SRC = {
+    fulltext: ["전문 기반", "src-full", "논문 전문을 읽고 작성된 요약"],
+    abstract: ["초록 기반", "src-abs", "초록만 보고 작성된 요약 — 전문 미확보"],
+  };
+  const src = SRC[rec.summary_source];
+  const srcBadge = src
+    ? `<span class="src-chip ${src[1]}" title="${esc(src[2])}">${esc(src[0])}</span>` : "";
+
+  const detailRows = [
     ["핵심 주제", rec.summary_core_topic],
     ["목적", rec.summary_purpose],
     ["방법", rec.summary_method],
     ["결과", rec.summary_results],
   ].filter(([, v]) => v).map(([k, v]) => `<div class="detail-item"><b>${k}:</b> ${esc(v)}</div>`).join("");
+  const detail = detailRows
+    ? (srcBadge ? `<div class="detail-src">${srcBadge}</div>${detailRows}` : detailRows)
+    : "";
   const abstract = !detail && rec.abstract
     ? `<div class="detail-item"><b>초록:</b> ${esc(rec.abstract)}...</div>` : "";
 
@@ -923,6 +967,205 @@ document.querySelectorAll("[data-close]").forEach((btn) => {
 });
 document.querySelectorAll(".modal-back").forEach((back) => {
   back.addEventListener("click", (e) => { if (e.target === back) back.classList.remove("open"); });
+});
+
+// =====================================================================
+// 멤버 패널 가로 리사이즈
+// =====================================================================
+// 영문 풀네임·긴 직책이 250px 고정 폭에서 잘려서, 사용자가 직접 폭을 잡게 한다.
+// 실제 폭은 CSS 변수 --member-w 가 쥐고 있고(그리드 1번째 컬럼), 값은
+// localStorage 에 남겨 다음 방문에도 유지한다.
+const MEMBER_W_KEY = "lr_member_w";
+const MEMBER_W_MIN = 170;
+const MEMBER_W_MAX = 520;
+const MEMBER_W_DEFAULT = 250;
+
+function setMemberWidth(px, persist) {
+  const w = Math.round(Math.min(MEMBER_W_MAX, Math.max(MEMBER_W_MIN, px)));
+  document.documentElement.style.setProperty("--member-w", w + "px");
+  $("memberResizer").setAttribute("aria-valuenow", String(w));
+  if (persist) {
+    try { localStorage.setItem(MEMBER_W_KEY, String(w)); } catch { /* 무시 */ }
+  }
+  return w;
+}
+
+/** 화면에 실제로 그려진 폭 — CSS clamp 가 걸렸을 수 있어 저장 전 이 값을 쓴다 */
+function currentMemberWidth() {
+  return $("memberPane").getBoundingClientRect().width;
+}
+
+(function initMemberResizer() {
+  const handle = $("memberResizer");
+
+  let saved = NaN;
+  try { saved = parseInt(localStorage.getItem(MEMBER_W_KEY), 10); } catch { /* 무시 */ }
+  setMemberWidth(Number.isFinite(saved) ? saved : MEMBER_W_DEFAULT, false);
+
+  let startX = 0;
+  let startW = 0;
+  let dragging = false;
+
+  handle.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    startX = e.clientX;
+    startW = currentMemberWidth();
+    handle.setPointerCapture(e.pointerId);
+    handle.classList.add("dragging");
+    document.body.classList.add("col-resizing");
+    e.preventDefault();
+  });
+
+  handle.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    setMemberWidth(startW + (e.clientX - startX), false);
+  });
+
+  const endDrag = (e) => {
+    if (!dragging) return;
+    dragging = false;
+    handle.classList.remove("dragging");
+    document.body.classList.remove("col-resizing");
+    try { handle.releasePointerCapture(e.pointerId); } catch { /* 무시 */ }
+    setMemberWidth(currentMemberWidth(), true);   // 저장은 드래그가 끝날 때 한 번만
+  };
+  handle.addEventListener("pointerup", endDrag);
+  handle.addEventListener("pointercancel", endDrag);
+
+  handle.addEventListener("dblclick", () => setMemberWidth(MEMBER_W_DEFAULT, true));
+
+  // 마우스를 못 쓰는 경우를 위한 키보드 조작
+  handle.addEventListener("keydown", (e) => {
+    const step = e.shiftKey ? 40 : 12;
+    if (e.key === "ArrowLeft") {
+      setMemberWidth(currentMemberWidth() - step, true); e.preventDefault();
+    } else if (e.key === "ArrowRight") {
+      setMemberWidth(currentMemberWidth() + step, true); e.preventDefault();
+    } else if (e.key === "Home") {
+      setMemberWidth(MEMBER_W_DEFAULT, true); e.preventDefault();
+    }
+  });
+})();
+
+// =====================================================================
+// 실시간 진행 상황 (매주 반복되는 서비스 전 과정)
+// =====================================================================
+// /api/lr/pipeline-status 는 scheduler/jobs.py 의 _progress() 가 남긴
+// 하트비트를 읽어 "지금 어떤 배치가 몇 번째 연구원을 처리 중인지"까지 준다.
+const PIPE_POLL_ACTIVE_MS = 10000;   // 배치가 돌 때는 자주
+const PIPE_POLL_IDLE_MS = 60000;     // 아무것도 안 돌면 느슨하게
+let pipeTimer = null;
+
+const PIPE_STATE = {
+  running:   { cls: "run",  txt: "진행 중" },
+  stale:     { cls: "fail", txt: "응답 없음" },
+  completed: { cls: "done", txt: "완료" },
+  failed:    { cls: "fail", txt: "실패" },
+  partial:   { cls: "warn", txt: "일부 실패" },
+  pending:   { cls: "pend", txt: "대기" },
+  never:     { cls: "pend", txt: "실행 기록 없음" },
+};
+
+function fmtDur(sec) {
+  if (sec == null) return "-";
+  if (sec < 60) return `${Math.round(sec)}초`;
+  const m = Math.floor(sec / 60);
+  if (m < 60) return `${m}분`;
+  return `${Math.floor(m / 60)}시간 ${m % 60}분`;
+}
+
+function schedulePipePoll(active) {
+  clearTimeout(pipeTimer);
+  if (document.hidden) return;   // 안 보이는 탭에서 계속 찔러댈 이유가 없다
+  pipeTimer = setTimeout(loadPipelineStatus, active ? PIPE_POLL_ACTIVE_MS : PIPE_POLL_IDLE_MS);
+}
+
+async function loadPipelineStatus() {
+  try {
+    const d = await api("/api/lr/pipeline-status");
+    renderPipeline(d);
+    schedulePipePoll((d.active || []).length > 0);
+  } catch {
+    $("liveNow").innerHTML = '<span class="live-err">진행 상황을 불러오지 못했습니다.</span>';
+    $("cycleList").innerHTML = "";
+    $("liveFoot").innerHTML = "";
+    schedulePipePoll(false);
+  }
+}
+
+function renderPipeline(d) {
+  const active = d.active || [];
+  const anyStale = active.some((a) => a.state === "stale");
+  $("liveDot").className = "live-dot" + (active.length ? (anyStale ? " warn" : " on") : "");
+
+  if (!active.length) {
+    // 다음에 돌 단계 = 이번 주기에 아직 실행되지 않은 첫 단계
+    const next = d.cycle.find((c) => c.state === "pending" || c.state === "never") || d.cycle[0];
+    $("liveNow").innerHTML =
+      '<div class="live-idle">지금 실행 중인 작업이 없습니다.</div>' +
+      `<div class="live-sub">다음 · ${esc(next.label)} — ${esc(next.next_run)}` +
+      `${next.next_run_source === "계산" ? " (예정)" : ""}</div>`;
+  } else {
+    $("liveNow").innerHTML = active.map((a) => {
+      const p = a.running;
+      const stale = a.state === "stale";
+      const pct = p.percent;
+      const count = (p.current != null && p.total != null) ? ` (${p.current}/${p.total})` : "";
+      return `
+        <div class="live-job${stale ? " stale" : ""}">
+          <div class="live-job-name">${esc(a.label)}${
+            stale ? '<span class="live-warn">응답 없음</span>' : ""}</div>
+          <div class="live-step">${esc(p.step || "실행 중")}${
+            p.detail ? ` · ${esc(p.detail)}` : ""}</div>
+          <div class="prog-bar${pct == null ? " indet" : ""}">
+            <div class="fill"${pct == null ? "" : ` style="width:${pct}%"`}></div>
+          </div>
+          <div class="live-sub">
+            ${pct == null ? "" : `${pct}%${count} · `}시작 ${esc(a.started_label)} · 경과 ${fmtDur(p.elapsed_sec)}
+            ${stale ? ` · 마지막 응답 ${fmtDur(p.idle_sec)} 전` : ""}
+          </div>
+        </div>`;
+    }).join("");
+  }
+
+  $("cycleList").innerHTML = d.cycle.map((c, i) => {
+    const m = PIPE_STATE[c.state] || PIPE_STATE.pending;
+    let when;
+    if (c.state === "running" || c.state === "stale") {
+      when = `시작 ${esc(c.started_label)}`;
+    } else if (c.last_finished) {
+      when = `${esc(c.last_finished)} 종료`
+        + (c.duration_sec != null ? ` · ${fmtDur(c.duration_sec)} 소요` : "");
+    } else if (c.last_started) {
+      when = `${esc(c.last_started)} 시작`;
+    } else {
+      when = `예정 ${esc(c.next_run)}`;
+    }
+    return `
+      <div class="cycle-step ${m.cls}" title="${esc(c.desc)}">
+        <span class="idx">${i + 1}</span>
+        <span class="cs-body">
+          <span class="cs-top"><b>${esc(c.label)}</b><span class="cs-state">${m.txt}</span></span>
+          <span class="cs-when">${esc(c.when)} · ${when}</span>
+        </span>
+      </div>`;
+  }).join("");
+
+  const mo = d.monthly;
+  const mm = PIPE_STATE[mo.state] || PIPE_STATE.pending;
+  $("liveFoot").innerHTML =
+    `<div class="live-foot-row"><span>${esc(mo.label)} · ${esc(mo.when)}</span>` +
+    `<span class="cs-state">${mm.txt}</span></div>` +
+    (d.scheduler.running
+      ? `<div class="live-note">${esc(d.now_label)} 기준</div>`
+      : `<div class="live-note">${esc(d.scheduler.note)}</div>`);
+}
+
+$("liveRefresh").addEventListener("click", loadPipelineStatus);
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) clearTimeout(pipeTimer);
+  else loadPipelineStatus();
 });
 
 init();

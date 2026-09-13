@@ -2,9 +2,9 @@
 
     [1] 주제        reco_topics 의 키워드 + 대표벡터
     [2] Scopus 검색  연도별 5회 분할 (Growth 를 전수로 계산하기 위함)
-    [3] 메타 필터    영어 · 문헌유형 · 초록 존재
-    [4] 임베딩·유사도 주제 대표벡터 ↔ 논문 초록      ★ 저장하지 않음
-    [5] 관련 논문 선정 유사도 상위 N편
+    [3] 메타 필터    문헌유형 · 저널명 (초록 없어도 버리지 않는다)
+    [4] 임베딩·유사도 가채점 → 상위 후보 초록 보충 → 재채점  ★ 저장하지 않음
+    [5] 관련 논문 선정 초록 확보 + 유사도 상위 N편
     [6] 저널별 집계
     [7] 점수화       journal_scoring
     [8] 저장         reco_journal_recommendations 상위 N종 + 근거 3편
@@ -55,6 +55,11 @@ RELATED_TOP_N = 400         # [5] 관련 논문 선정 수
 RESULT_TOP_N = 20           # [8] 저장할 저널 수
 MIN_RELATED_PER_JOURNAL = 3 # 관련 논문이 이 미만인 저널은 후보 제외
 MAX_KEYWORDS = 12           # 쿼리에 넣을 키워드 상한
+
+# 초록 보충 범위. Abstract Retrieval 은 Search 와 쿼터가 별개(주 10,000회)라
+# 수집 전량을 보충할 수 없다. 가채점 상위 이만큼만 보충한다.
+ABSTRACT_SHORTLIST_N = 600
+ABSTRACT_MAX_CALLS_PER_TOPIC = 600
 
 
 class ScopusUnavailable(RuntimeError):
@@ -268,10 +273,14 @@ ALLOWED_SUBTYPES = {"Article", "Review", "Conference Paper"}
 
 
 def _parse_entry(entry: dict, year: int) -> dict | None:
-    """Scopus 항목 → 내부 표현. 필터를 통과하지 못하면 None."""
+    """Scopus 항목 → 내부 표현. 필터를 통과하지 못하면 None.
+
+    초록이 없어도 버리지 않는다. Scopus Search 는 dc:description 을 요청해도
+    대부분 빈 값을 주므로(운영 실측 71% 누락), 여기서 떨구면 저널 발굴이
+    거의 아무것도 수집하지 못한다. 초록은 [4]에서 상위 후보에 한해
+    Abstract Retrieval 로 보충한다.
+    """
     abstract = (entry.get("dc:description") or "").strip()
-    if not abstract:
-        return None  # 임베딩할 수 없으므로 제외
 
     journal = (entry.get("prism:publicationName") or "").strip()
     if not journal:
@@ -300,6 +309,7 @@ def _parse_entry(entry: dict, year: int) -> dict | None:
         "year": y,
         "doi": entry.get("prism:doi"),
         "abstract": abstract,
+        "has_abstract": bool(abstract),
     }
 
 
@@ -420,37 +430,94 @@ def recommend_journals_for_topic(
         return result
 
     # ---- [4] 임베딩 + 유사도 (저장하지 않는다) ----
+    #
+    # 2단계로 나눈다. 검색 결과 대부분은 초록이 없고(Scopus Search 제약),
+    # Abstract Retrieval 은 쿼터가 별개(주 10,000회)라 2,000편을 전부 보충할 수
+    # 없다. 그래서 먼저 있는 텍스트(제목 + 있으면 초록)로 가채점해 상위 후보를
+    # 추린 뒤, 그 후보 중 초록이 없는 것만 보충하고 다시 채점한다.
     embedder = Embedder()
     topic_vec = np.array(topic.representative_vector, dtype=np.float32)
     topic_norm = topic_vec / (np.linalg.norm(topic_vec) + 1e-10)
 
-    texts = [
-        f"Title: {p['title']}\nAbstract: {p['abstract']}" if p["title"]
-        else p["abstract"]
-        for p in papers
-    ]
-    embeddings = embedder.embed_batch(texts)
+    def _text(p: dict) -> str:
+        """임베딩에 넣을 텍스트. 초록이 없으면 제목만 쓴다."""
+        title = (p.get("title") or "").strip()
+        abstract = (p.get("abstract") or "").strip()
+        if abstract and title:
+            return f"Title: {title}\nAbstract: {abstract}"
+        if abstract:
+            return abstract
+        return f"Title: {title}" if title else ""
+
+    def _score(items: list[dict]) -> None:
+        """items 에 similarity 를 채운다 (제자리 수정)."""
+        texts = [_text(p) for p in items]
+        for p, emb in zip(items, embedder.embed_batch(texts)):
+            if not emb:
+                p["similarity"] = None
+                continue
+            v = np.array(emb, dtype=np.float32)
+            p["similarity"] = float(v @ topic_norm / (np.linalg.norm(v) + 1e-10))
+
+    # 4-a. 가채점 (제목 기반 포함)
+    _score(papers)
+    papers = [p for p in papers if p.get("similarity") is not None]
+    papers.sort(key=lambda x: x["similarity"], reverse=True)
     if progress_callback:
         progress_callback("embed", len(papers), len(papers))
 
-    scored: list[dict] = []
-    for p, emb in zip(papers, embeddings):
-        if not emb:
-            continue
-        v = np.array(emb, dtype=np.float32)
-        sim = float(v @ topic_norm / (np.linalg.norm(v) + 1e-10))
-        if sim < scoring.SIMILARITY_FLOOR:
-            continue
-        scored.append({**p, "similarity": sim})
+    no_abs = sum(1 for p in papers if not p["has_abstract"])
+    result["no_abstract_at_search"] = no_abs
+    logger.info(
+        "  topic %d: 가채점 %d편 (초록 없음 %d편 = %.0f%%)",
+        topic_id, len(papers), no_abs,
+        (no_abs / len(papers) * 100) if papers else 0,
+    )
+
+    # 4-b. 상위 후보 중 초록 없는 것만 보충
+    shortlist = papers[:ABSTRACT_SHORTLIST_N]
+    need = [p for p in shortlist if not p["has_abstract"] and p["scopus_id"]]
+    if need:
+        from app.litreview.collection.paper_collector import fetch_abstracts
+
+        fetched = fetch_abstracts(
+            [p["scopus_id"] for p in need],
+            max_calls=ABSTRACT_MAX_CALLS_PER_TOPIC,
+        )
+        refreshed = []
+        for p in need:
+            abstract = fetched.get(p["scopus_id"])
+            if abstract:
+                p["abstract"] = abstract
+                p["has_abstract"] = True
+                refreshed.append(p)
+        result["abstracts_backfilled"] = len(refreshed)
+        logger.info(
+            "  topic %d: 상위 %d편 중 %d편 초록 보충 (요청 %d편)",
+            topic_id, len(shortlist), len(refreshed), len(need),
+        )
+
+        # 4-c. 보충된 것만 다시 채점
+        if refreshed:
+            _score(refreshed)
+            papers = [p for p in papers if p.get("similarity") is not None]
+            papers.sort(key=lambda x: x["similarity"], reverse=True)
 
     # ---- [5] 관련 논문 선정 ----
-    scored.sort(key=lambda x: x["similarity"], reverse=True)
-    related = scored[:RELATED_TOP_N]
+    #
+    # 초록 없이 제목만으로 매긴 점수는 신뢰도가 낮아 최종 후보에서 제외한다.
+    # 저널 점수의 근거가 제목 유사도만으로 채워지는 것을 막기 위함이다.
+    related = [
+        p for p in papers
+        if p["has_abstract"] and p["similarity"] >= scoring.SIMILARITY_FLOOR
+    ][:RELATED_TOP_N]
+
     result["related"] = len(related)
     if not related:
         logger.warning(
-            "Topic %d: 유사도 %.2f 이상인 논문이 없음",
-            topic_id, scoring.SIMILARITY_FLOOR,
+            "Topic %d: 초록 확보 + 유사도 %.2f 이상인 논문이 없음 "
+            "(가채점 %d편, 초록 없음 %d편)",
+            topic_id, scoring.SIMILARITY_FLOOR, len(papers), no_abs,
         )
         return result
 

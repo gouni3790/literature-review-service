@@ -113,33 +113,56 @@ def list_researchers():
 
 
 @litreview_bp.route("/api/researchers", methods=["POST"])
-def create_researcher():
-    """연구원 등록."""
-    data = request.get_json()
-    if not data or not data.get("name") or not data.get("email"):
-        return jsonify({"error": "name and email required"}), 400
+def enable_researcher():
+    """기존 홈페이지 회원을 추천 대상으로 등록한다.
 
-    existing = Researcher.query.filter_by(email=data["email"]).first()
-    if existing:
-        return jsonify({"error": "Email already registered", "id": existing.id}), 409
+    이전에는 여기서 members 에 INSERT 를 시도했다. members 는 홈페이지가
+    소유하는 테이블이라 이 앱이 회원을 만들면 안 되고, 실제로는 name 이
+    읽기 전용 속성이라 AttributeError 로 죽고 있었다.
+
+    회원 생성은 홈페이지에서 한다. 이 엔드포인트는 **이미 있는 회원**을 찾아
+    추천 설정(reco_member_settings)만 만들어 준다.
+    """
+    data = request.get_json() or {}
+    email = (data.get("email") or "").strip()
+    name = (data.get("name") or "").strip()
+
+    if not email and not name:
+        return jsonify({"error": "email 또는 name 이 필요합니다."}), 400
+
+    q = Researcher.query
+    r = q.filter_by(email=email).first() if email else None
+    if r is None and name:
+        r = q.filter(
+            db.or_(Researcher.name_ko == name, Researcher.name_en == name)
+        ).first()
+
+    if r is None:
+        return jsonify({
+            "error": "홈페이지에 등록된 회원이 아닙니다. "
+                     "회원 추가는 연구실 홈페이지에서 진행해 주세요.",
+            "searched": {"email": email or None, "name": name or None},
+        }), 404
 
     from app.config import Config
 
-    r = Researcher(
-        name=data["name"],
-        email=data["email"],
-        scopus_id=data.get("scopus_id"),
-        research_description=data.get("research_description"),
-        core_percent=Config.DEFAULT_CORE_PERCENT,
-        related_percent=Config.DEFAULT_RELATED_PERCENT,
-        reference_percent=Config.DEFAULT_REFERENCE_PERCENT,
-        target_year_range=Config.DEFAULT_TARGET_YEAR_RANGE,
-    )
-    db.session.add(r)
+    created = r._settings is None
+    st = r.ensure_settings()
+    if created:
+        st.core_percent = Config.DEFAULT_CORE_PERCENT
+        st.related_percent = Config.DEFAULT_RELATED_PERCENT
+        st.reference_percent = Config.DEFAULT_REFERENCE_PERCENT
+        st.target_year_range = Config.DEFAULT_TARGET_YEAR_RANGE
+    st.is_active = True
     db.session.commit()
 
-    logger.info("Researcher created: %d (%s)", r.id, r.name)
-    return jsonify({"id": r.id, "name": r.name}), 201
+    logger.info(
+        "Researcher %d (%s) 추천 대상 %s", r.id, r.name,
+        "등록" if created else "재활성화",
+    )
+    return jsonify({
+        "id": r.id, "name": r.name, "is_active": True, "created": created,
+    }), 201 if created else 200
 
 
 @litreview_bp.route("/api/researchers/<int:rid>", methods=["GET"])
@@ -153,31 +176,79 @@ def get_researcher(rid: int):
 
 @litreview_bp.route("/api/researchers/<int:rid>", methods=["PUT"])
 def update_researcher(rid: int):
-    """연구원 기본 정보 수정."""
+    """추천 설정 수정.
+
+    이전에는 name/email/scopus_id/updated_at 를 members 에 직접 썼다. members 는
+    홈페이지 소유라 이 앱이 고치면 안 되고, name 은 읽기 전용 속성이라 일부는
+    AttributeError 로 죽고 있었다.
+
+    회원 정보(이름·이메일·Scopus ID)는 홈페이지에서 수정한다.
+    여기서는 reco_member_settings 의 추천 설정만 다룬다.
+    """
     r = db.session.get(Researcher, rid)
     if not r:
         return jsonify({"error": "Not found"}), 404
 
-    data = request.get_json()
-    for field in ("name", "email", "scopus_id", "research_description"):
+    data = request.get_json() or {}
+
+    HOMEPAGE_FIELDS = {"name", "email", "scopus_id", "orcid", "research_description"}
+    rejected = HOMEPAGE_FIELDS & set(data)
+    if rejected:
+        return jsonify({
+            "error": "회원 정보는 연구실 홈페이지에서 수정해 주세요.",
+            "rejected_fields": sorted(rejected),
+        }), 400
+
+    SETTING_FIELDS = (
+        "researcher_type", "core_percent", "related_percent", "reference_percent",
+        "target_year_range", "max_per_grade", "email_cycle_weeks", "is_active",
+    )
+    st = r.ensure_settings()
+    updated = []
+    for field in SETTING_FIELDS:
         if field in data:
-            setattr(r, field, data[field])
-    r.updated_at = datetime.utcnow()
+            setattr(st, field, data[field])
+            updated.append(field)
+
+    if not updated:
+        return jsonify({
+            "error": "수정할 설정이 없습니다.",
+            "allowed_fields": list(SETTING_FIELDS),
+        }), 400
+
+    st.updated_at = datetime.utcnow()
     db.session.commit()
-    return jsonify({"id": r.id, "updated": True})
+    logger.info("Researcher %d 설정 수정: %s", rid, ", ".join(updated))
+    return jsonify({"id": r.id, "updated": updated})
 
 
 @litreview_bp.route("/api/researchers/<int:rid>", methods=["DELETE"])
-def delete_researcher(rid: int):
-    """연구원 삭제 (cascade)."""
+def deactivate_researcher(rid: int):
+    """연구원을 추천 대상에서 제외한다 (비활성화).
+
+    이전에는 db.session.delete(r) 로 **홈페이지 members 행을 삭제**했다.
+    Researcher.__tablename__ 이 "members" 이므로 연구실 홈페이지의 회원 데이터가
+    지워지고, cascade 로 소속·논문저자 연결까지 연쇄 삭제되는 동작이었다.
+    인증도 없었다.
+
+    회원 삭제는 홈페이지 소관이다. 여기서는 추천 설정만 끈다.
+    추천 이력(reco_recommendations 등)은 보존한다 — 다시 켜면 그대로 이어진다.
+    """
     r = db.session.get(Researcher, rid)
     if not r:
         return jsonify({"error": "Not found"}), 404
 
-    db.session.delete(r)
+    st = r.ensure_settings()
+    st.is_active = False
     db.session.commit()
-    logger.info("Researcher deleted: %d", rid)
-    return jsonify({"deleted": True})
+
+    logger.info("Researcher %d (%s) 추천 대상에서 비활성화", rid, r.name)
+    return jsonify({
+        "id": rid,
+        "name": r.name,
+        "is_active": False,
+        "note": "추천 대상에서 제외했습니다. 회원 정보 자체는 홈페이지에서 관리합니다.",
+    })
 
 
 @litreview_bp.route("/api/researchers/<int:rid>/fetch", methods=["POST"])
@@ -460,6 +531,7 @@ def get_recommendations(rid: int):
             "percentile_rank": rec.percentile_rank,
             "grade_reason": rec.grade_reason,
             "recommendation_reason": rec.recommendation_reason,
+            "summary_source": rec.summary_source,
             "summary_core_topic": rec.summary_core_topic,
             "summary_purpose": rec.summary_purpose,
             "summary_method": rec.summary_method,

@@ -1,307 +1,291 @@
+{# 로그인 / 회원가입 — home_v3 와 같은 화이트 테마.
+   tab 변수로 처음 열 탭을 고른다 ('login' | 'register'). #}
+{% set initial_tab = tab | default('login') %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>로그인 / 회원가입 · Paper Radar</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ '회원가입' if initial_tab == 'register' else '로그인' }} · BIST Paper Recommendation Service</title>
+{% include "_theme_css.html" %}
 <style>
-  :root {
-    --bg: #0a0f13;
-    --bg-elev: #0e1418;
-    --bg-card: #111a20;
-    --bg-card-2: #0c141a;
-    --border: #1b2630;
-    --border-soft: #152028;
-    --text: #e6f1ef;
-    --text-dim: #8aa0a8;
-    --text-mute: #5a6b73;
-    --accent: #3fe0b0;
-    --ai: #3fe0b0;
-    --dt: #f4a25c;
-    --iot: #b48cff;
-    --danger: #ff6b6b;
-    --mono: ui-monospace, "JetBrains Mono", Menlo, Consolas, "Courier New", monospace;
+  /* ===== 인증 페이지 전용 ===== */
+  .auth-wrap {
+    max-width: 440px;
+    margin: 0 auto;
+    padding: 48px 16px 80px;
   }
-  * { box-sizing: border-box; }
-  html, body {
-    margin: 0; padding: 0;
-    background: var(--bg); color: var(--text);
-    font-family: "Pretendard", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-                 "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
-    font-size: 13px; line-height: 1.45; -webkit-font-smoothing: antialiased;
-    min-height: 100vh;
-    display: flex; align-items: center; justify-content: center;
+  .auth-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px 26px 24px;
   }
-  a { color: inherit; text-decoration: none; }
-  button { font-family: inherit; cursor: pointer; }
+  .auth-head { margin-bottom: 18px; }
+  .auth-head h2 {
+    font-size: 20px; font-weight: 800; letter-spacing: -0.3px;
+    color: var(--primary-dark);
+  }
+  .auth-sub { font-size: 12.5px; color: var(--text-sub); margin-top: 4px; line-height: 1.5; }
 
-  .page { width: 100%; max-width: 460px; padding: 20px; }
+  .auth-tabs {
+    display: flex; gap: 4px;
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px; padding: 4px; margin-bottom: 18px;
+  }
+  .auth-tab {
+    flex: 1; padding: 8px 10px; border: none; border-radius: 7px;
+    background: transparent; color: var(--text-sub);
+    font-size: 13px; font-weight: 700;
+  }
+  .auth-tab:hover { color: var(--primary); }
+  .auth-tab.active { background: var(--primary); color: #fff; }
 
-  /* Brand */
-  .brand {
-    display: flex; align-items: center; gap: 12px;
-    justify-content: center; margin-bottom: 36px;
+  /* 안내 메시지 — 성공/실패 모두 같은 자리에 뜬다 */
+  .auth-msg {
+    display: none;
+    font-size: 12.5px; line-height: 1.55;
+    border-radius: 8px; padding: 10px 12px; margin-bottom: 14px;
   }
-  .brand .logo {
-    width: 40px; height: 40px; border-radius: 10px;
-    background: linear-gradient(135deg, #153a33, #0e1f1b);
-    display: grid; place-items: center; color: var(--accent);
-    box-shadow: inset 0 0 0 1px rgba(63,224,176,0.25);
-    font-size: 18px;
+  .auth-msg.ok {
+    display: block; background: var(--primary-light);
+    color: var(--primary-dark); border: 1px solid var(--primary);
   }
-  .brand .title { font-weight: 700; font-size: 18px; }
-  .brand .sub {
-    color: var(--text-mute); font-size: 10px;
-    letter-spacing: 1.4px; text-transform: uppercase;
-  }
-
-  /* Card */
-  .card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-soft);
-    border-radius: 16px; padding: 32px 28px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  .auth-msg.err {
+    display: block; background: #fdecea;
+    color: var(--danger); border: 1px solid var(--danger);
   }
 
-  /* Tabs */
-  .tabs {
-    display: flex; margin-bottom: 24px;
-    border-bottom: 1px solid var(--border);
-  }
-  .tabs .tab {
-    flex: 1; text-align: center; padding: 10px;
-    font-size: 13.5px; font-weight: 600;
-    color: var(--text-mute); cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: color .15s, border-color .15s;
-  }
-  .tabs .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-  .tabs .tab:hover { color: var(--text-dim); }
+  .auth-panel { display: none; }
+  .auth-panel.active { display: block; }
 
-  /* Messages */
-  .msg {
-    text-align: center; padding: 10px; border-radius: 8px;
-    margin-bottom: 16px; font-size: 12.5px; display: none;
-  }
-  .msg.ok  { display: block; background: rgba(63,224,176,0.1);
-    color: var(--accent); border: 1px solid rgba(63,224,176,0.3); }
-  .msg.err { display: block; background: rgba(255,107,107,0.1);
-    color: var(--danger); border: 1px solid rgba(255,107,107,0.3); }
+  .form-row .req { color: var(--danger); margin-left: 2px; }
+  .form-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .field-hint { font-size: 11px; color: var(--text-faint); margin-top: 5px; line-height: 1.5; }
 
-  /* Forms */
-  .panel { display: none; }
-  .panel.active { display: block; }
-
-  .field { margin-bottom: 16px; }
-  .field label {
-    display: block; font-size: 11.5px; color: var(--text-dim);
-    margin-bottom: 6px; font-weight: 500;
+  .auth-note {
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    border-radius: 9px; padding: 11px 12px; margin-bottom: 16px;
+    font-size: 11.5px; color: var(--text-sub); line-height: 1.6;
   }
-  .field label .req { color: var(--accent); margin-left: 2px; }
-  .field input, .field select {
-    width: 100%; background: var(--bg-card-2);
-    border: 1px solid var(--border); color: var(--text);
-    border-radius: 8px; padding: 10px 12px; font-size: 13px;
-    outline: none; transition: border-color .15s;
-  }
-  .field input:focus, .field select:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(63,224,176,0.1);
-  }
-  .field input::placeholder { color: var(--text-mute); }
-  .field select { cursor: pointer; }
-  .field select option { background: var(--bg-card); }
+  .auth-note b { color: var(--primary-dark); }
 
-  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .btn-block { width: 100%; padding: 11px; font-size: 14px; margin-top: 4px; }
+  .btn-primary[disabled] { opacity: .55; cursor: default; }
 
-  .pw-hint { font-size: 10.5px; color: var(--text-mute); margin-top: 4px; }
-
-  /* Submit */
-  .submit-btn {
-    width: 100%; background: var(--accent); color: #0a0f13;
-    border: none; border-radius: 10px; padding: 12px;
-    font-size: 14px; font-weight: 700; margin-top: 8px;
-    box-shadow: 0 0 24px rgba(63,224,176,0.2);
-    transition: background .15s;
+  .auth-divider {
+    display: flex; align-items: center; gap: 10px;
+    margin: 20px 0 14px; color: var(--text-faint); font-size: 11px;
   }
-  .submit-btn:hover { background: #52eabd; }
-
-  /* Divider + link */
-  .divider {
-    display: flex; align-items: center; gap: 12px;
-    margin: 22px 0; color: var(--text-mute); font-size: 11px;
-  }
-  .divider::before, .divider::after {
+  .auth-divider::before, .auth-divider::after {
     content: ""; flex: 1; height: 1px; background: var(--border);
   }
-  .bottom-link {
-    text-align: center; font-size: 12.5px; color: var(--text-dim);
-  }
-  .bottom-link a {
-    color: var(--accent); font-weight: 500;
-    border-bottom: 1px solid rgba(63,224,176,0.3); padding-bottom: 1px;
-  }
-  .bottom-link a:hover { border-color: var(--accent); }
+  .auth-bottom { text-align: center; font-size: 12.5px; color: var(--text-sub); }
 
-  ::-webkit-scrollbar { width: 10px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #1d2a32; border-radius: 10px; }
+  @media (max-width: 480px) {
+    .form-grid2 { grid-template-columns: 1fr; }
+    .auth-wrap { padding-top: 28px; }
+  }
 </style>
 </head>
 <body>
 
-<div class="page">
-  <div class="brand">
-    <div class="logo">▦</div>
-    <div>
-      <div class="title">Paper Radar</div>
-      <div class="sub">BIST Research Lab</div>
-    </div>
+<header class="topbar">
+  <h1><a href="/home" style="color: inherit; text-decoration: none;">BIST <span class="accent">Paper Recommendation</span> Service</a></h1>
+  <div class="topbar-right">
+    <a class="login-link" href="/home">홈으로</a>
   </div>
+</header>
 
-  <div class="card">
-    <div class="tabs">
-      <div class="tab active" data-tab="login">로그인</div>
-      <div class="tab" data-tab="register">회원가입</div>
+<main class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-head">
+      <h2 id="authTitle">회원가입</h2>
+      <p class="auth-sub" id="authSub">연구실 구성원 계정에 로그인 비밀번호를 설정합니다.</p>
     </div>
 
-    <div class="msg" id="msg"></div>
+    <div class="auth-tabs" role="tablist">
+      <button class="auth-tab" type="button" role="tab" data-tab="login" id="tabLogin">로그인</button>
+      <button class="auth-tab" type="button" role="tab" data-tab="register" id="tabRegister">회원가입</button>
+    </div>
+
+    <div class="auth-msg" id="msg" role="status" aria-live="polite"></div>
 
     <!-- ===== 로그인 ===== -->
-    <div class="panel active" id="panelLogin">
-      <div class="field">
-        <label>이름 <span class="req">*</span></label>
-        <input id="loginName" placeholder="홍길동" />
+    <div class="auth-panel" id="panelLogin" role="tabpanel">
+      <div class="form-row">
+        <label for="loginName">이름 <span class="req">*</span></label>
+        <input type="text" id="loginName" name="username" autocomplete="username"
+               placeholder="예: 홍길동">
       </div>
-      <div class="field">
-        <label>비밀번호 <span class="req">*</span></label>
-        <input id="loginPw" type="password" placeholder="비밀번호" />
+      <div class="form-row">
+        <label for="loginPw">비밀번호 <span class="req">*</span></label>
+        <input type="password" id="loginPw" name="password" autocomplete="current-password"
+               placeholder="비밀번호">
       </div>
-      <button class="submit-btn" id="btnLogin">로그인</button>
+      <button class="btn-primary btn-block" type="button" id="btnLogin">로그인</button>
     </div>
 
     <!-- ===== 회원가입 ===== -->
-    <div class="panel" id="panelRegister">
-      <div class="field">
-        <label>이름 <span class="req">*</span></label>
-        <input id="regName" placeholder="홍길동" />
-      </div>
-      <div class="field">
-        <label>이메일 <span class="req">*</span></label>
-        <input id="regEmail" type="email" placeholder="name@skku.edu" />
+    <div class="auth-panel" id="panelRegister" role="tabpanel">
+      <div class="auth-note">
+        회원가입은 <b>연구실 홈페이지에 이미 등록된 구성원</b>만 할 수 있습니다.
+        새 계정을 만드는 것이 아니라, 등록된 내 계정에 로그인 비밀번호를 설정하는 절차입니다.
+        이름은 홈페이지에 등록된 이름(한글 또는 영문)과 같게 입력해 주세요.
       </div>
 
-      <div class="field-row">
-        <div class="field">
-          <label>비밀번호 <span class="req">*</span></label>
-          <input id="regPw" type="password" placeholder="4자리 이상" />
+      <div class="form-row">
+        <label for="regName">이름 <span class="req">*</span></label>
+        <input type="text" id="regName" name="username" autocomplete="username"
+               placeholder="예: 홍길동 또는 Gildong Hong">
+      </div>
+      <div class="form-row">
+        <label for="regEmail">이메일 <span class="req">*</span></label>
+        <input type="email" id="regEmail" name="email" autocomplete="email"
+               placeholder="name@skku.edu">
+      </div>
+
+      <div class="form-grid2">
+        <div class="form-row">
+          <label for="regPw">비밀번호 <span class="req">*</span></label>
+          <input type="password" id="regPw" name="new-password" autocomplete="new-password"
+                 placeholder="4자리 이상">
         </div>
-        <div class="field">
-          <label>비밀번호 확인 <span class="req">*</span></label>
-          <input id="regPw2" type="password" placeholder="다시 입력" />
+        <div class="form-row">
+          <label for="regPw2">비밀번호 확인 <span class="req">*</span></label>
+          <input type="password" id="regPw2" name="confirm-password" autocomplete="new-password"
+                 placeholder="다시 입력">
         </div>
       </div>
-      <div class="pw-hint">비밀번호는 4자리 이상이면 됩니다.</div>
+      <div class="field-hint">비밀번호는 4자리 이상이면 됩니다.</div>
 
-      <button class="submit-btn" id="btnRegister">가입하기</button>
+      <button class="btn-primary btn-block" type="button" id="btnRegister">가입하기</button>
     </div>
 
-    <div class="divider">또는</div>
-    <div class="bottom-link">
-      <a href="/home">← Paper Radar 홈으로 돌아가기</a>
+    <div class="auth-divider">또는</div>
+    <div class="auth-bottom">
+      <a href="/home">&larr; 추천 논문 보러 가기</a>
     </div>
   </div>
-</div>
+</main>
 
 <script>
-  const msgEl = document.getElementById('msg');
-  function showMsg(text, ok) {
-    msgEl.textContent = text;
-    msgEl.className = 'msg ' + (ok ? 'ok' : 'err');
+"use strict";
+
+const $ = (id) => document.getElementById(id);
+const msgEl = $("msg");
+
+function showMsg(text, ok) {
+  msgEl.textContent = text;
+  msgEl.className = "auth-msg " + (ok ? "ok" : "err");
+}
+function hideMsg() { msgEl.className = "auth-msg"; }
+
+// ---------- 탭 ----------
+const TAB_TEXT = {
+  login:    { title: "로그인", sub: "등록된 이름과 비밀번호로 로그인하세요." },
+  register: { title: "회원가입", sub: "연구실 구성원 계정에 로그인 비밀번호를 설정합니다." },
+};
+
+function selectTab(which) {
+  const t = TAB_TEXT[which] ? which : "login";
+  document.querySelectorAll(".auth-tab").forEach((el) =>
+    el.classList.toggle("active", el.dataset.tab === t));
+  $("panelLogin").classList.toggle("active", t === "login");
+  $("panelRegister").classList.toggle("active", t === "register");
+  $("authTitle").textContent = TAB_TEXT[t].title;
+  $("authSub").textContent = TAB_TEXT[t].sub;
+  document.title = TAB_TEXT[t].title + " · BIST Paper Recommendation Service";
+  hideMsg();
+  const first = t === "login" ? $("loginName") : $("regName");
+  if (first) first.focus();
+}
+
+document.querySelectorAll(".auth-tab").forEach((el) => {
+  el.addEventListener("click", () => selectTab(el.dataset.tab));
+});
+
+// 서버가 지정한 탭 → URL 의 ?tab=/#register 가 있으면 그쪽이 우선
+(function initTab() {
+  let t = "{{ initial_tab }}";
+  const q = new URLSearchParams(location.search).get("tab");
+  if (location.hash === "#register" || q === "register") t = "register";
+  else if (location.hash === "#login" || q === "login") t = "login";
+  selectTab(t);
+})();
+
+// ---------- 공통 요청 ----------
+async function post(url, body) {
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
+    body: JSON.stringify(body),
+  });
+  const data = await resp.json().catch(() => ({}));
+  return { ok: resp.ok, data };
+}
+
+/** 요청 중에는 버튼을 잠가 같은 요청이 두 번 나가는 것을 막는다 */
+async function submitting(btn, label, fn) {
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = label;
+  try { await fn(); } finally {
+    btn.disabled = false;
+    btn.textContent = original;
   }
-  function hideMsg() { msgEl.className = 'msg'; }
+}
 
-  // Tab switching
-  document.querySelectorAll('.tabs .tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      const which = tab.getAttribute('data-tab');
-      document.getElementById('panelLogin').classList.toggle('active', which === 'login');
-      document.getElementById('panelRegister').classList.toggle('active', which === 'register');
-      hideMsg();
-    });
-  });
+// ---------- 로그인 ----------
+$("btnLogin").addEventListener("click", () => submitting($("btnLogin"), "확인 중...", async () => {
+  const name = $("loginName").value.trim();
+  const pw = $("loginPw").value;
+  if (!name || !pw) { showMsg("이름과 비밀번호를 입력하세요.", false); return; }
 
-  // Show register tab if navigated from signup button
-  if (location.hash === '#register' || new URLSearchParams(location.search).get('tab') === 'register') {
-    document.querySelector('.tab[data-tab="register"]').click();
+  try {
+    const { data } = await post("/api/lr/auth/login", { name, password: pw });
+    if (data.success) {
+      showMsg("로그인되었습니다. 홈으로 이동합니다.", true);
+      setTimeout(() => { window.location.href = "/home"; }, 600);
+    } else {
+      showMsg(data.error || "로그인에 실패했습니다.", false);
+    }
+  } catch {
+    showMsg("서버에 연결하지 못했습니다.", false);
   }
+}));
 
-  // ===== Login =====
-  document.getElementById('btnLogin').addEventListener('click', async () => {
-    const name = document.getElementById('loginName').value.trim();
-    const pw = document.getElementById('loginPw').value;
-    if (!name || !pw) return showMsg('이름과 비밀번호를 입력하세요.', false);
+// ---------- 회원가입 ----------
+$("btnRegister").addEventListener("click", () => submitting($("btnRegister"), "가입 중...", async () => {
+  const name = $("regName").value.trim();
+  const email = $("regEmail").value.trim();
+  const pw = $("regPw").value;
+  const pw2 = $("regPw2").value;
 
-    try {
-      const resp = await fetch('/api/lr/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, password: pw }),
-      });
-      const data = await resp.json();
+  if (!name || !email) { showMsg("이름과 이메일은 필수입니다.", false); return; }
+  if (pw.length < 4) { showMsg("비밀번호는 4자리 이상이어야 합니다.", false); return; }
+  if (pw !== pw2) { showMsg("비밀번호가 일치하지 않습니다.", false); return; }
 
-      if (data.success) {
-        localStorage.setItem('lr_user', name);
-        showMsg('로그인 성공! 홈으로 이동합니다.', true);
-        setTimeout(() => { window.location.href = '/home'; }, 600);
-      } else {
-        showMsg(data.error || '로그인 실패', false);
-      }
-    } catch (e) {
-      showMsg('서버 연결 오류', false);
+  try {
+    const { data } = await post("/api/lr/auth/register", { name, email, password: pw });
+    if (data.success) {
+      showMsg("가입이 완료되었습니다. 홈으로 이동합니다.", true);
+      setTimeout(() => { window.location.href = "/home"; }, 800);
+    } else {
+      showMsg(data.error || "회원가입에 실패했습니다.", false);
     }
-  });
+  } catch {
+    showMsg("서버에 연결하지 못했습니다.", false);
+  }
+}));
 
-  document.getElementById('loginPw').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('btnLogin').click();
-  });
-
-  // ===== Register =====
-  document.getElementById('btnRegister').addEventListener('click', async () => {
-    const name = document.getElementById('regName').value.trim();
-    const email = document.getElementById('regEmail').value.trim();
-    const pw = document.getElementById('regPw').value;
-    const pw2 = document.getElementById('regPw2').value;
-
-    if (!name || !email) return showMsg('이름과 이메일은 필수입니다.', false);
-    if (pw.length < 4) return showMsg('비밀번호는 4자리 이상이어야 합니다.', false);
-    if (pw !== pw2) return showMsg('비밀번호가 일치하지 않습니다.', false);
-
-    try {
-      const resp = await fetch('/api/lr/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password: pw }),
-      });
-      const data = await resp.json();
-
-      if (data.success) {
-        localStorage.setItem('lr_user', name);
-        showMsg('가입 완료! 홈으로 이동합니다.', true);
-        setTimeout(() => { window.location.href = '/home'; }, 800);
-      } else {
-        showMsg(data.error || '회원가입 실패', false);
-      }
-    } catch (e) {
-      showMsg('서버 연결 오류', false);
-    }
-  });
-
-  document.getElementById('regPw2').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('btnRegister').click();
-  });
+// Enter 키로 제출
+$("loginPw").addEventListener("keydown", (e) => { if (e.key === "Enter") $("btnLogin").click(); });
+$("regPw2").addEventListener("keydown", (e) => { if (e.key === "Enter") $("btnRegister").click(); });
 </script>
 </body>
 </html>

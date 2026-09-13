@@ -229,13 +229,98 @@ def collect_papers(
 
 
 ABSTRACT_RETRIEVAL_URL = "https://api.elsevier.com/content/abstract/scopus_id/"
+ABSTRACT_DELAY = 0.2
+
+# Abstract Retrieval 은 Search 와 **쿼터가 별개**다 (주 10,000회 수준).
+# 한 번의 호출로 다 써버리지 않도록 기본 상한을 둔다. 필요하면 호출부에서 조정.
+ABSTRACT_MAX_CALLS_DEFAULT = 2000
 
 
-def backfill_abstracts(paper_ids: list[int] | None = None) -> int:
-    """초록이 없는 collected_papers 에 Scopus Abstract Retrieval API 로 보충.
+def fetch_abstracts(
+    scopus_ids: list[str],
+    max_calls: int | None = None,
+    progress_callback=None,
+) -> dict[str, str]:
+    """Scopus Abstract Retrieval API 로 초록을 받아온다. DB 를 건드리지 않는다.
+
+    Scopus Search API 는 `dc:description`(초록)을 요청해도 대부분 빈 값을
+    돌려준다. 초록은 논문 1건씩 Abstract Retrieval 로 따로 받아야 한다.
+    이 단계가 없으면 수집 논문 대부분이 임베딩 불가 상태로 쌓이고 추천 후보에서
+    영구 제외된다 (운영 실측: 5,479편 중 3,916편(71%)이 그렇게 유실).
+
+    저장 없이 초록만 필요한 쪽(저널 발굴 파이프라인)과 DB 보충(backfill_abstracts)이
+    같은 구현을 쓰도록 여기서 분리했다.
 
     Args:
-        paper_ids: 특정 논문만. None 이면 abstract 가 비어있는 전체.
+        scopus_ids: 조회할 Scopus ID 목록 (중복·빈 값은 알아서 걸러낸다)
+        max_calls: 호출 상한. None 이면 ABSTRACT_MAX_CALLS_DEFAULT.
+        progress_callback: fn(done, total)
+
+    Returns:
+        {scopus_id: abstract} — 못 받은 것은 키 자체가 없다.
+    """
+    ids = [s for s in dict.fromkeys(scopus_ids) if s]
+    if not ids:
+        return {}
+
+    cap = ABSTRACT_MAX_CALLS_DEFAULT if max_calls is None else max_calls
+    if len(ids) > cap:
+        logger.warning(
+            "초록 조회 대상 %d건이 상한 %d건을 초과 — 앞에서 %d건만 조회합니다",
+            len(ids), cap, cap,
+        )
+        ids = ids[:cap]
+
+    session = _create_session()
+    out: dict[str, str] = {}
+    failed = 0
+    try:
+        for i, sid in enumerate(ids, 1):
+            time.sleep(ABSTRACT_DELAY)
+            try:
+                resp = session.get(
+                    f"{ABSTRACT_RETRIEVAL_URL}{sid}",
+                    headers=_headers(),
+                    timeout=15,
+                )
+                if resp.status_code == 200:
+                    core = (
+                        resp.json()
+                        .get("abstracts-retrieval-response", {})
+                        .get("coredata", {})
+                    )
+                    abstract = (core.get("dc:description") or "").strip()
+                    if abstract:
+                        out[sid] = abstract
+                else:
+                    failed += 1
+                    logger.debug(
+                        "Abstract retrieval HTTP %d for %s", resp.status_code, sid
+                    )
+            except req.RequestException:
+                failed += 1
+                logger.debug("Abstract retrieval 실패: %s", sid, exc_info=True)
+
+            if progress_callback and i % 25 == 0:
+                progress_callback(i, len(ids))
+    finally:
+        session.close()
+
+    logger.info(
+        "초록 조회: %d/%d 성공 (실패 %d)", len(out), len(ids), failed
+    )
+    return out
+
+
+def backfill_abstracts(
+    paper_ids: list[int] | None = None,
+    max_calls: int | None = None,
+) -> int:
+    """초록이 없는 collected_papers 에 Scopus Abstract Retrieval 로 보충.
+
+    Args:
+        paper_ids: 특정 논문만. None 이면 초록이 비어있는 전체.
+        max_calls: Abstract Retrieval 호출 상한.
 
     Returns:
         보충된 논문 수.
@@ -246,42 +331,21 @@ def backfill_abstracts(paper_ids: list[int] | None = None) -> int:
     if paper_ids:
         query = query.filter(CollectedPaper.id.in_(paper_ids))
 
-    papers = query.all()
+    papers = [p for p in query.all() if p.scopus_id]
     if not papers:
-        logger.info("No collected papers need abstract backfill")
+        logger.info("초록 보충 대상 없음")
         return 0
 
-    session = _create_session()
+    by_sid = {p.scopus_id: p for p in papers}
+    fetched = fetch_abstracts(list(by_sid), max_calls=max_calls)
+
     updated = 0
-
-    for i, p in enumerate(papers):
-        if not p.scopus_id:
-            continue
-
-        time.sleep(0.2)
-        try:
-            resp = session.get(
-                f"{ABSTRACT_RETRIEVAL_URL}{p.scopus_id}",
-                headers=_headers(),
-                timeout=15,
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                core = data.get("abstracts-retrieval-response", {}).get("coredata", {})
-                abstract = core.get("dc:description", "") or ""
-                if abstract:
-                    p.abstract = abstract
-                    updated += 1
-            else:
-                logger.warning(
-                    "Abstract retrieval HTTP %d for %s", resp.status_code, p.scopus_id
-                )
-        except req.RequestException:
-            logger.exception("Abstract retrieval failed for %s", p.scopus_id)
-
-        if (i + 1) % 25 == 0:
-            db.session.commit()
+    for sid, abstract in fetched.items():
+        p = by_sid.get(sid)
+        if p is not None:
+            p.abstract = abstract
+            updated += 1
 
     db.session.commit()
-    logger.info("Backfilled %d/%d abstracts", updated, len(papers))
+    logger.info("초록 보충 완료: %d/%d편", updated, len(papers))
     return updated

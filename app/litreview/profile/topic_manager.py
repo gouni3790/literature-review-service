@@ -2,6 +2,7 @@
 
 import logging
 import time
+from datetime import datetime
 
 import requests
 from flask import current_app
@@ -10,6 +11,7 @@ from sqlalchemy import func
 from app import db
 from app.models import (
     PaperKeyword,
+    PaperRecommendation,
     ReferencePaper,
     ResearchTopic,
     Researcher,
@@ -323,14 +325,29 @@ def update_manual_topic(
 
 
 def delete_topic(topic_id: int) -> bool:
-    """주제 삭제 (수동만 가능)."""
+    """주제 삭제.
+
+    추천 이력은 **삭제하지 않는다.** topic_id 만 NULL 이 되어 "어느 주제에서
+    나왔는지"만 잃고, 논문·요약·사용자 피드백은 그대로 남는다
+    (models.py 의 ResearchTopic.recommendations 관계 참고).
+
+    주제에 딸린 레퍼런스 논문(reco_topic_papers)은 주제 소유 데이터이므로
+    함께 사라진다.
+    """
     topic = db.session.get(ResearchTopic, topic_id)
     if not topic:
         return False
 
+    name = topic.name
+    detached = PaperRecommendation.query.filter_by(topic_id=topic_id).count()
+
     db.session.delete(topic)
     db.session.commit()
-    logger.info("Deleted topic %d '%s'", topic_id, topic.name)
+
+    logger.info(
+        "Deleted topic %d '%s' — 추천 %d건은 보존(topic_id=NULL)",
+        topic_id, name, detached,
+    )
     return True
 
 
@@ -372,13 +389,24 @@ def get_topic_detail(topic_id: int) -> dict | None:
 
 
 def create_auto_topic_type_b(researcher_id: int) -> dict | None:
-    """B유형 연구원의 자동 주제 1개 생성.
+    """B유형 연구원의 자동 주제를 만들거나 **갱신**한다.
 
     키워드: 전체 논문 저자 키워드 빈도 상위 5개
     저널: query_builder에서 실시간 집계 (전체 게재 저널 빈도 상위 5개)
     유사도: 개별 논문 임베딩 vs 수집 논문 → max (similarity.py에서 처리)
 
     B유형은 대표 벡터를 사용하지 않으므로 representative_vector=None.
+
+    삭제하지 않고 갱신하는 이유
+    --------------------------
+    이 함수는 주간 파이프라인 첫 단계에서 매주 호출된다. 예전에는 기존 자동
+    주제를 지우고 새로 만들었는데, ResearchTopic.recommendations 에 걸린
+    cascade 때문에 **그 주제의 추천 이력·LLM 요약·사용자 피드백이 함께
+    삭제**됐다. B유형 연구원의 이력이 매주 초기화되고, 같은 논문의 요약 비용을
+    반복 지불하게 된다.
+
+    이제는 같은 행을 제자리에서 갱신하므로 topic_id 가 유지되고 이력이 남는다.
+    (models.py 의 관계에서도 cascade 를 걷어내 이중으로 막았다)
     """
     researcher = db.session.get(Researcher, researcher_id)
     if not researcher:
@@ -392,13 +420,13 @@ def create_auto_topic_type_b(researcher_id: int) -> dict | None:
         )
         return None
 
-    old_auto = ResearchTopic.query.filter_by(
+    auto_topics = ResearchTopic.query.filter_by(
         researcher_id=researcher_id, source_type="auto",
-    ).all()
+    ).order_by(ResearchTopic.id).all()
 
     # 사용자가 마이페이지에서 키워드를 직접 편집한 주제는 건드리지 않는다.
     # (이 잡은 매주 실행되므로, 잠금이 없으면 편집분이 일주일 만에 사라진다)
-    locked = [t for t in old_auto if t.keywords_locked]
+    locked = [t for t in auto_topics if t.keywords_locked]
     if locked:
         topic = locked[0]
         logger.info(
@@ -413,12 +441,10 @@ def create_auto_topic_type_b(researcher_id: int) -> dict | None:
             "skipped": "keywords_locked",
         }
 
-    # 기존 B유형 자동 주제 삭제 후 재생성
-    for t in old_auto:
-        db.session.delete(t)
-    db.session.flush()
-
-    # 키워드 빈도 상위 5개
+    # --- 키워드를 먼저 구한다 ---
+    # 예전에는 기존 주제를 지운 뒤에 키워드를 조회해서, 키워드가 없으면
+    # "주제는 이미 지워졌는데 새로 만들지도 못한" 상태로 빠져나갔다.
+    # 어떤 변경도 하기 전에 필요한 값을 먼저 확보한다.
     kw_rows = (
         db.session.query(PaperKeyword.keyword, func.count(PaperKeyword.id))
         .join(ReferencePaper, PaperKeyword.paper_id == ReferencePaper.publication_id)
@@ -432,12 +458,51 @@ def create_auto_topic_type_b(researcher_id: int) -> dict | None:
 
     if not top_keywords:
         logger.warning(
-            "Researcher %d (type B) has no keywords, cannot create auto topic",
+            "Researcher %d (type B) has no keywords — 기존 자동 주제 %d개는 "
+            "그대로 둔다 (삭제하지 않음)",
             researcher_id,
+            len(auto_topics),
         )
         return None
 
     topic_name = f"전체 연구 ({', '.join(top_keywords[:3])})"
+
+    if auto_topics:
+        # 추천 이력이 가장 많은 주제를 본체로 삼는다 (동률이면 가장 오래된 것).
+        # 정상 상태라면 자동 주제는 1개뿐이고, 여러 개인 것은 과거 버그의 잔재다.
+        def _rec_count(t):
+            return PaperRecommendation.query.filter_by(topic_id=t.id).count()
+
+        primary = max(auto_topics, key=lambda t: (_rec_count(t), -t.id))
+        extras = [t.id for t in auto_topics if t.id != primary.id]
+
+        primary.name = topic_name
+        primary.keywords = top_keywords
+        primary.sort_order = 0
+        primary.updated_at = datetime.utcnow()
+        db.session.commit()
+
+        if extras:
+            logger.warning(
+                "Researcher %d (type B): 자동 주제가 %d개입니다. t%d 를 갱신했고 "
+                "나머지 %s 는 이력 보존을 위해 삭제하지 않았습니다. "
+                "정리가 필요하면 수동으로 확인하세요.",
+                researcher_id, len(auto_topics), primary.id, extras,
+            )
+
+        logger.info(
+            "Updated auto topic %d for B-type researcher %d: keywords=%s",
+            primary.id, researcher_id, top_keywords,
+        )
+        return {
+            "topic_id": primary.id,
+            "name": primary.name,
+            "keywords": top_keywords,
+            "source_type": "auto",
+            "updated": True,
+            "extra_auto_topics": extras,
+        }
+
     topic = ResearchTopic(
         researcher_id=researcher_id,
         name=topic_name,
@@ -461,4 +526,5 @@ def create_auto_topic_type_b(researcher_id: int) -> dict | None:
         "name": topic.name,
         "keywords": top_keywords,
         "source_type": "auto",
+        "updated": False,
     }

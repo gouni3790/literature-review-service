@@ -1,7 +1,7 @@
 """UI-facing API routes — /api/lr/ prefix. 주제 기반 통합 구조."""
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from flask import Blueprint, jsonify, request, session
 from sqlalchemy import func
@@ -32,10 +32,14 @@ api_lr_bp = Blueprint("api_lr", __name__, url_prefix="/api/lr")
 
 @api_lr_bp.route("/auth/register", methods=["POST"])
 def register():
-    """회원가입 — 기존 연구원 매칭 또는 신규 생성.
+    """회원가입 — 홈페이지에 등록된 구성원에게 로그인 비밀번호를 설정한다.
 
-    DB에 사전 등록된 연구원이 있으면 한국어 이름으로 매칭하여
-    해당 계정에 비밀번호를 설정한다. 매칭되지 않으면 신규 생성.
+    이전에는 매칭되는 구성원이 없으면 members 에 새 행을 INSERT 했다. members 는
+    연구실 홈페이지가 소유하는 테이블이라 이 앱이 회원을 만들면 안 되고, 실제로도
+    name/group 이 읽기 전용 속성이라 AttributeError 로 죽고 있었다.
+
+    이제는 **기존 구성원 매칭에 성공했을 때만** 가입을 받는다. 비밀번호는
+    members 가 아니라 reco_member_settings 에 저장된다.
 
     이름 매칭 규칙:
       DB "윤성민 (sungmin yoon)" ← 입력 "윤성민" → 매칭 성공
@@ -51,63 +55,34 @@ def register():
     if len(pw) < 4:
         return jsonify({"success": False, "error": "비밀번호는 4자리 이상이어야 합니다."}), 400
 
-    # --- 기존 연구원 매칭 ---
     existing = _match_researcher(name)
 
-    if existing:
-        if existing.password_hash:
-            return jsonify({
-                "success": False,
-                "error": "이미 가입된 연구원입니다. 로그인해 주세요.",
-            }), 409
-
-        # 기존 연구원에 비밀번호 + 이메일 설정
-        existing.password_hash = generate_password_hash(pw)
-        existing.email = email
-        if data.get("group"):
-            existing.group = data["group"]
-        db.session.commit()
-
-        session["researcher_id"] = existing.id
-        logger.info(
-            "Existing researcher %d (%s) claimed by registration",
-            existing.id,
-            existing.name,
-        )
+    if existing is None:
         return jsonify({
-            "success": True,
-            "id": existing.id,
-            "name": existing.name,
-            "matched": True,
-        })
+            "success": False,
+            "error": "연구실 홈페이지에 등록된 구성원이 아닙니다. "
+                     "먼저 홈페이지에 구성원으로 등록된 뒤 다시 시도해 주세요.",
+        }), 404
 
-    # --- 이메일 중복 체크 (신규 생성 경로) ---
-    if Researcher.query.filter_by(email=email).first():
-        return jsonify({"success": False, "error": "이미 등록된 이메일입니다."}), 409
+    if existing.password_hash:
+        return jsonify({
+            "success": False,
+            "error": "이미 비밀번호가 설정된 계정입니다. 로그인해 주세요.",
+        }), 409
 
-    # --- 신규 연구원 생성 ---
-    from app.config import Config
-
-    r = Researcher(
-        name=name,
-        email=email,
-        password_hash=generate_password_hash(pw),
-        group=data.get("group"),
-        core_percent=Config.DEFAULT_CORE_PERCENT,
-        related_percent=Config.DEFAULT_RELATED_PERCENT,
-        reference_percent=Config.DEFAULT_REFERENCE_PERCENT,
-        target_year_range=Config.DEFAULT_TARGET_YEAR_RANGE,
-    )
-    db.session.add(r)
+    # 비밀번호·활성화는 reco_member_settings 에 기록한다 (members 는 건드리지 않음)
+    st = existing.ensure_settings()
+    st.password_hash = generate_password_hash(pw)
+    st.is_active = True
     db.session.commit()
 
-    session["researcher_id"] = r.id
-    logger.info("New researcher %d (%s) registered", r.id, r.name)
+    session["researcher_id"] = existing.id
+    logger.info("Researcher %d (%s) 비밀번호 설정 완료", existing.id, existing.name)
     return jsonify({
         "success": True,
-        "id": r.id,
-        "name": r.name,
-        "matched": False,
+        "id": existing.id,
+        "name": existing.name,
+        "matched": True,
     })
 
 
@@ -1328,7 +1303,9 @@ def researcher_recommendations(rid):
             "similarity_score": rec.similarity_score,
             "percentile_rank": rec.percentile_rank,
             # 구조화 요약 6필드
-            "summary_core_topic": rec.summary_core_topic or "",
+            "summary_source": rec.summary_source,
+            "summary_source": rec.summary_source,
+        "summary_core_topic": rec.summary_core_topic or "",
             "summary_purpose": rec.summary_purpose or "",
             "summary_method": rec.summary_method or "",
             "summary_results": rec.summary_results or "",
@@ -1696,6 +1673,218 @@ def trending_keywords():
 # =========================================================================
 # Lab Agent — 연구실 온톨로지 기반 챗
 # =========================================================================
+
+
+# =========================================================================
+# 파이프라인 실시간 진행 상황
+# =========================================================================
+# 매주 같은 순서로 반복되는 서비스 전 과정(동기화 → 추천 파이프라인 → 저널
+# 모니터링 → 메일 발송)이 지금 어디까지 왔는지를 한 번에 돌려준다.
+# 진행률의 원본은 scheduler/jobs.py 의 _progress() 가 BatchLog.details["progress"]
+# 에 남기는 하트비트다.
+
+#: 한국은 DST가 없어 고정 +09:00 으로 충분하다 (tzdata 의존을 피한다).
+KST = timezone(timedelta(hours=9))
+
+#: 진행 하트비트가 이 시간 넘게 멈춰 있으면 죽은 배치로 본다
+STALE_HEARTBEAT_SEC = 30 * 60
+#: progress 기록이 아예 없는 옛 로그는 시작 시각 기준으로 판단한다
+STALE_NO_PROGRESS_SEC = 6 * 3600
+
+_KO_DOW = "월화수목금토일"
+
+
+def _to_kst(dt: datetime | None):
+    """naive UTC datetime(=DB 저장값) 을 KST aware datetime 으로."""
+    if dt is None:
+        return None
+    return dt.replace(tzinfo=timezone.utc).astimezone(KST)
+
+
+def _kst_label(dt: datetime | None) -> str:
+    k = _to_kst(dt)
+    if k is None:
+        return ""
+    return f"{k.month}/{k.day}({_KO_DOW[k.weekday()]}) {k:%H:%M}"
+
+
+def _parse_iso(s):
+    if not s:
+        return None
+    try:
+        return datetime.fromisoformat(s)
+    except (TypeError, ValueError):
+        return None
+
+
+def _scheduled_at(meta: dict, ref_kst: datetime, forward: bool) -> datetime:
+    """meta 의 cron 설정 기준 ref 직후(forward) 또는 직전 예정 시각 (KST)."""
+    hour, minute = meta["hour"], meta["minute"]
+
+    if meta["cycle"] == "weekly":
+        days = (meta["dow"] - ref_kst.weekday()) % 7
+        cand = (ref_kst + timedelta(days=days)).replace(
+            hour=hour, minute=minute, second=0, microsecond=0
+        )
+        if cand <= ref_kst:
+            cand += timedelta(days=7)
+        return cand if forward else cand - timedelta(days=7)
+
+    # monthly — 매월 meta["day"] 일
+    day = meta.get("day", 1)
+    cand = ref_kst.replace(
+        day=day, hour=hour, minute=minute, second=0, microsecond=0
+    )
+    if cand <= ref_kst:
+        cand = (cand.replace(day=1) + timedelta(days=32)).replace(
+            day=day, hour=hour, minute=minute, second=0, microsecond=0
+        )
+    if forward:
+        return cand
+    prev_month_end = cand.replace(day=1) - timedelta(days=1)
+    return prev_month_end.replace(
+        day=day, hour=hour, minute=minute, second=0, microsecond=0
+    )
+
+
+def _running_info(log, now_utc: datetime) -> dict:
+    """실행 중인 BatchLog 하나를 화면용 dict 로."""
+    details = log.details or {}
+    prog = details.get("progress") or {}
+
+    beat = _parse_iso(prog.get("at"))
+    last_beat = beat or log.started_at
+    idle_sec = (now_utc - last_beat).total_seconds() if last_beat else None
+    limit = STALE_HEARTBEAT_SEC if beat else STALE_NO_PROGRESS_SEC
+
+    current, total = prog.get("current"), prog.get("total")
+    percent = None
+    if isinstance(current, int) and isinstance(total, int) and total > 0:
+        percent = max(0, min(100, round(current / total * 100)))
+
+    return {
+        "step": prog.get("step") or "",
+        "detail": prog.get("detail") or "",
+        "current": current,
+        "total": total,
+        "percent": percent,
+        "elapsed_sec": int((now_utc - log.started_at).total_seconds())
+        if log.started_at else None,
+        "idle_sec": int(idle_sec) if idle_sec is not None else None,
+        # 하트비트가 멈춘 배치를 "진행 중"으로 보여주면 화면이 거짓말을 한다
+        "stale": bool(idle_sec is not None and idle_sec > limit),
+        "has_progress": bool(prog),
+    }
+
+
+@api_lr_bp.route("/pipeline-status")
+def pipeline_status():
+    """주간 서비스 사이클의 실시간 진행 상황.
+
+    Returns:
+        active:    지금 실행 중인 배치(진행 단계·퍼센트 포함)
+        cycle:     주간 4단계 + 월간 1건의 이번 주기 상태
+        scheduler: APScheduler 가 실제로 떠 있는지. 떠 있지 않으면 next_run 은
+                   cron 설정으로 계산한 값이며 실제로 실행되지는 않는다.
+    """
+    from app.litreview.scheduler.jobs import (
+        JOB_META,
+        WEEKLY_CYCLE,
+        scheduler_next_runs,
+    )
+    from app.models import BatchLog
+
+    now_utc = datetime.utcnow()
+    now_kst = _to_kst(now_utc)
+    sched_running, sched_next = scheduler_next_runs()
+
+    running_by_type: dict[str, object] = {}
+    for log in (
+        BatchLog.query.filter(BatchLog.status == "running")
+        .order_by(BatchLog.started_at.desc())
+        .all()
+    ):
+        running_by_type.setdefault(log.job_type, log)
+
+    def entry(job_type: str) -> dict:
+        meta = JOB_META[job_type]
+        running = running_by_type.get(job_type)
+
+        last = (
+            BatchLog.query.filter(
+                BatchLog.job_type == job_type, BatchLog.status != "running"
+            )
+            .order_by(BatchLog.started_at.desc())
+            .first()
+        )
+
+        prev_due_kst = _scheduled_at(meta, now_kst, forward=False)
+        prev_due_utc = prev_due_kst.astimezone(timezone.utc).replace(tzinfo=None)
+
+        info = _running_info(running, now_utc) if running is not None else None
+
+        if running is not None:
+            state = "stale" if info["stale"] else "running"
+        elif last is None:
+            state = "never"
+        elif last.started_at and last.started_at >= prev_due_utc:
+            # 이번 주기 예정 시각 이후에 돌았다 → 이번 주기 처리 완료
+            state = last.status
+        else:
+            state = "pending"
+
+        duration = None
+        if last is not None and last.started_at and last.completed_at:
+            duration = int((last.completed_at - last.started_at).total_seconds())
+
+        next_iso = sched_next.get(job_type)
+        next_dt = _parse_iso(next_iso)
+        if next_dt is not None:
+            next_label = (
+                f"{next_dt.month}/{next_dt.day}"
+                f"({_KO_DOW[next_dt.weekday()]}) {next_dt:%H:%M}"
+            )
+            next_source = "scheduler"
+        else:
+            nx = _scheduled_at(meta, now_kst, forward=True)
+            next_label = f"{nx.month}/{nx.day}({_KO_DOW[nx.weekday()]}) {nx:%H:%M}"
+            next_source = "계산"
+
+        return {
+            "job_type": job_type,
+            "label": meta["label"],
+            "desc": meta["desc"],
+            "when": meta["when"],
+            "cycle": meta["cycle"],
+            "state": state,
+            "running": info,
+            "last_status": last.status if last is not None else None,
+            "last_started": _kst_label(last.started_at) if last is not None else "",
+            "last_finished": _kst_label(last.completed_at) if last is not None else "",
+            "duration_sec": duration,
+            "started_label": _kst_label(running.started_at) if running is not None else "",
+            "next_run": next_label,
+            "next_run_source": next_source,
+        }
+
+    cycle = [entry(jt) for jt in WEEKLY_CYCLE]
+    monthly = entry("monthly_journal_discovery")
+
+    active = [c for c in cycle + [monthly] if c["running"] is not None]
+
+    return jsonify({
+        "now": now_kst.isoformat(),
+        "now_label": _kst_label(now_utc),
+        "scheduler": {
+            "running": sched_running,
+            "note": "스케줄러 실행 중"
+            if sched_running
+            else "스케줄러가 실행 중이 아닙니다 — 예정 시각은 설정값 기준 계산치입니다.",
+        },
+        "active": active,
+        "cycle": cycle,
+        "monthly": monthly,
+    })
 
 
 def _onto_slug(s: str) -> str:

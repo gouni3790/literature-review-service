@@ -121,9 +121,117 @@ def _log_batch(job_type: str, status: str, details: dict | None = None) -> Batch
 def _complete_batch(log: BatchLog, status: str, details: dict | None = None):
     log.status = status
     log.completed_at = datetime.utcnow()
-    if details:
-        log.details = {**(log.details or {}), **details}
+    merged = {**(log.details or {}), **(details or {})}
+    # 끝난 배치에 "진행 중" 표시가 남으면 대시보드가 계속 실행 중인 것처럼 보인다
+    merged.pop("progress", None)
+    log.details = merged
     db.session.commit()
+
+
+# =========================================================================
+# 진행 상황 보고
+# =========================================================================
+# 배치는 수십 분씩 돌지만 BatchLog 에는 시작/종료만 남아서, 대시보드에서는
+# "running" 이라는 사실 외에 아무것도 알 수 없었다. 단계와 진행 카운트를
+# details["progress"] 에 갱신해 두면 /api/lr/pipeline-status 가 그대로 읽는다.
+# 전용 테이블 대신 기존 JSON 컬럼을 쓰는 이유는 마이그레이션 없이 붙이기 위함이다.
+
+#: job_type -> 화면 표시용 메타. job_id 는 APScheduler 에 등록된 잡 ID로,
+#: _log_batch 가 남기는 job_type 과 이름이 다른 경우가 있어 함께 들고 있는다.
+#: dow 는 Python weekday() 기준 (월=0 … 일=6).
+JOB_META: dict[str, dict] = {
+    "publication_sync": {
+        "label": "출판물 동기화",
+        "desc": "연구원별 Scopus 논문 목록·인용수 갱신",
+        "job_id": "weekly_publication_sync",
+        "cycle": "weekly", "when": "일 09:00", "dow": 6, "hour": 9, "minute": 0,
+    },
+    "weekly_paper_pipeline": {
+        "label": "주간 추천 파이프라인",
+        "desc": "쿼리 생성 → 수집 → 임베딩 → 유사도·등급 → core 요약",
+        "job_id": "weekly_paper_pipeline",
+        "cycle": "weekly", "when": "일 10:00", "dow": 6, "hour": 10, "minute": 0,
+    },
+    "weekly_journal_monitoring": {
+        "label": "저널 모니터링",
+        "desc": "타겟 저널 신규 논문 수집",
+        "job_id": "weekly_journal_monitoring",
+        "cycle": "weekly", "when": "일 12:00", "dow": 6, "hour": 12, "minute": 0,
+    },
+    "weekly_email_notification": {
+        "label": "이메일 발송",
+        "desc": "연구원별 주기에 맞춰 추천 논문 메일 발송",
+        "job_id": "weekly_email_notification",
+        "cycle": "weekly", "when": "월 10:00", "dow": 0, "hour": 10, "minute": 0,
+    },
+    "monthly_journal_discovery": {
+        "label": "저널 탐색",
+        "desc": "신규 타겟 저널 발굴 (월 1회)",
+        "job_id": "monthly_journal_discovery",
+        "cycle": "monthly", "when": "매월 1일 03:00", "day": 1, "hour": 3, "minute": 0,
+    },
+}
+
+#: 매주 반복되는 서비스 전 과정의 실행 순서
+WEEKLY_CYCLE = [
+    "publication_sync",
+    "weekly_paper_pipeline",
+    "weekly_journal_monitoring",
+    "weekly_email_notification",
+]
+
+
+def _progress(
+    log: BatchLog,
+    step: str,
+    current: int | None = None,
+    total: int | None = None,
+    detail: str | None = None,
+) -> None:
+    """실행 중인 배치의 현재 단계를 BatchLog.details 에 기록한다.
+
+    JSON 컬럼은 제자리 수정(in-place mutation)을 SQLAlchemy 가 감지하지 못하므로
+    반드시 새 dict 를 대입한다. ``at`` 은 하트비트다 — 이 값이 한참 갱신되지
+    않으면 API 가 죽은 배치로 판단한다.
+
+    진행 보고가 실패해도 배치 자체는 계속 돌아야 하므로 예외를 삼킨다.
+    """
+    try:
+        prog: dict = {
+            "step": step,
+            "at": datetime.utcnow().isoformat(timespec="seconds"),
+        }
+        if current is not None:
+            prog["current"] = current
+        if total is not None:
+            prog["total"] = total
+        if detail:
+            prog["detail"] = detail
+        log.details = {**(log.details or {}), "progress": prog}
+        db.session.commit()
+    except Exception:
+        logger.exception("진행 상황 기록 실패 (배치는 계속 진행)")
+        db.session.rollback()
+
+
+def scheduler_next_runs() -> tuple[bool, dict[str, str]]:
+    """(스케줄러 실행 여부, job_type -> 다음 실행 시각 ISO) 를 돌려준다.
+
+    run_local.py 를 ``--with-scheduler`` 없이 띄우면 스케줄러가 아예 없다.
+    그 경우 빈 dict 를 주고, 화면에서는 "스케줄러 미실행"으로 표시한다.
+    """
+    if scheduler is None or not getattr(scheduler, "running", False):
+        return False, {}
+
+    next_runs: dict[str, str] = {}
+    for job_type, meta in JOB_META.items():
+        try:
+            job = scheduler.get_job(meta["job_id"])
+        except Exception:
+            job = None
+        if job is not None and job.next_run_time is not None:
+            next_runs[job_type] = job.next_run_time.isoformat()
+    return True, next_runs
 
 
 def weekly_publication_sync():
@@ -147,7 +255,9 @@ def weekly_publication_sync():
         Researcher.scopus_id.isnot(None), Researcher.scopus_id != ""
     ).all()
 
-    for r in researchers:
+    total = len(researchers)
+    for i, r in enumerate(researchers, 1):
+        _progress(log, "출판물 동기화", i, total, r.name)
         try:
             stats = sync_researcher_publications(r.id)
             results["researchers"].append({
@@ -196,7 +306,10 @@ def weekly_paper_pipeline():
         return _run_in_app_context(weekly_paper_pipeline)
 
     from app.litreview.collection.fulltext_downloader import download_fulltext
-    from app.litreview.collection.paper_collector import collect_papers
+    from app.litreview.collection.paper_collector import (
+        backfill_abstracts,
+        collect_papers,
+    )
     from app.litreview.collection.query_builder import build_queries
     from app.litreview.profile.topic_manager import create_auto_topic_type_b
     from app.litreview.recommendation.embedder import Embedder
@@ -210,10 +323,12 @@ def weekly_paper_pipeline():
     try:
         researchers = Researcher.query.all()
         embedder = Embedder()
+        total = len(researchers)
 
-        for r in researchers:
+        for i, r in enumerate(researchers, 1):
             r_result = {"id": r.id, "name": r.name, "topics": []}
             try:
+                _progress(log, "준비", i, total, r.name)
                 # 0. B유형: 자동 주제 갱신 (키워드/저널 빈도 변동 반영)
                 if r.researcher_type == "B":
                     try:
@@ -225,6 +340,7 @@ def weekly_paper_pipeline():
                         )
 
                 # 1. 주제별 쿼리 생성
+                _progress(log, "쿼리 생성", i, total, r.name)
                 queries = build_queries(r.id)
                 r_result["total_queries"] = len(queries)
 
@@ -233,6 +349,7 @@ def weekly_paper_pipeline():
                     continue
 
                 # 2. 논문 수집 (모든 주제의 쿼리를 한꺼번에)
+                _progress(log, "논문 수집", i, total, r.name)
                 collect_result = collect_papers(queries, researcher_id=r.id)
                 r_result["collected"] = {
                     k: v for k, v in collect_result.items()
@@ -248,6 +365,7 @@ def weekly_paper_pipeline():
                 # 키워드 검색으로는 안 걸리지만 팔로우한 저자가 낸 논문을
                 # 같은 유사도·등급 절차에 태우기 위해 후보 풀에 합친다.
                 try:
+                    _progress(log, "관심 저자 추적", i, total, r.name)
                     from app.litreview.author.service import track_followed_authors
 
                     author_result = track_followed_authors(r.id)
@@ -270,22 +388,49 @@ def weekly_paper_pipeline():
                     )
                     db.session.rollback()
 
-                # 3. 신규 논문만 임베딩 (기존 것은 이미 임베딩 되어 있음)
+                # 3. 초록 보충 — 임베딩 직전에 반드시 수행
+                #
+                # Scopus Search API 는 dc:description(초록)을 요청해도 대부분
+                # 빈 값을 준다. 초록은 Abstract Retrieval API 로 1건씩 따로
+                # 받아야 하며, 이 단계가 없으면 수집 논문이 임베딩 불가 상태로
+                # 쌓여 추천 후보에서 영구 제외된다.
+                # (운영 실측: 이 호출이 없던 기간 5,479편 중 3,916편(71%) 유실)
+                _progress(log, "초록 보충", i, total, r.name)
+                if new_ids:
+                    try:
+                        filled = backfill_abstracts(paper_ids=new_ids)
+                        r_result["abstracts_backfilled"] = filled
+                    except Exception:
+                        logger.exception(
+                            "초록 보충 실패 (researcher %d) — 임베딩은 계속 진행",
+                            r.id,
+                        )
+                        db.session.rollback()
+
+                # 4. 신규 논문만 임베딩 (기존 것은 이미 임베딩 되어 있음)
+                #
+                # abstract != "" 가 필요하다. isnot(None) 만으로는 빈 문자열이
+                # 통과해 임베딩 대상에 들어가고, 로그에 'Embedding N papers' 뒤
+                # 'Embedded 0/N' 이 찍히며 조용히 실패한다.
+                _progress(log, "임베딩", i, total, r.name)
                 if new_ids:
                     new_papers_to_embed = (
                         CollectedPaper.query.filter(
                             CollectedPaper.id.in_(new_ids),
                             CollectedPaper.embedding.is_(None),
                             CollectedPaper.abstract.isnot(None),
+                            CollectedPaper.abstract != "",
                         ).all()
                     )
                     embed_ids = [p.id for p in new_papers_to_embed]
+                    r_result["embedded"] = len(embed_ids)
+                    r_result["no_abstract"] = len(new_ids) - len(embed_ids)
                     if embed_ids:
                         embedder.embed_paper_abstracts(
                             paper_ids=embed_ids, table="collected_papers"
                         )
 
-                # 4. 주제별 유사도 + 등급 — 이 연구원의 검색 결과 전체를 매칭 대상으로
+                # 5. 주제별 유사도 + 등급 — 이 연구원의 검색 결과 전체를 매칭 대상으로
                 embedded_ids = [
                     p.id
                     for p in CollectedPaper.query.filter(
@@ -312,7 +457,11 @@ def weekly_paper_pipeline():
                         ResearchTopic.representative_vector.isnot(None)
                     ).all()
 
-                for topic in topics:
+                for t_i, topic in enumerate(topics, 1):
+                    _progress(
+                        log, "유사도·등급", i, total,
+                        f"{r.name} · 주제 {t_i}/{len(topics)} {topic.name}",
+                    )
                     topic_result = {"topic_id": topic.id, "name": topic.name}
                     try:
                         if embedded_ids:
@@ -346,7 +495,8 @@ def weekly_paper_pipeline():
 
                     r_result["topics"].append(topic_result)
 
-                # 5. core 요약 (연구원 단위로 일괄)
+                # 6. core 요약 (연구원 단위로 일괄)
+                _progress(log, "core 요약", i, total, r.name)
                 try:
                     summaries = summarize_core_papers(r.id)
                     r_result["summaries"] = len(summaries)
@@ -378,11 +528,14 @@ def weekly_journal_monitoring():
     log = _log_batch("weekly_journal_monitoring", "running")
 
     try:
+        _progress(log, "타겟 저널 신규 논문 수집")
         result = monitor_target_journals()
 
         if result["new_paper_ids"]:
             researchers = Researcher.query.all()
-            for r in researchers:
+            mon_total = len(researchers)
+            for m_i, r in enumerate(researchers, 1):
+                _progress(log, "core 요약", m_i, mon_total, r.name)
                 try:
                     summarize_core_papers(r.id)
                 except Exception:
@@ -446,7 +599,9 @@ def weekly_email_notification():
             ~Researcher.id.in_(EMAIL_EXCLUDED_RESEARCHER_IDS)
         ).all()
 
-        for r in researchers:
+        total = len(researchers)
+        for i, r in enumerate(researchers, 1):
+            _progress(log, "이메일 발송", i, total, r.name)
             has_unsent = PaperRecommendation.query.filter_by(
                 researcher_id=r.id, is_read=False
             ).first()
@@ -499,6 +654,7 @@ def monthly_journal_discovery():
     log = _log_batch("monthly_journal_discovery", "running")
 
     try:
+        _progress(log, "저널 발굴", detail="Scopus 검색 및 저널 점수 계산")
         result = run_journal_discovery()
 
         # 조용한 실패를 막는다 — 처리된 주제가 없거나 Scopus 가 죽었으면 실패로 기록.

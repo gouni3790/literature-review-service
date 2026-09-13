@@ -157,7 +157,13 @@ def _register_blueprints(app: Flask) -> None:
 
     @app.route("/litreview/login")
     def login_page():
-        return render_template("login.html")
+        """로그인 화면 (같은 템플릿의 로그인 탭)."""
+        return render_template("login.html", tab="login")
+
+    @app.route("/litreview/register")
+    def register_page():
+        """회원가입 화면 — 같은 템플릿을 회원가입 탭으로 연다."""
+        return render_template("login.html", tab="register")
 
     @app.route("/litreview/profile")
     def profile_page():

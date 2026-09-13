@@ -180,7 +180,15 @@ class Embedder:
         """
         Model = ReferencePaper if table == "reference_papers" else CollectedPaper
 
-        query = Model.query.filter(Model.embedding.is_(None))
+        # 초록이 빈 문자열인 행을 제외한다. isnot(None) 만으로는 ""가 통과해
+        # 임베딩 대상에 들어가고, embed_batch 가 빈 텍스트를 걸러내면서
+        # "Embedding N papers" 뒤에 "Embedded 0/N" 이 찍히는 조용한 실패가 된다.
+        # 호출부가 필터를 빠뜨려도 여기서 막히도록 한 번 더 건다.
+        query = Model.query.filter(
+            Model.embedding.is_(None),
+            Model.abstract.isnot(None),
+            Model.abstract != "",
+        )
         if paper_ids:
             query = query.filter(Model.id.in_(paper_ids))
         if researcher_id and table == "reference_papers":

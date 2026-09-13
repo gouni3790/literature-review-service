@@ -558,11 +558,28 @@ class ResearchTopic(db.Model):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     researcher = relationship("Researcher", back_populates="research_topics")
+
+    # 주제에 딸린 레퍼런스 논문은 주제와 함께 사라지는 게 맞다 (FK 도 CASCADE).
     reference_papers = relationship(
         "TopicReferencePaper", back_populates="topic", cascade="all, delete-orphan"
     )
+
+    # 추천은 주제가 사라져도 **보존한다**. topic_id 만 NULL 이 된다.
+    #
+    # 원래 여기에 cascade="all, delete-orphan" 이 걸려 있어서, 주제를 지우면
+    # 그 주제의 추천 이력 + LLM 요약 + 사용자 피드백(저장·useful)까지 함께
+    # 삭제됐다. reco_recommendations.topic_id 의 FK 는 ondelete="SET NULL" 로
+    # "추천은 남긴다"고 선언돼 있었는데 ORM cascade 가 그 의도를 덮고 있었다.
+    #
+    # 특히 B유형 자동 주제는 매주 삭제·재생성되므로 이력이 매주 초기화되고,
+    # 같은 논문의 요약 비용을 반복 지불하게 된다.
+    #
+    # cascade 를 기본값(save-update, merge)으로 두면 부모 삭제 시 SQLAlchemy 가
+    # 자식의 FK 를 NULL 로 만든다 — FK 선언과 동작이 일치한다.
+    # (SQLite 는 PRAGMA foreign_keys 가 꺼져 있어 DB 레벨 SET NULL 은 동작하지
+    #  않으므로, ORM 이 처리해 주는 이 경로가 실질적인 보장이다)
     recommendations = relationship(
-        "PaperRecommendation", back_populates="topic", cascade="all, delete-orphan"
+        "PaperRecommendation", back_populates="topic"
     )
 
 
@@ -801,6 +818,14 @@ class PaperRecommendation(db.Model):
     grade = Column(String(20), nullable=False)
     grade_reason = Column(Text)
 
+    # 요약이 무엇을 읽고 쓰였는지. fulltext | abstract | None(미요약)
+    #
+    # core 등급이어도 Elsevier 구독 저널이 아니면 전문을 받지 못한다
+    # (운영 실측: 요약 대기 213편 중 전문 확보는 13편, 6%). 전문 기반 요약과
+    # 초록 기반 요약이 화면·메일에서 구분되지 않으면 연구원이 요약의 신뢰
+    # 수준을 판단할 수 없다.
+    summary_source = Column(String(20))
+
     summary_core_topic = Column(Text)
     summary_purpose = Column(Text)
     summary_method = Column(Text)
@@ -997,3 +1022,108 @@ class ApiUsage(db.Model):
     )
     topic_id = Column(Integer)
     note = Column(String(300))
+
+
+# ---------------------------------------------------------------------------
+# 홈페이지 소유 테이블 쓰기 차단 (마지막 방어선)
+# ---------------------------------------------------------------------------
+# bist.db 는 연구실 홈페이지와 공유하는 파일이다. 이 앱이 members·publications
+# 같은 홈페이지 테이블에 INSERT/DELETE 하면 추천 시스템의 버그가 아니라
+# **홈페이지 회원 데이터 사고**가 된다.
+#
+# 위 모델들의 docstring 이 "INSERT/DELETE 하지 않는다"고 적어 두었지만, 실제로
+# 그렇게 하는 코드가 있었다 (delete_researcher, create_researcher, /auth/register).
+# 주석은 강제력이 없으므로 ORM 이벤트로 DB 도달 자체를 막는다.
+#
+# 정당하게 써야 할 때(예: 향후 홈페이지 동기화 기능)는 allow_homepage_write()
+# 컨텍스트 안에서 수행한다. 그래야 "왜 여기서 쓰는가"가 코드에 드러난다.
+#
+# NOTE: 마이그레이션 스크립트는 ORM 이 아니라 raw sqlite3 를 쓰므로 영향받지 않는다.
+
+import threading
+from contextlib import contextmanager
+
+from sqlalchemy import event as _sa_event
+
+
+class HomepageTableWriteError(RuntimeError):
+    """홈페이지 소유 테이블에 INSERT/DELETE 를 시도했을 때."""
+
+
+# 홈페이지가 소유하며 이 앱은 읽기만 하는 모델
+HOMEPAGE_OWNED_MODELS = (Team, TeamMembership, Publication, PublicationAuthor, Researcher)
+
+_write_allowed = threading.local()
+
+
+@contextmanager
+def allow_homepage_write(reason: str):
+    """홈페이지 테이블 쓰기를 이 블록 안에서만 허용한다.
+
+    Args:
+        reason: 왜 필요한지. 로그에 남는다.
+
+    사용 예:
+        with allow_homepage_write("홈페이지 회원 동기화"):
+            db.session.add(member)
+    """
+    prev = getattr(_write_allowed, "on", False)
+    _write_allowed.on = True
+    logger = __import__("logging").getLogger(__name__)
+    logger.warning("홈페이지 테이블 쓰기 허용: %s", reason)
+    try:
+        yield
+    finally:
+        _write_allowed.on = prev
+
+
+def _changed_columns(mapper, target) -> list[str]:
+    """실제로 값이 바뀐 매핑 컬럼 이름."""
+    from sqlalchemy import inspect as _sa_inspect
+
+    state = _sa_inspect(target)
+    changed = []
+    for attr in mapper.column_attrs:
+        try:
+            if state.attrs[attr.key].history.has_changes():
+                changed.append(attr.key)
+        except KeyError:
+            continue
+    return changed
+
+
+def _guard(op: str):
+    def handler(mapper, _connection, target):
+        if getattr(_write_allowed, "on", False):
+            return
+
+        detail = ""
+        if op == "UPDATE":
+            # 관계만 건드려도 부모가 dirty 가 되어 before_update 가 발생한다.
+            # 예: Researcher.ensure_settings() 가 _settings 를 할당하면 members
+            # 컬럼은 그대로인데 이 이벤트가 뜬다. 실제 컬럼 변경이 없으면 통과.
+            changed = _changed_columns(mapper, target)
+            if not changed:
+                return
+            detail = f" (변경된 컬럼: {', '.join(changed)})"
+
+        raise HomepageTableWriteError(
+            f"{type(target).__name__}({target.__tablename__}) 에 {op} 를 "
+            f"시도했습니다{detail}. "
+            f"이 테이블은 연구실 홈페이지가 소유하며 추천 시스템은 읽기만 합니다. "
+            f"연구원 추가/삭제는 홈페이지에서 하고, 추천 관련 설정은 "
+            f"reco_member_settings(ResearcherSettings)를 쓰세요. "
+            f"정말 필요하면 allow_homepage_write() 컨텍스트를 쓰십시오."
+        )
+    return handler
+
+
+for _model in HOMEPAGE_OWNED_MODELS:
+    _sa_event.listen(_model, "before_insert", _guard("INSERT"))
+    _sa_event.listen(_model, "before_delete", _guard("DELETE"))
+    # UPDATE 도 막는다. 검토 의견은 INSERT/DELETE 만 지적했지만, 실제로
+    # update_researcher() 가 members.email / scopus_id / updated_at 에 쓰고
+    # 있었다. 홈페이지 회원 정보를 추천 시스템이 고치면 안 된다.
+    # (SQLAlchemy 는 실제로 변경된 객체에만 before_update 를 발생시키므로,
+    #  단순 조회나 변경 없는 flush 는 영향을 받지 않는다)
+    _sa_event.listen(_model, "before_update", _guard("UPDATE"))

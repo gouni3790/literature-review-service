@@ -13,6 +13,29 @@ from app.models import CollectedPaper, EmailLog, PaperRecommendation, Researcher
 logger = logging.getLogger(__name__)
 
 
+# 요약이 전문을 읽고 쓰였는지 초록만 보고 쓰였는지 표시한다.
+# core 등급이어도 구독 저널이 아니면 전문을 못 받으므로(운영 실측 6%만 확보),
+# 이 구분이 없으면 연구원이 요약의 신뢰 수준을 판단할 수 없다.
+SUMMARY_SOURCE_LABEL = {
+    "fulltext": ("전문 기반", "#276749", "#f0fff4", "논문 전문을 읽고 작성된 요약"),
+    "abstract": ("초록 기반", "#975a16", "#fffff0", "초록만 보고 작성된 요약 — 전문 미확보"),
+}
+
+
+def _summary_source_badge(source: str | None, inline: bool = False) -> str:
+    """요약 출처 배지 HTML. 출처를 모르면 빈 문자열."""
+    meta = SUMMARY_SOURCE_LABEL.get(source or "")
+    if not meta:
+        return ""
+    label, fg, bg, title = meta
+    margin = "margin-left:6px;" if inline else "margin-right:6px;"
+    return (
+        f'<span title="{title}" style="display:inline-block;{margin}'
+        f'padding:1px 7px;border-radius:9px;font-size:11px;font-weight:700;'
+        f'color:{fg};background:{bg};border:1px solid {fg}33;">{label}</span>'
+    )
+
+
 def send_admin_alert(subject: str, body: str) -> bool:
     """관리자에게 배치 실패 등 시스템 알림 발송.
 
@@ -83,7 +106,7 @@ def _build_html_email(
                 sections.append(f'<p style="color: #4a5568;"><em>추천 이유: {rec.recommendation_reason}</em></p>')
             if rec.summary_core_topic:
                 sections.append(f"""
-                <details><summary style="cursor:pointer; color:#2b6cb0;">요약 보기</summary>
+                <details><summary style="cursor:pointer; color:#2b6cb0;">요약 보기{_summary_source_badge(rec.summary_source, inline=True)}</summary>
                 <ul style="color: #4a5568;">
                     <li><strong>핵심 주제:</strong> {rec.summary_core_topic}</li>
                     <li><strong>목적:</strong> {rec.summary_purpose or '-'}</li>
@@ -274,11 +297,23 @@ def send_shared_recommendation_email(
         ("한계", rec.summary_limitations),
         ("향후 연구", rec.summary_future),
     ]
-    summary_html = "\n".join(
+    summary_rows_html = "\n".join(
         f"<tr><th style='text-align:left;color:#718096;padding:6px 10px;width:100px;'>{escape(label)}</th>"
         f"<td style='padding:6px 10px;color:#2d3748;'>{escape(value)}</td></tr>"
         for label, value in summary_rows
         if value
+    )
+
+    # 요약이 전문 기반인지 초록 기반인지 표 머리에 밝힌다
+    badge = _summary_source_badge(rec.summary_source)
+    summary_html = (
+        (
+            f"<tr><td colspan='2' style='padding:8px 10px 2px;'>{badge}"
+            f"<span style='font-size:11px;color:#a0aec0;'>요약</span></td></tr>"
+            + summary_rows_html
+        )
+        if summary_rows_html and badge
+        else summary_rows_html
     )
 
     reason_html = (

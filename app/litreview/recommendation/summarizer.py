@@ -19,6 +19,8 @@ logger = logging.getLogger(__name__)
 
 SUMMARY_PROMPT = """당신은 학술 논문 분석 전문가입니다.
 
+{source_guidance}
+
 ## 작업 1: 논문 요약
 아래 논문을 읽고 구조화된 요약을 작성하세요. **반드시 한국어로 작성**하세요.
 1. core_topic: 핵심 연구 질문 (1-2 문장)
@@ -67,11 +69,17 @@ CLAUDE_MODEL = "claude-sonnet-5"
 MAX_RESEARCH_FOCUS_LENGTH = 2000
 
 
-def _get_paper_content(paper: CollectedPaper) -> str:
-    """전문 또는 abstract 반환."""
+def _get_paper_content(paper: CollectedPaper) -> tuple[str, str | None]:
+    """요약에 넣을 본문과 그 출처.
+
+    Returns:
+        (content, source) — source 는 "fulltext" | "abstract" | None(내용 없음)
+    """
     if paper.full_text:
-        return paper.full_text[:MAX_PAPER_LENGTH]
-    return paper.abstract or ""
+        return paper.full_text[:MAX_PAPER_LENGTH], "fulltext"
+    if paper.abstract:
+        return paper.abstract, "abstract"
+    return "", None
 
 
 def _build_researcher_profile(
@@ -137,6 +145,28 @@ def _build_researcher_profile(
         profile_parts.append(f"Similarity score: {rec.similarity_score:.4f}")
 
     return "\n".join(profile_parts)
+
+
+# 요약이 무엇을 읽고 쓰였는지에 따라 지침을 바꾼다.
+#
+# 초록만으로 요약할 때 모델은 한계점·후속연구처럼 초록에 거의 나오지 않는
+# 항목을 **추론해서 채워 넣는다.** 그러면 논문에 없는 내용이 요약에 들어가고,
+# 연구원은 그것이 저자의 주장인지 모델의 추측인지 구분할 수 없다.
+FULLTEXT_GUIDANCE = """## 자료 범위
+아래 내용은 논문 **전문**입니다. 본문에 근거해 각 항목을 작성하세요."""
+
+ABSTRACT_GUIDANCE = """## 자료 범위 — 반드시 지킬 것
+아래 내용은 논문의 **초록뿐**입니다. 전문은 확보하지 못했습니다.
+- 초록에 명시되지 않은 내용을 **추측하거나 일반적인 통념으로 채우지 마세요.**
+- 특히 limitations(한계점)와 future_work(후속 연구)는 초록에 드러나지 않는
+  경우가 많습니다. 근거가 없으면 반드시 "초록에 명시되지 않음" 이라고만 쓰고,
+  그럴듯한 문장을 지어내지 마세요.
+- method, results 도 초록에 적힌 범위까지만 쓰세요."""
+
+SOURCE_GUIDANCE = {
+    "fulltext": FULLTEXT_GUIDANCE,
+    "abstract": ABSTRACT_GUIDANCE,
+}
 
 
 SYSTEM_MESSAGE = """당신은 학술 논문 분석 전문가입니다.
@@ -225,8 +255,8 @@ def summarize_paper(
     if not paper:
         raise ValueError(f"Paper {paper_id} not found")
 
-    paper_content = _get_paper_content(paper)
-    if not paper_content:
+    paper_content, source = _get_paper_content(paper)
+    if not paper_content or source is None:
         logger.warning("Paper %d has no content to summarize", paper_id)
         return {"paper_id": paper_id, "summary": None, "recommendations": []}
 
@@ -238,11 +268,15 @@ def summarize_paper(
             profiles.append(profile)
 
     prompt = SUMMARY_PROMPT.format(
+        source_guidance=SOURCE_GUIDANCE[source],
         paper_content=paper_content,
         researcher_profiles="\n\n---\n\n".join(profiles) if profiles else "No researcher profiles available.",
     )
 
-    logger.info("Summarizing paper %d for %d researchers", paper_id, len(researcher_ids))
+    logger.info(
+        "Summarizing paper %d for %d researchers (출처: %s)",
+        paper_id, len(researcher_ids), source,
+    )
     result = _call_claude(prompt)
 
     summary = result.get("summary", {})
@@ -258,6 +292,7 @@ def summarize_paper(
             paper_id=paper_id, researcher_id=rid, grade="core"
         ).all()
         for rec in recs:
+            rec.summary_source = source
             rec.summary_core_topic = summary.get("core_topic")
             rec.summary_purpose = summary.get("purpose")
             rec.summary_method = summary.get("method")
@@ -274,6 +309,7 @@ def summarize_paper(
                 paper_id=paper_id, researcher_id=rid, grade="core"
             ).all()
             for rec in recs:
+                rec.summary_source = source
                 rec.summary_core_topic = summary.get("core_topic")
                 rec.summary_purpose = summary.get("purpose")
                 rec.summary_method = summary.get("method")
@@ -283,10 +319,14 @@ def summarize_paper(
 
     db.session.commit()
 
-    logger.info("Paper %d summarized, %d recommendations written", paper_id, len(recommendations))
+    logger.info(
+        "Paper %d summarized (%s), %d recommendations written",
+        paper_id, source, len(recommendations),
+    )
     return {
         "paper_id": paper_id,
         "summary": summary,
+        "summary_source": source,
         "recommendations": recommendations,
     }
 

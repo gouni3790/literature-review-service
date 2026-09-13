@@ -24,6 +24,9 @@
     --reference: #7a8d96;      /* lab --muted */
     --danger: #c0392b;
     --radius: 12px;
+    /* 멤버 패널 폭 — 사용자가 드래그로 바꾸면 JS가 이 변수를 갱신한다 */
+    --member-w: 250px;
+    --resizer-w: 6px;
     --shadow: 0 1px 3px rgba(5, 40, 47, 0.08);
     --shadow-hover: 0 4px 14px rgba(5, 40, 47, 0.13);
   }
@@ -91,8 +94,10 @@
   /* ===== 3단 레이아웃 ===== */
   .layout {
     display: grid;
-    grid-template-columns: 250px minmax(0, 1fr) 320px;
-    gap: 12px;
+    /* clamp 로 감싸서, 저장된 폭이 좁은 화면에서 본문을 깔아뭉개지 않게 한다 */
+    grid-template-columns:
+      clamp(150px, var(--member-w), 40vw) var(--resizer-w) minmax(0, 1fr) 320px;
+    gap: 10px;
     /* 멤버/대시보드를 화면 양 끝으로 붙인다 — 좌우 여백 5px만 남김.
        가운데 정렬(max-width + margin auto)을 걷어내야 넓은 화면에서도 끝까지 찬다. */
     max-width: none;
@@ -351,6 +356,21 @@
   .dash-list .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .dash-list .ct { color: var(--primary); font-weight: 700; flex-shrink: 0; }
 
+  /* --- 요약 출처 배지 --- */
+  .detail-src { margin-bottom: 6px; }
+  .src-chip {
+    display: inline-block; font-size: 10.5px; font-weight: 700;
+    padding: 1px 7px; border-radius: 9px; letter-spacing: .01em;
+  }
+  .src-chip.src-full {
+    color: #276749; background: color-mix(in srgb, #276749 12%, transparent);
+    border: 1px solid color-mix(in srgb, #276749 28%, transparent);
+  }
+  .src-chip.src-abs {
+    color: #975a16; background: color-mix(in srgb, #975a16 12%, transparent);
+    border: 1px solid color-mix(in srgb, #975a16 28%, transparent);
+  }
+
   /* --- 관심 저자 탭 --- */
   .grade-tab.tab-authors { margin-left: auto; }
   .grade-tab .tab-ct {
@@ -531,8 +551,124 @@
   }
   #toast.show { opacity: 1; }
 
+
+  /* ===== 멤버 패널 가로 리사이저 ===== */
+  .pane-resizer {
+    position: sticky; top: 84px;
+    height: calc(100vh - 104px);
+    width: var(--resizer-w);
+    padding: 0; border: none; background: transparent;
+    cursor: col-resize; touch-action: none;
+  }
+  .pane-resizer::before {
+    content: ""; display: block;
+    width: 2px; height: 100%; margin: 0 auto;
+    border-radius: 2px; background: var(--border);
+    transition: background .15s, width .15s;
+  }
+  .pane-resizer:hover::before,
+  .pane-resizer.dragging::before,
+  .pane-resizer:focus-visible::before { background: var(--primary); width: 3px; }
+  .pane-resizer:focus-visible { outline: none; }
+  /* 드래그 중에는 텍스트 선택이 잡혀서 커서가 튀는 것을 막는다 */
+  body.col-resizing, body.col-resizing * { cursor: col-resize !important; user-select: none; }
+
+  /* ===== 멤버: 교수(연구실 책임자) ===== */
+  .member-item .nm-line { display: flex; align-items: center; gap: 5px; min-width: 0; }
+  .role-pill {
+    flex-shrink: 0; font-size: 9.5px; font-weight: 800;
+    letter-spacing: .04em; text-transform: uppercase;
+    padding: 1px 5px; border-radius: 4px;
+    background: var(--primary-light); color: var(--primary);
+  }
+  .member-item.active .role-pill { background: rgba(255,255,255,0.24); color: #fff; }
+  .member-item.is-professor { background: #fff; border-color: var(--border); }
+  .member-item.is-professor:hover { border-color: var(--primary); }
+  .member-divider { border-top: 1px solid var(--border); margin: 8px 2px; }
+
+  /* ===== 대시보드: 실시간 진행 상황 ===== */
+  .live-card { border-color: var(--primary-light); }
+  .live-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .live-head .stat-label { display: flex; align-items: center; gap: 6px; }
+  .live-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--text-faint); flex-shrink: 0;
+  }
+  .live-dot.on { background: var(--core); animation: live-pulse 1.6s ease-in-out infinite; }
+  .live-dot.warn { background: var(--danger); }
+  @keyframes live-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(31,111,92,0.45); }
+    50%      { box-shadow: 0 0 0 5px rgba(31,111,92,0); }
+  }
+  .live-refresh {
+    border: 1px solid var(--border); background: var(--card-bg);
+    color: var(--text-sub); border-radius: 6px;
+    width: 22px; height: 22px; line-height: 1; font-size: 12px; padding: 0;
+  }
+  .live-refresh:hover { border-color: var(--primary); color: var(--primary); }
+
+  .live-now { margin: 8px 0 4px; font-size: 12px; }
+  .live-idle { color: var(--text-sub); font-weight: 600; }
+  .live-sub { color: var(--text-faint); font-size: 11px; margin-top: 3px; }
+  .live-err { color: var(--danger); }
+  .live-job + .live-job { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
+  .live-job-name { font-weight: 700; color: var(--primary-dark); font-size: 12.5px; }
+  .live-step { color: var(--text-sub); margin: 2px 0 5px; word-break: break-word; }
+  .live-warn { color: var(--danger); font-weight: 700; font-size: 11px; margin-left: 4px; }
+
+  .prog-bar {
+    height: 6px; border-radius: 3px; overflow: hidden;
+    background: var(--panel-bg);
+  }
+  .prog-bar .fill {
+    height: 100%; width: 0; border-radius: 3px;
+    background: var(--primary); transition: width .4s ease;
+  }
+  /* 총 개수를 모르는 단계(저널 발굴 등)는 불확정 바로 표시 */
+  .prog-bar.indet .fill { width: 35%; animation: prog-slide 1.4s ease-in-out infinite; }
+  @keyframes prog-slide {
+    0%   { margin-left: -35%; }
+    100% { margin-left: 100%; }
+  }
+  .live-job.stale .prog-bar .fill { background: var(--reference); }
+
+  .cycle-list { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
+  .cycle-step { display: flex; gap: 8px; align-items: flex-start; padding: 5px 0; font-size: 12px; }
+  .cycle-step .idx {
+    flex-shrink: 0; width: 17px; height: 17px; margin-top: 1px;
+    border-radius: 50%; font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--panel-bg); color: var(--text-faint);
+    border: 1px solid var(--border);
+  }
+  .cycle-step.done .idx { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .cycle-step.run  .idx { background: var(--mint); border-color: var(--mint); color: var(--on-mint); }
+  .cycle-step.fail .idx { background: var(--danger); border-color: var(--danger); color: #fff; }
+  .cycle-step.warn .idx { background: var(--related); border-color: var(--related); color: #fff; }
+  .cs-body { min-width: 0; flex: 1; }
+  .cs-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .cs-top b { font-weight: 700; color: var(--text); }
+  .cs-state { flex-shrink: 0; font-size: 10.5px; font-weight: 700; color: var(--text-faint); }
+  .cycle-step.done .cs-state { color: var(--primary); }
+  .cycle-step.run  .cs-state { color: var(--primary-dark); }
+  .cycle-step.fail .cs-state { color: var(--danger); }
+  .cs-when { display: block; color: var(--text-faint); font-size: 10.5px; }
+
+  .live-foot { margin-top: 8px; border-top: 1px dashed var(--border); padding-top: 7px; }
+  .live-foot-row {
+    display: flex; justify-content: space-between; gap: 6px;
+    font-size: 11.5px; color: var(--text-sub);
+  }
+  .live-note { color: var(--text-faint); font-size: 10.5px; margin-top: 5px; line-height: 1.45; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .live-dot.on, .prog-bar.indet .fill { animation: none; }
+    .prog-bar.indet .fill { width: 100%; opacity: .4; }
+  }
+
   @media (max-width: 1200px) {
-    .layout { grid-template-columns: 220px minmax(0,1fr); }
+    .layout { grid-template-columns:
+      clamp(150px, var(--member-w), 45vw) var(--resizer-w) minmax(0,1fr); }
     .pane-dash { display: none; }
   }
 </style>
