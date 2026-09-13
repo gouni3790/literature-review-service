@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>프로필 설정 · Paper Radar</title>
+<style>
+  :root {
+    --bg: #0a0f13;
+    --bg-elev: #0e1418;
+    --bg-card: #111a20;
+    --bg-card-2: #0c141a;
+    --border: #1b2630;
+    --border-soft: #152028;
+    --text: #e6f1ef;
+    --text-dim: #8aa0a8;
+    --text-mute: #5a6b73;
+    --accent: #3fe0b0;
+    --danger: #ff6b6b;
+    --warn: #f4a25c;
+    --mono: ui-monospace, "JetBrains Mono", Menlo, Consolas, "Courier New", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg); color: var(--text);
+    font-family: "Pretendard", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+                 "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
+    font-size: 13px; line-height: 1.45; -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; border: none; }
+
+  /* Layout */
+  .page { max-width: 820px; margin: 0 auto; padding: 24px 20px 100px; }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text-mute); margin-bottom: 28px;
+  }
+  .breadcrumb a { color: var(--text-dim); }
+  .breadcrumb a:hover { color: var(--accent); }
+  .breadcrumb .sep { color: var(--text-mute); }
+
+  /* Header Card */
+  .header-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px; padding: 24px 28px;
+    margin-bottom: 24px;
+    display: flex; align-items: center; gap: 20px;
+  }
+  .header-avatar {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: linear-gradient(135deg, #153a33, #0e1f1b);
+    display: grid; place-items: center;
+    font-size: 22px; font-weight: 700; color: var(--accent);
+    box-shadow: inset 0 0 0 1px rgba(63,224,176,0.25);
+    flex-shrink: 0;
+  }
+  .header-info h1 { font-size: 18px; font-weight: 700; }
+  .header-info .sub { color: var(--text-dim); font-size: 12px; margin-top: 2px; }
+  .header-info .type-chip {
+    display: inline-block; margin-top: 6px;
+    font-size: 10.5px; font-weight: 600; padding: 3px 10px;
+    border-radius: 6px; background: rgba(63,224,176,0.1);
+    color: var(--accent); border: 1px solid rgba(63,224,176,0.2);
+  }
+
+  /* Section Title */
+  .section-title {
+    font-size: 14px; font-weight: 700; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title .count {
+    font-size: 11px; font-weight: 500; color: var(--text-mute);
+    background: var(--bg-card); border: 1px solid var(--border);
+    padding: 2px 8px; border-radius: 10px;
+  }
+
+  /* Topic Card */
+  .topic-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px; padding: 20px 24px;
+    margin-bottom: 14px;
+    transition: border-color .2s;
+  }
+  .topic-card:hover { border-color: var(--border); }
+  .topic-card.editing { border-color: rgba(63,224,176,0.3); }
+  .topic-card.unsaved { border-left: 3px solid var(--warn); }
+
+  .topic-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .topic-num {
+    font-size: 11px; font-weight: 600; color: var(--text-mute);
+    background: var(--bg-card-2); border: 1px solid var(--border);
+    padding: 2px 10px; border-radius: 8px;
+  }
+  .topic-actions { display: flex; gap: 6px; }
+  .topic-actions button {
+    font-size: 11px; padding: 4px 12px; border-radius: 7px;
+    font-weight: 500; transition: all .15s;
+  }
+  .btn-edit {
+    background: rgba(63,224,176,0.1); color: var(--accent);
+    border: 1px solid rgba(63,224,176,0.2);
+  }
+  .btn-edit:hover { background: rgba(63,224,176,0.2); }
+  .btn-delete {
+    background: rgba(255,107,107,0.08); color: var(--danger);
+    border: 1px solid rgba(255,107,107,0.15);
+  }
+  .btn-delete:hover { background: rgba(255,107,107,0.18); }
+  .btn-save-single {
+    background: var(--accent); color: #0a0f13;
+    font-weight: 600;
+  }
+  .btn-save-single:hover { background: #52eabd; }
+  .btn-cancel-single {
+    background: var(--bg-card-2); color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+  .btn-cancel-single:hover { background: var(--bg-elev); }
+
+  /* Topic Display (saved state) */
+  .topic-display {}
+  .topic-display .topic-name {
+    font-size: 15px; font-weight: 700; margin-bottom: 10px;
+  }
+  .topic-display .tag-row {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;
+  }
+  .topic-display .tag-row .tag {
+    font-size: 11px; padding: 3px 10px; border-radius: 6px;
+    font-weight: 500;
+  }
+  .tag.kw { background: rgba(63,224,176,0.1); color: var(--accent); border: 1px solid rgba(63,224,176,0.15); }
+  .tag.doi { background: rgba(180,140,255,0.1); color: #b48cff; border: 1px solid rgba(180,140,255,0.15); }
+  .topic-display .desc {
+    font-size: 12.5px; color: var(--text-dim); line-height: 1.6;
+    margin-top: 6px;
+  }
+
+  /* Topic Edit Form */
+  .topic-form { display: none; }
+  .topic-card.editing .topic-form { display: block; }
+  .topic-card.editing .topic-display { display: none; }
+  .topic-card.editing .topic-actions .btn-edit { display: none; }
+
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block; font-size: 11px; color: var(--text-dim);
+    margin-bottom: 5px; font-weight: 500;
+  }
+  .field label .req { color: var(--accent); margin-left: 2px; }
+  .field label .hint { color: var(--text-mute); font-weight: 400; margin-left: 6px; }
+  .field input, .field textarea {
+    width: 100%; background: var(--bg-card-2);
+    border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 9px 12px; font-size: 12.5px;
+    outline: none; transition: border-color .15s;
+    font-family: inherit;
+  }
+  .field input:focus, .field textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(63,224,176,0.08);
+  }
+  .field input::placeholder, .field textarea::placeholder { color: var(--text-mute); }
+  .field textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+
+  .field-validation {
+    font-size: 10.5px; color: var(--danger); margin-top: 4px; display: none;
+  }
+
+  /* Add Button */
+  .add-btn {
+    width: 100%; padding: 14px;
+    background: var(--bg-card); border: 2px dashed var(--border);
+    border-radius: 14px; color: var(--text-dim);
+    font-size: 13px; font-weight: 500;
+    transition: all .15s; margin-top: 6px;
+  }
+  .add-btn:hover {
+    border-color: rgba(63,224,176,0.4); color: var(--accent);
+    background: rgba(63,224,176,0.03);
+  }
+
+  /* Bottom Bar */
+  .bottom-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border-soft);
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    z-index: 100;
+  }
+  .bottom-bar .status {
+    font-size: 12px; color: var(--text-mute); margin-right: auto;
+  }
+  .bottom-bar .status b { color: var(--accent); font-weight: 600; }
+  .btn-bottom {
+    padding: 9px 24px; border-radius: 9px;
+    font-size: 13px; font-weight: 600; transition: all .15s;
+  }
+  .btn-back {
+    background: var(--bg-card-2); color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+  .btn-back:hover { background: var(--bg-elev); color: var(--text); }
+  .btn-save-all {
+    background: var(--accent); color: #0a0f13;
+    box-shadow: 0 0 20px rgba(63,224,176,0.15);
+  }
+  .btn-save-all:hover { background: #52eabd; }
+  .btn-save-all:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+    background: var(--bg-card); border: 1px solid var(--border);
+    color: var(--text); padding: 10px 20px; border-radius: 10px;
+    font-size: 12.5px; z-index: 200;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    opacity: 0; transition: opacity .3s; pointer-events: none;
+  }
+  .toast.ok { border-color: rgba(63,224,176,0.4); }
+  .toast.err { border-color: rgba(255,107,107,0.4); color: var(--danger); }
+  .toast.show { opacity: 1; }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center; padding: 48px 20px; color: var(--text-mute);
+  }
+  .empty-state .icon { font-size: 36px; margin-bottom: 12px; opacity: 0.5; }
+  .empty-state p { font-size: 13px; line-height: 1.6; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #1d2a32; border-radius: 10px; }
+
+  /* Loading */
+  .loading {
+    text-align: center; padding: 60px; color: var(--text-mute);
+  }
+  .loading .spinner {
+    display: inline-block; width: 28px; height: 28px;
+    border: 3px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin .7s linear infinite;
+    margin-bottom: 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="/home">Paper Radar</a>
+    <span class="sep">/</span>
+    <span>프로필 설정</span>
+  </div>
+
+  <!-- Header -->
+  <div class="header-card" id="headerCard">
+    <div class="header-avatar" id="hAvatar">?</div>
+    <div class="header-info">
+      <h1 id="hName">연구원</h1>
+      <div class="sub" id="hSub">로딩 중...</div>
+      <div class="type-chip" id="hType">-</div>
+    </div>
+  </div>
+
+  <!-- Section Title -->
+  <div class="section-title">
+    관심 연구 분야
+    <span class="count" id="topicCount">0개</span>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loadingArea">
+    <div class="spinner"></div>
+    <div>데이터를 불러오는 중...</div>
+  </div>
+
+  <!-- Topic Container -->
+  <div id="topicContainer"></div>
+
+  <!-- Empty State -->
+  <div class="empty-state" id="emptyState" style="display:none;">
+    <div class="icon">📝</div>
+    <p>아직 등록된 관심 연구 분야가 없습니다.<br>아래 버튼을 눌러 추가해 보세요.</p>
+  </div>
+
+  <!-- Add Button -->
+  <button class="add-btn" id="addTopicBtn">+ 관심 연구 분야 추가</button>
+
+  <!-- ===== Interest Papers Section ===== -->
+  <div style="margin-top:36px;">
+    <div class="section-title">
+      관심 논문 (DOI 기반)
+      <span class="count" id="ipCount">0편</span>
+    </div>
+    <div style="font-size:12px; color:var(--text-mute); margin-bottom:14px;">
+      DOI를 입력하면 Scopus에서 메타데이터를 자동 수집하고 임베딩합니다. 관심 논문은 유사도 비교 기준에 포함됩니다.
+    </div>
+
+    <!-- Add DOI form -->
+    <div style="display:flex; gap:8px; margin-bottom:16px;">
+      <input id="doiInput" style="flex:1; background:var(--bg-card-2); border:1px solid var(--border);
+        color:var(--text); border-radius:8px; padding:9px 12px; font-size:12.5px; outline:none;
+        font-family:var(--mono),monospace;"
+        placeholder="10.1016/j.apenergy.2024.xxxxx" />
+      <button id="addDoiBtn" style="background:var(--accent); color:#0a0f13; border:none;
+        border-radius:8px; padding:9px 18px; font-size:12.5px; font-weight:600; cursor:pointer;
+        white-space:nowrap;">+ DOI 추가</button>
+    </div>
+    <div id="doiStatus" style="font-size:11px; color:var(--text-mute); margin-bottom:12px; display:none;"></div>
+
+    <!-- Interest Papers List -->
+    <div id="ipList"></div>
+    <div class="empty-state" id="ipEmpty" style="display:none;">
+      <div class="icon">📄</div>
+      <p>아직 등록된 관심 논문이 없습니다.<br>위에서 DOI를 입력하여 추가하세요.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Bar -->
+<div class="bottom-bar">
+  <div class="status" id="statusText"><b>0</b>개 주제 저장됨</div>
+  <button class="btn-bottom btn-back" onclick="location.href='/home'">← 홈으로</button>
+  <button class="btn-bottom btn-save-all" id="saveAllBtn">전체 저장</button>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '/api/lr';
+let researcherId = null;
+let topicsData = [];
+let nextTempId = -1;
+
+// ── Init ──
+(async function init() {
+  const me = await fetchJson(`${API}/auth/me`);
+  if (!me.logged_in) {
+    location.href = '/litreview/login';
+    return;
+  }
+  researcherId = me.researcher_id;
+  renderHeader(me);
+  await loadTopics();
+})();
+
+function renderHeader(me) {
+  const name = me.name || '';
+  const display = name.includes('(') ? name.split('(')[0].trim() : name;
+  document.getElementById('hAvatar').textContent = display.charAt(0);
+  document.getElementById('hName').textContent = display;
+  document.getElementById('hSub').textContent = me.email || '';
+  const typeMap = { A: 'A유형 · 30편 이상', B: 'B유형 · 1~29편', C: 'C유형 · 신규 연구원' };
+  document.getElementById('hType').textContent = typeMap[me.researcher_type] || me.researcher_type || '-';
+}
+
+async function loadTopics() {
+  document.getElementById('loadingArea').style.display = '';
+  document.getElementById('topicContainer').innerHTML = '';
+  try {
+    topicsData = await fetchJson(`${API}/researchers/${researcherId}/topics`);
+  } catch (e) {
+    topicsData = [];
+  }
+  document.getElementById('loadingArea').style.display = 'none';
+  renderAllTopics();
+}
+
+// ── Render ──
+function renderAllTopics() {
+  const container = document.getElementById('topicContainer');
+  container.innerHTML = '';
+  const saved = topicsData.filter(t => t.id > 0);
+  document.getElementById('topicCount').textContent = saved.length + '개';
+  document.getElementById('statusText').innerHTML = `<b>${saved.length}</b>개 주제 저장됨`;
+  document.getElementById('emptyState').style.display = topicsData.length === 0 ? '' : 'none';
+
+  topicsData.forEach((t, idx) => {
+    container.appendChild(createTopicCard(t, idx));
+  });
+}
+
+function createTopicCard(topic, idx) {
+  const card = document.createElement('div');
+  card.className = 'topic-card' + (topic.id < 0 ? ' editing unsaved' : '');
+  card.dataset.idx = idx;
+
+  const isNew = topic.id < 0;
+  const kws = (topic.keywords || '').split(';').map(s => s.trim()).filter(Boolean);
+  const dois = (topic.dois || '').split(';').map(s => s.trim()).filter(Boolean);
+
+  card.innerHTML = `
+    <div class="topic-header">
+      <span class="topic-num">주제 ${idx + 1}${isNew ? ' (새 주제)' : ''}</span>
+      <div class="topic-actions">
+        <button class="btn-edit" onclick="startEdit(${idx})">편집</button>
+        <button class="btn-save-single" style="display:none" onclick="saveSingle(${idx})">이 주제 저장</button>
+        <button class="btn-cancel-single" style="display:none" onclick="cancelEdit(${idx})">취소</button>
+        <button class="btn-delete" onclick="deleteTopic(${idx})">삭제</button>
+      </div>
+    </div>
+
+    <!-- Display Mode -->
+    <div class="topic-display">
+      <div class="topic-name">${esc(topic.topic_name || '(제목 없음)')}</div>
+      <div class="tag-row">
+        ${kws.map(k => `<span class="tag kw">${esc(k)}</span>`).join('')}
+        ${dois.map(d => `<span class="tag doi">${esc(d)}</span>`).join('')}
+      </div>
+      ${topic.description ? `<div class="desc">${esc(topic.description)}</div>` : ''}
+    </div>
+
+    <!-- Edit Form -->
+    <div class="topic-form">
+      <div class="field">
+        <label>주제 이름</label>
+        <input class="f-name" value="${attr(topic.topic_name)}" placeholder="예: LLM 기반 건물 고장 진단" />
+      </div>
+      <div class="field">
+        <label>키워드 <span class="hint">여러 개는 ; 로 구분</span></label>
+        <input class="f-keywords" value="${attr(topic.keywords)}" placeholder="예: fault detection; HVAC; large language model" />
+      </div>
+      <div class="field">
+        <label>DOI <span class="hint">여러 개는 ; 로 구분</span></label>
+        <input class="f-dois" value="${attr(topic.dois)}" placeholder="예: 10.1016/j.xxx; 10.1016/j.yyy" />
+      </div>
+      <div class="field">
+        <label>설명 <span class="hint">문장형으로 연구 관심 분야 설명</span></label>
+        <textarea class="f-desc" placeholder="이 연구 주제에 대해 자유롭게 설명해 주세요.">${esc(topic.description)}</textarea>
+      </div>
+      <div class="field-validation" id="val-${idx}">키워드, DOI, 설명 중 하나 이상 입력해야 합니다.</div>
+    </div>
+  `;
+
+  if (isNew) {
+    const acts = card.querySelector('.topic-actions');
+    acts.querySelector('.btn-edit').style.display = 'none';
+    acts.querySelector('.btn-save-single').style.display = '';
+    acts.querySelector('.btn-cancel-single').style.display = '';
+  }
+
+  return card;
+}
+
+// ── Edit/Cancel ──
+function startEdit(idx) {
+  const card = getCard(idx);
+  if (!card) return;
+  card.classList.add('editing');
+  const acts = card.querySelector('.topic-actions');
+  acts.querySelector('.btn-save-single').style.display = '';
+  acts.querySelector('.btn-cancel-single').style.display = '';
+}
+
+function cancelEdit(idx) {
+  const t = topicsData[idx];
+  if (t.id < 0) {
+    topicsData.splice(idx, 1);
+    renderAllTopics();
+    return;
+  }
+  const card = getCard(idx);
+  card.classList.remove('editing');
+  const acts = card.querySelector('.topic-actions');
+  acts.querySelector('.btn-save-single').style.display = 'none';
+  acts.querySelector('.btn-cancel-single').style.display = 'none';
+  card.querySelector('.f-name').value = t.topic_name || '';
+  card.querySelector('.f-keywords').value = t.keywords || '';
+  card.querySelector('.f-dois').value = t.dois || '';
+  card.querySelector('.f-desc').value = t.description || '';
+}
+
+// ── CRUD ──
+async function saveSingle(idx) {
+  const card = getCard(idx);
+  const payload = readForm(card);
+
+  if (!hasContent(payload)) {
+    card.querySelector(`#val-${idx}`).style.display = 'block';
+    return;
+  }
+  card.querySelector(`#val-${idx}`).style.display = 'none';
+
+  const t = topicsData[idx];
+  try {
+    let saved;
+    if (t.id > 0) {
+      saved = await fetchJson(`${API}/topics/${t.id}`, 'PUT', payload);
+    } else {
+      saved = await fetchJson(`${API}/researchers/${researcherId}/topics`, 'POST', payload);
+    }
+    topicsData[idx] = saved;
+    renderAllTopics();
+    toast('주제가 저장되었습니다.', true);
+  } catch (e) {
+    toast(e.message || '저장 실패', false);
+  }
+}
+
+async function deleteTopic(idx) {
+  const t = topicsData[idx];
+  if (t.id > 0) {
+    if (!confirm('이 주제를 삭제하시겠습니까?')) return;
+    try {
+      await fetchJson(`${API}/topics/${t.id}`, 'DELETE');
+    } catch (e) {
+      toast('삭제 실패', false);
+      return;
+    }
+  }
+  topicsData.splice(idx, 1);
+  renderAllTopics();
+  toast('주제가 삭제되었습니다.', true);
+}
+
+document.getElementById('addTopicBtn').addEventListener('click', () => {
+  topicsData.push({
+    id: nextTempId--,
+    topic_name: '',
+    keywords: '',
+    dois: '',
+    description: '',
+    sort_order: topicsData.length,
+  });
+  renderAllTopics();
+  const cards = document.querySelectorAll('.topic-card');
+  const last = cards[cards.length - 1];
+  if (last) last.scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
+
+// ── Save All ──
+document.getElementById('saveAllBtn').addEventListener('click', async () => {
+  const cards = document.querySelectorAll('.topic-card');
+  const allTopics = [];
+  let invalid = false;
+
+  cards.forEach((card, i) => {
+    const payload = readForm(card);
+    const valEl = card.querySelector(`[id^="val-"]`);
+    if (!hasContent(payload) && (payload.topic_name || '').trim()) {
+      if (valEl) valEl.style.display = 'block';
+      invalid = true;
+    } else if (valEl) {
+      valEl.style.display = 'none';
+    }
+    if (hasContent(payload) || (topicsData[i] && topicsData[i].id > 0)) {
+      payload.id = topicsData[i] ? topicsData[i].id : null;
+      if (payload.id < 0) delete payload.id;
+      allTopics.push(payload);
+    }
+  });
+
+  if (invalid) {
+    toast('필수 항목을 확인해 주세요.', false);
+    return;
+  }
+
+  try {
+    const result = await fetchJson(
+      `${API}/researchers/${researcherId}/profile/save-all`,
+      'POST',
+      { topics: allTopics }
+    );
+    topicsData = result.topics || [];
+    renderAllTopics();
+    toast(`${topicsData.length}개 주제가 저장되었습니다.`, true);
+  } catch (e) {
+    toast(e.message || '저장 실패', false);
+  }
+});
+
+// ── Helpers ──
+function getCard(idx) {
+  return document.querySelector(`.topic-card[data-idx="${idx}"]`);
+}
+
+function readForm(card) {
+  return {
+    topic_name: (card.querySelector('.f-name')?.value || '').trim(),
+    keywords: (card.querySelector('.f-keywords')?.value || '').trim(),
+    dois: (card.querySelector('.f-dois')?.value || '').trim(),
+    description: (card.querySelector('.f-desc')?.value || '').trim(),
+  };
+}
+
+function hasContent(d) {
+  return !!(d.keywords || d.dois || d.description);
+}
+
+function esc(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function attr(s) { return esc(s || ''); }
+
+async function fetchJson(url, method = 'GET', body = null) {
+  const opts = { method, headers: {} };
+  if (body) {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(body);
+  }
+  const resp = await fetch(url, opts);
+  const data = await resp.json();
+  if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+  return data;
+}
+
+function toast(msg, ok) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + (ok ? 'ok' : 'err');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.className = 'toast'; }, 2500);
+}
+
+// ===== Interest Papers (관심 논문) =====
+let interestPapers = [];
+
+async function loadInterestPapers() {
+  if (!researcherId) return;
+  try {
+    interestPapers = await fetchJson(`${API}/researchers/${researcherId}/interest-papers`);
+  } catch (e) {
+    interestPapers = [];
+  }
+  renderInterestPapers();
+}
+
+function renderInterestPapers() {
+  const list = document.getElementById('ipList');
+  const empty = document.getElementById('ipEmpty');
+  document.getElementById('ipCount').textContent = interestPapers.length + '편';
+
+  if (interestPapers.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = interestPapers.map(ip => `
+    <div class="topic-card" style="padding:16px 20px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:14px; font-weight:600; color:var(--text); margin-bottom:4px; line-height:1.4;">
+            ${esc(ip.title)}
+          </div>
+          <div style="font-size:12px; color:var(--text-dim); margin-bottom:4px;">
+            ${esc(ip.authors)}
+          </div>
+          <div style="font-size:11.5px; color:var(--text-mute); display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <em style="font-style:italic; color:var(--text-dim);">${esc(ip.journal)}</em>
+            <span>·</span>
+            <span>${ip.year || ''}</span>
+            <span>·</span>
+            <span style="font-family:var(--mono),monospace; font-size:10.5px;">${esc(ip.doi)}</span>
+            ${ip.has_embedding ? '<span style="color:var(--accent); font-size:10px;">● 임베딩 완료</span>' : '<span style="color:var(--danger); font-size:10px;">● 임베딩 없음</span>'}
+          </div>
+          ${ip.keywords && ip.keywords.length ? `
+          <div style="display:flex; gap:4px; flex-wrap:wrap; margin-top:6px;">
+            ${ip.keywords.map(k => `<span class="tag kw">${esc(k)}</span>`).join('')}
+          </div>` : ''}
+        </div>
+        <button class="btn-delete" onclick="deleteIP(${ip.id})" style="flex-shrink:0;">삭제</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('addDoiBtn').addEventListener('click', async () => {
+  const input = document.getElementById('doiInput');
+  const doi = input.value.trim();
+  if (!doi) { toast('DOI를 입력하세요.', false); return; }
+
+  const statusEl = document.getElementById('doiStatus');
+  statusEl.style.display = '';
+  statusEl.style.color = 'var(--accent)';
+  statusEl.textContent = 'Scopus에서 논문 정보를 가져오는 중...';
+
+  const btn = document.getElementById('addDoiBtn');
+  btn.disabled = true;
+
+  try {
+    await fetchJson(`${API}/researchers/${researcherId}/interest-papers`, 'POST', { doi });
+    input.value = '';
+    statusEl.style.color = 'var(--accent)';
+    statusEl.textContent = '논문이 추가되었습니다!';
+    toast('관심 논문이 추가되었습니다.', true);
+    await loadInterestPapers();
+  } catch (e) {
+    statusEl.style.color = 'var(--danger)';
+    statusEl.textContent = e.message || '추가 실패';
+    toast(e.message || '추가 실패', false);
+  } finally {
+    btn.disabled = false;
+    setTimeout(() => { statusEl.style.display = 'none'; }, 4000);
+  }
+});
+
+document.getElementById('doiInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('addDoiBtn').click();
+});
+
+async function deleteIP(paperId) {
+  if (!confirm('이 관심 논문을 삭제하시겠습니까?')) return;
+  try {
+    await fetchJson(`${API}/researchers/${researcherId}/interest-papers/${paperId}`, 'DELETE');
+    toast('관심 논문이 삭제되었습니다.', true);
+    await loadInterestPapers();
+  } catch (e) {
+    toast(e.message || '삭제 실패', false);
+  }
+}
+
+// Init 시 관심 논문도 로딩
+(async function initIP() {
+  // researcherId가 init()에서 설정된 후 로딩
+  const checkReady = setInterval(async () => {
+    if (researcherId) {
+      clearInterval(checkReady);
+      await loadInterestPapers();
+    }
+  }, 200);
+  // 5초 후 타임아웃
+  setTimeout(() => clearInterval(checkReady), 5000);
+})();
+</script>
+</body>
+</html>

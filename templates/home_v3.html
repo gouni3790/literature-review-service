@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIST Paper Recommendation Service</title>
+{% include "_theme_css.html" %}
+</head>
+<body>
+
+<!-- ===== 상단 바 ===== -->
+<header class="topbar">
+  <h1>BIST <span class="accent">Paper Recommendation</span> Service</h1>
+  <div class="topbar-right" style="position:relative;">
+    <button class="icon-btn" id="notifBtn" title="알림">&#128276;
+      <span class="badge" id="notifBadge" style="display:none;">0</span>
+    </button>
+    <a class="icon-btn" id="mypageBtn" href="/mypage" title="마이페이지">&#128100;</a>
+    <button class="login-link" id="authBtn">로그인</button>
+    <div class="notif-panel" id="notifPanel">
+      <h3>알림</h3>
+      <div id="notifList"><div class="empty-note" style="padding:16px 0;">알림이 없습니다.</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 3단 레이아웃 ===== -->
+<div class="layout">
+
+  <!-- 좌: 멤버 -->
+  <aside class="pane pane-sticky">
+    <h2>Member <span class="pane-sub" id="memberTotal">-</span></h2>
+    <input type="search" class="member-search" id="memberSearch"
+           name="member-filter" autocomplete="off" autocapitalize="off"
+           spellcheck="false" placeholder="멤버 검색 (직책 · 팀 포함)">
+    <button class="member-item active" data-rid="all" id="memberAll">
+      <span class="member-name"><span class="nm">&#127968; 전체</span></span>
+      <span class="member-count" id="allCount">-</span>
+    </button>
+    <div id="memberList"></div>
+  </aside>
+
+  <!-- 중앙: 피드 -->
+  <main>
+    <div class="feed-header">
+      <div>
+        <h2 id="feedTitle">Discover</h2>
+        <div class="sub" id="feedSub">BIST 연구원에게 추천된 논문</div>
+      </div>
+      <div class="feed-controls">
+        <select class="select-ctl" id="daysSelect">
+          <option value="7" selected>최근 7일</option>
+          <option value="14">최근 14일</option>
+          <option value="30">최근 30일</option>
+          <option value="365">최근 1년</option>
+        </select>
+      </div>
+    </div>
+    <div class="grade-tabs" id="gradeTabs" style="display:none;">
+      <button class="grade-tab active" data-grade="">전체</button>
+      <button class="grade-tab" data-grade="core">Core</button>
+      <button class="grade-tab" data-grade="related">Related</button>
+      <button class="grade-tab" data-grade="reference">Reference</button>
+      <button class="grade-tab tab-authors" data-view="authors">관심 저자 <span class="tab-ct" id="authorTabCount"></span></button>
+    </div>
+    <div id="feedBody"><div class="empty-note">불러오는 중...</div></div>
+  </main>
+
+  <!-- 우: 대시보드 -->
+  <aside class="pane pane-sticky pane-dash">
+    <h2>대시보드 <span class="dash-period" id="dashPeriod">최근 7일</span></h2>
+
+    <div class="stat-card">
+      <div class="stat-label" id="dashRecLabel">추천 논문</div>
+      <div class="stat-value"><span id="dashRecCount">-</span> <span class="unit">편</span></div>
+      <div class="grade-bar" id="gradeBar"></div>
+      <div class="grade-legend">
+        <span><span class="dot" style="background:var(--core)"></span>Core <b id="lgCore">0</b></span>
+        <span><span class="dot" style="background:var(--related)"></span>Related <b id="lgRelated">0</b></span>
+        <span><span class="dot" style="background:var(--reference)"></span>Reference <b id="lgReference">0</b></span>
+      </div>
+    </div>
+
+    <div class="stat-row2" style="margin-bottom:10px;">
+      <div class="mini-stat"><div class="v" id="dashUnread">-</div><div class="l">미열람</div></div>
+      <div class="mini-stat"><div class="v" id="dashSaved">-</div><div class="l">저장한 논문</div></div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">저널 모니터링 <span class="dash-sub" id="jmCount"></span></div>
+      <ul class="dash-list" id="topJournals"><li><span class="nm" style="color:var(--text-faint)">데이터 없음</span></li></ul>
+
+      <div class="jm-divider"></div>
+      <div class="stat-label" style="margin-bottom:2px;">새로 발견된 저널</div>
+      <div class="jm-hint" id="jmNewHint">모니터링 목록에 없는 저널입니다. 이름을 누르면 저널 정보(IF 등)를 볼 수 있습니다.</div>
+      <ul class="dash-list" id="newJournals"><li><span class="nm" style="color:var(--text-faint)">불러오는 중...</span></li></ul>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label" id="kwLabel">트렌딩 키워드</div>
+      <div class="kw-chips" id="kwChips" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">API 사용 비용 <span class="dash-sub" id="costPeriod"></span></div>
+      <div class="cost-main">
+        <span class="cost-krw" id="costKrw">-</span>
+        <span class="cost-usd" id="costUsd"></span>
+      </div>
+      <div class="cost-meta" id="costMeta"></div>
+      <div class="cost-rows" id="costRows"></div>
+      <div class="cost-spark" id="costSpark" title="주별 원화 비용"></div>
+      <div class="cost-meta" id="costRate" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">시스템 상태</div>
+      <div id="batchStatus" style="margin-top:6px;"></div>
+    </div>
+
+    <div class="dash-spacer"></div>
+  </aside>
+</div>
+
+<!-- ===== 로그인 모달 ===== -->
+<div class="modal-back" id="loginModal">
+  <div class="modal" style="max-width:400px;">
+    <button class="modal-close" data-close="loginModal">&#10005;</button>
+    <h3>로그인</h3>
+    <div class="modal-sub">등록된 이름과 비밀번호로 로그인하세요.</div>
+    <div class="form-row">
+      <label>이름</label>
+      <input type="text" id="loginName" name="username"
+             autocomplete="username" placeholder="예: 홍길동">
+    </div>
+    <div class="form-row">
+      <label>비밀번호</label>
+      <input type="password" id="loginPw" name="password"
+             autocomplete="current-password">
+    </div>
+    <div style="display:flex; gap:8px; justify-content:flex-end;">
+      <a class="btn-ghost" href="/litreview/login" style="text-decoration:none;">회원가입</a>
+      <button class="btn-primary" id="loginSubmit">로그인</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 공유 모달 ===== -->
+<div class="modal-back" id="shareModal">
+  <div class="modal" style="max-width:400px;">
+    <button class="modal-close" data-close="shareModal">&#10005;</button>
+    <h3>논문 공유</h3>
+    <div class="modal-sub">선택한 연구원에게 이메일로 논문을 공유합니다.</div>
+    <div class="form-row">
+      <label>공유 대상</label>
+      <select id="shareTarget"></select>
+    </div>
+    <div style="display:flex; justify-content:flex-end;">
+      <button class="btn-primary" id="shareSubmit">공유하기</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+
+// =====================================================================
+// 상태
+// =====================================================================
+const state = {
+  feedView: "papers",
+  me: null,               // {researcher_id, name, ...} | null
+  researchers: [],        // /api/lr/researchers
+  feed: null,             // /api/lr/feed/weekly
+  days: 7,
+  selected: "all",        // "all" | researcher_id
+  gradeFilter: "",
+  memberRecs: [],         // 멤버 뷰 캐시
+  shareRecId: null,
+};
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g,
+  (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(t._tm);
+  t._tm = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+async function api(url, opts = {}) {
+  const resp = await fetch(url, {
+    headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
+    ...opts,
+  });
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+  return data;
+}
+
+// =====================================================================
+// 초기화
+// =====================================================================
+async function init() {
+  await checkAuth();
+  await Promise.all([loadResearchers(), loadFeed()]);
+  renderMembers();
+  renderCenter();
+  renderDashboard();
+  loadNotifications();
+  loadBatchStatus();
+  loadTrendingKeywords();
+  loadJournalMonitoring();
+  loadApiUsage();
+}
+
+// ---------- 인증 ----------
+async function checkAuth() {
+  try {
+    const me = await api("/api/lr/auth/me");
+    state.me = me.logged_in ? me : null;
+  } catch { state.me = null; }
+  renderAuthUI();
+}
+
+function renderAuthUI() {
+  const btn = $("authBtn");
+  if (state.me) {
+    btn.textContent = `${state.me.name.split("(")[0].trim()} · 로그아웃`;
+  } else {
+    btn.textContent = "로그인";
+  }
+}
+
+$("authBtn").addEventListener("click", async () => {
+  if (state.me) {
+    await api("/api/lr/auth/logout", { method: "POST" });
+    state.me = null;
+    renderAuthUI();
+    toast("로그아웃되었습니다.");
+  } else {
+    $("loginModal").classList.add("open");
+  }
+});
+
+$("loginSubmit").addEventListener("click", doLogin);
+$("loginPw").addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); });
+
+async function doLogin() {
+  try {
+    const r = await api("/api/lr/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ name: $("loginName").value, password: $("loginPw").value }),
+    });
+    state.me = { logged_in: true, researcher_id: r.id, name: r.name, group: r.group };
+    $("loginModal").classList.remove("open");
+    renderAuthUI();
+    loadNotifications();
+    toast(`${r.name.split("(")[0].trim()}님, 환영합니다!`);
+  } catch (e) { toast(e.message); }
+}
+
+// ---------- 데이터 로드 ----------
+async function loadResearchers() {
+  state.researchers = await api("/api/lr/researchers");
+}
+
+async function loadFeed() {
+  state.feed = await api(`/api/lr/feed/weekly?days=${state.days}&per_researcher=10`);
+}
+
+// =====================================================================
+// 좌: 멤버 목록
+// =====================================================================
+function feedInfoFor(rid) {
+  if (!state.feed) return null;
+  return state.feed.researchers.find((r) => r.id === rid) || null;
+}
+
+function renderMembers() {
+  const filter = $("memberSearch").value.trim().toLowerCase();
+  const total = state.feed ? state.feed.totals.recommendations : 0;
+  $("allCount").textContent = total;
+  $("memberTotal").textContent = `${state.researchers.length}명`;
+
+  // 팀별로 묶는다. 팀 미배정은 맨 아래로 모은다.
+  const NO_TEAM = "\u200b팀 미배정";  // 정렬에서 마지막으로 가도록 zero-width space 접두
+  const groups = {};
+  for (const r of state.researchers) {
+    const hay = [r.display_name, r.name, r.name_en, r.role, r.group]
+      .filter(Boolean).join(" ").toLowerCase();
+    if (filter && !hay.includes(filter)) continue;
+    const g = r.group || NO_TEAM;
+    (groups[g] = groups[g] || []).push(r);
+  }
+
+  let html = "";
+  for (const g of Object.keys(groups).sort()) {
+    const label = g === NO_TEAM ? "팀 미배정" : g;
+    html += `<div class="member-group-label">${esc(label)} <span class="mg-count">${groups[g].length}</span></div>`;
+    for (const r of groups[g]) {
+      const info = feedInfoFor(r.id);
+      const cnt = info ? info.count : 0;
+      const unread = info ? info.unread_count : 0;
+      const active = state.selected === r.id ? " active" : "";
+      // 추천이 아직 없으면(파이프라인 미실행) 본인 논문 수를 대신 보여준다
+      const badge = cnt > 0
+        ? `<span class="member-count" title="이번 기간 추천 ${cnt}편">${cnt}</span>`
+        : `<span class="member-count paper" title="본인 논문 ${r.paper_count}편">${r.paper_count}p</span>`;
+      html += `
+        <button class="member-item${active}" data-rid="${r.id}">
+          <span class="member-name">
+            ${unread > 0 ? '<span class="unread-dot"></span>' : ""}
+            <span class="nm-wrap">
+              <span class="nm">${esc(r.display_name || r.name)}</span>
+              <span class="member-role">${esc(shortRole(r.role))}</span>
+            </span>
+          </span>
+          ${badge}
+        </button>`;
+    }
+  }
+  $("memberList").innerHTML = html || '<div class="empty-note" style="padding:14px 0;">검색 결과 없음</div>';
+}
+
+/** 직책을 좁은 사이드바에 맞게 줄인다 */
+function shortRole(role) {
+  if (!role) return "";
+  return role
+    .replace("Associate Professor", "부교수")
+    .replace("Post-Doctoral Researcher", "박사후연구원")
+    .replace("Integrated Ph.D. Course", "석박통합")
+    .replace("Ph.D. Course (part-time)", "박사(파트)")
+    .replace("Ph.D. Candidate", "박사수료")
+    .replace("Ph.D. Course", "박사과정")
+    .replace("M.S. Course", "석사과정")
+    .replace("Undergraduate Researcher", "학부연구생");
+}
+
+$("memberSearch").addEventListener("input", renderMembers);
+
+document.addEventListener("click", (e) => {
+  const item = e.target.closest(".member-item");
+  if (!item) return;
+  const rid = item.dataset.rid;
+  selectMember(rid === "all" ? "all" : parseInt(rid, 10));
+});
+
+async function selectMember(rid) {
+  state.selected = rid;
+  state.gradeFilter = "";
+  state.feedView = "papers";
+  document.querySelectorAll(".grade-tab").forEach((t) =>
+    t.classList.toggle("active", !t.dataset.grade && !t.dataset.view));
+  document.querySelectorAll(".member-item").forEach((el) => {
+    el.classList.toggle("active", el.dataset.rid == rid);
+  });
+
+  if (rid !== "all") {
+    // 멤버 전체 추천 로드 (기간 필터는 클라이언트에서)
+    try {
+      state.memberRecs = await api(`/api/lr/researchers/${rid}/recommendations`);
+    } catch { state.memberRecs = []; }
+  }
+  renderCenter();
+  renderDashboard();
+  loadTrendingKeywords();
+  loadJournalMonitoring();
+  loadApiUsage();
+}
+
+// =====================================================================
+// 중앙: 피드
+// =====================================================================
+$("daysSelect").addEventListener("change", async (e) => {
+  state.days = parseInt(e.target.value, 10);
+  $("feedBody").innerHTML = '<div class="empty-note">불러오는 중...</div>';
+  await loadFeed();
+  renderMembers();
+  renderCenter();
+  renderDashboard();
+  loadJournalMonitoring();
+  loadApiUsage();
+});
+
+document.querySelectorAll(".grade-tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    // 등급 탭과 '관심 저자' 탭은 서로 배타적인 뷰다
+    state.feedView = tab.dataset.view || "papers";
+    state.gradeFilter = tab.dataset.view ? "" : tab.dataset.grade;
+    document.querySelectorAll(".grade-tab").forEach((t) => t.classList.toggle("active", t === tab));
+    renderCenter();
+  });
+});
+
+function periodLabel() {
+  const d = state.days;
+  return d === 7 ? "최근 7일" : d === 14 ? "최근 14일" : d === 30 ? "최근 30일" : "최근 1년";
+}
+
+function renderCenter() {
+  $("dashPeriod").textContent = periodLabel();
+
+  if (state.selected === "all") {
+    $("feedTitle").textContent = "Discover";
+    $("feedSub").textContent = `${periodLabel()} 동안 BIST 연구원에게 추천된 논문`;
+    $("gradeTabs").style.display = "none";
+    renderDiscoverFeed();
+  } else {
+    const r = state.researchers.find((x) => x.id === state.selected);
+    const nm = r ? (r.display_name || r.name) : "";
+    $("feedTitle").textContent = `Papers Recommended for ${nm}`;
+    $("gradeTabs").style.display = "flex";
+    if (state.feedView === "authors") {
+      $("feedSub").textContent = "관심 저자로 등록한 연구자들이 새로 낸 논문입니다.";
+      renderAuthorFeed();
+    } else {
+      $("feedSub").textContent = `${periodLabel()} 기준으로 추천된 논문입니다.`;
+      renderMemberFeed();
+    }
+  }
+}
+
+function renderDiscoverFeed() {
+  const feed = state.feed;
+  if (!feed || !feed.researchers.length) {
+    $("feedBody").innerHTML = '<div class="empty-note">이 기간에 추천된 논문이 없습니다.<br>기간을 늘려서 확인해 보세요.</div>';
+    return;
+  }
+  let html = "";
+  for (const sec of feed.researchers) {
+    const cards = sec.recommendations.map((rec) => paperCard(rec)).join("");
+    html += `
+      <section class="researcher-section" data-sec="${sec.id}">
+        <button class="section-head" data-toggle="${sec.id}">
+          <span class="sec-title">Papers Recommended for ${esc(sec.display_name)}</span>
+          <span class="sec-meta">
+            <span>${sec.count}편${sec.unread_count ? ` · 미열람 ${sec.unread_count}` : ""}</span>
+            <span class="chev">&#9660;</span>
+          </span>
+        </button>
+        <div class="section-body">${cards}</div>
+      </section>`;
+  }
+  $("feedBody").innerHTML = html;
+}
+
+function renderMemberFeed() {
+  const cutoff = Date.now() - state.days * 86400 * 1000;
+  let recs = state.memberRecs.filter((r) => {
+    const t = r.created_at ? Date.parse(r.created_at.replace(" ", "T")) : 0;
+    return t >= cutoff;
+  });
+  if (state.gradeFilter) recs = recs.filter((r) => r.grade === state.gradeFilter);
+
+  // paper_id 중복 제거 (주제별 중복 추천)
+  const seen = new Set();
+  recs = recs.filter((r) => !seen.has(r.paper_id) && seen.add(r.paper_id));
+
+  const order = { core: 0, related: 1, reference: 2 };
+  recs.sort((a, b) => (order[a.grade] ?? 9) - (order[b.grade] ?? 9) || (b.score - a.score));
+
+  if (!recs.length) {
+    $("feedBody").innerHTML = '<div class="empty-note">이 기간에 추천된 논문이 없습니다.</div>';
+    return;
+  }
+  $("feedBody").innerHTML = `<section class="researcher-section"><div class="section-body" style="padding-top:14px;">${
+    recs.map((r) => paperCard(r)).join("")}</div></section>`;
+}
+
+function authorPaperCard(p) {
+  const doiUrl = p.doi ? `https://doi.org/${encodeURIComponent(p.doi)}` : "";
+  const oaUrl = p.openalex_work_id
+    ? `https://openalex.org/${encodeURIComponent(String(p.openalex_work_id).split("/").pop())}`
+    : "";
+  const link = doiUrl || oaUrl;
+  const meta = [p.journal, p.year, p.publication_date].filter(Boolean).join(" · ");
+  const cited = p.cited_by_count ? `인용 ${p.cited_by_count}` : "";
+  const a = p.author || {};
+  const scholar = `https://scholar.google.com/scholar?q=${encodeURIComponent('author:"' + (a.display_name || "") + '"')}`;
+
+  return `
+    <article class="paper-card">
+      <div class="paper-head">
+        <span class="grade-chip author">${esc(a.display_name || "저자")}</span>
+        ${a.affiliation ? `<span class="paper-meta">${esc(a.affiliation)}</span>` : ""}
+      </div>
+      <h3 class="paper-title">${
+        link ? `<a href="${link}" target="_blank" rel="noopener noreferrer">${esc(p.title || "(제목 없음)")}</a>`
+             : esc(p.title || "(제목 없음)")}</h3>
+      <div class="paper-meta">${esc(meta)}${cited ? ` · ${cited}` : ""}</div>
+      ${p.abstract ? `<div class="paper-summary">${esc(String(p.abstract).slice(0, 320))}${String(p.abstract).length > 320 ? "…" : ""}</div>` : ""}
+      <div class="paper-actions">
+        <a class="paper-authors" href="${scholar}" target="_blank" rel="noopener noreferrer"
+           title="Google Scholar에서 이 저자 검색">&#128100; ${esc(a.display_name || "")}</a>
+        ${p.first_seen_at ? `<span class="paper-meta" title="시스템이 처음 발견한 시각">발견 ${esc(p.first_seen_at.slice(0, 10))}</span>` : ""}
+      </div>
+    </article>`;
+}
+
+async function renderAuthorFeed() {
+  const rid = state.selected;
+  $("feedBody").innerHTML = '<div class="empty-note">불러오는 중...</div>';
+  try {
+    const d = await api(`/api/lr/researchers/${rid}/author-papers?limit=100`);
+    $("authorTabCount").textContent = d.paper_count ? d.paper_count : "";
+
+    if (!d.followed_count) {
+      $("feedBody").innerHTML =
+        '<div class="empty-note">등록된 관심 저자가 없습니다.<br>' +
+        '<a href="/mypage" style="color:var(--primary)">마이페이지</a>에서 관심 저자를 추가하면 ' +
+        '그 저자의 신규 논문을 여기서 볼 수 있습니다.</div>';
+      return;
+    }
+    if (!d.paper_count) {
+      const names = d.followed_authors.map((a) => esc(a.display_name)).join(", ");
+      $("feedBody").innerHTML =
+        `<div class="empty-note">관심 저자 ${d.followed_count}명(${names})을 추적 중이지만<br>` +
+        "아직 수집된 신규 논문이 없습니다.<br>" +
+        '<span style="font-size:12px;color:var(--text-faint)">주간 배치가 실행되면 채워집니다.</span></div>';
+      return;
+    }
+    $("feedBody").innerHTML =
+      `<section class="researcher-section"><div class="section-body" style="padding-top:14px;">${
+        d.papers.map((p) => authorPaperCard(p)).join("")}</div></section>`;
+  } catch (e) {
+    $("feedBody").innerHTML = '<div class="empty-note">관심 저자 논문을 불러오지 못했습니다.</div>';
+  }
+}
+
+// ---------- 논문 카드 ----------
+function authorLinks(authors) {
+  if (!authors) return "";
+  const names = authors.split(/;|,/).map((s) => s.trim()).filter(Boolean).slice(0, 6);
+  if (!names.length) return "";
+  const links = names.map((n) =>
+    `<a href="https://scholar.google.com/scholar?q=${encodeURIComponent('author:"' + n + '"')}"
+        target="_blank" rel="noopener" title="Google Scholar에서 검색">${esc(n)}</a>`).join(" · ");
+  return `<div class="paper-authors">&#128100; ${links}</div>`;
+}
+
+function paperCard(rec) {
+  const doiUrl = rec.doi ? `https://doi.org/${encodeURIComponent(rec.doi)}` : "";
+  const summary = rec.recommendation_reason || rec.summary_core_topic;
+  const isNew = !rec.is_read;
+
+  const detail = [
+    ["핵심 주제", rec.summary_core_topic],
+    ["목적", rec.summary_purpose],
+    ["방법", rec.summary_method],
+    ["결과", rec.summary_results],
+  ].filter(([, v]) => v).map(([k, v]) => `<div class="detail-item"><b>${k}:</b> ${esc(v)}</div>`).join("");
+  const abstract = !detail && rec.abstract
+    ? `<div class="detail-item"><b>초록:</b> ${esc(rec.abstract)}...</div>` : "";
+
+  return `
+  <article class="paper-card${rec.is_read ? " read" : ""}" data-rec="${rec.id}">
+    <div class="card-toprow">
+      <span class="grade-chip ${esc(rec.grade)}">${esc(rec.grade)}</span>
+      <span class="score-chip">유사도 ${rec.score}%</span>
+      ${rec.topic_name ? `<span class="topic-chip" title="${esc(rec.topic_name)}">${esc(rec.topic_name)}</span>` : ""}
+      ${isNew ? '<span class="new-chip">NEW</span>' : ""}
+    </div>
+    <div class="paper-title" data-expand>${esc(rec.title)}</div>
+    <div class="paper-meta">
+      <span class="journal">${esc(rec.journal || "저널 미상")}</span>${rec.year ? ` · ${rec.year}` : ""}
+    </div>
+    ${authorLinks(rec.authors)}
+    ${summary ? `<div class="summary-box"><b>&#129302; 추천 이유</b> — ${esc(summary)}</div>` : ""}
+    <div class="card-detail">${detail || abstract || '<div class="detail-item" style="color:var(--text-faint)">상세 요약이 없습니다 (core 등급만 자동 요약됩니다).</div>'}</div>
+    <div class="paper-author-box" data-authorbox="${rec.paper_id}"></div>
+    <div class="card-actions">
+      <button class="act-btn${rec.is_saved ? " on-save" : ""}" data-act="save">&#128278; ${rec.is_saved ? "저장됨" : "저장"}</button>
+      <button class="act-btn${rec.user_feedback === "useful" ? " on-useful" : ""}" data-act="useful">&#128077; 유용함</button>
+      <button class="act-btn${rec.user_feedback === "not_relevant" ? " on-notrel" : ""}" data-act="not_relevant">관련 없음</button>
+      ${rec.doi ? `<button class="act-btn" data-act="authors" data-pid="${rec.paper_id}">&#128100; 저자 · 팔로우</button>` : ""}
+      <span class="act-spacer"></span>
+      <button class="act-btn" data-act="share">&#128232; 공유</button>
+      ${doiUrl ? `<a class="act-btn" href="${doiUrl}" target="_blank" rel="noopener" style="text-decoration:none;">DOI &#8599;</a>` : ""}
+    </div>
+  </article>`;
+}
+
+// 카드/섹션 이벤트 (위임)
+document.addEventListener("click", async (e) => {
+  // 섹션 접기
+  const toggle = e.target.closest("[data-toggle]");
+  if (toggle) {
+    toggle.closest(".researcher-section").classList.toggle("collapsed");
+    return;
+  }
+  // 카드 확장
+  const expand = e.target.closest("[data-expand]");
+  if (expand) {
+    expand.closest(".paper-card").classList.toggle("expanded");
+    return;
+  }
+  // 액션 버튼
+  const actBtn = e.target.closest("[data-act]");
+  if (actBtn && actBtn.tagName === "BUTTON") {
+    const card = actBtn.closest(".paper-card");
+    const recId = parseInt(card.dataset.rec, 10);
+    const act = actBtn.dataset.act;
+    try {
+      if (act === "save") {
+        await api(`/litreview/api/recommendations/${recId}/save`, { method: "POST" });
+        actBtn.classList.add("on-save");
+        actBtn.innerHTML = "&#128278; 저장됨";
+        toast("저장했습니다.");
+      } else if (act === "useful" || act === "not_relevant") {
+        await api(`/litreview/api/recommendations/${recId}/feedback`, {
+          method: "POST", body: JSON.stringify({ feedback: act }),
+        });
+        card.querySelectorAll("[data-act=useful],[data-act=not_relevant]")
+          .forEach((b) => b.classList.remove("on-useful", "on-notrel"));
+        actBtn.classList.add(act === "useful" ? "on-useful" : "on-notrel");
+        toast(act === "useful" ? "유용함으로 표시했습니다. 다음 추천에 반영됩니다." : "관련 없음으로 표시했습니다. 이후 추천에서 제외됩니다.");
+      } else if (act === "share") {
+        openShareModal(recId);
+      } else if (act === "authors") {
+        togglePaperAuthors(parseInt(actBtn.dataset.pid, 10), actBtn);
+      }
+    } catch (err) { toast(err.message); }
+  }
+});
+
+// ---------- 논문의 저자 → 관심 저자 등록 ----------
+// Scopus 수집 경로가 저자를 저장하지 못해, 논문 DOI로 OpenAlex에서 저자를 해석한다.
+// 이름 검색과 달리 논문에 실린 Author ID를 그대로 쓰므로 동명이인 문제가 없다.
+async function togglePaperAuthors(paperId, btn) {
+  const box = document.querySelector(`[data-authorbox="${paperId}"]`);
+  if (!box) return;
+  if (box.innerHTML.trim()) { box.innerHTML = ""; return; }
+
+  box.innerHTML = '<div class="pa-loading">OpenAlex에서 저자를 확인하는 중…</div>';
+  try {
+    const d = await api(`/api/lr/papers/${paperId}/authors`);
+    if (!d.authors || !d.authors.length) {
+      box.innerHTML = `<div class="pa-loading">${esc(d.error || "저자 정보를 찾지 못했습니다.")}</div>`;
+      return;
+    }
+    box.innerHTML = `
+      <div class="pa-list">
+        ${d.authors.map((a) => `
+          <div class="pa-row">
+            <span class="pa-info">
+              <b>${esc(a.display_name)}</b>
+              ${a.affiliation ? `<span class="pa-affil"> · ${esc(a.affiliation)}</span>` : ""}
+              <span class="pa-id">${esc(a.openalex_author_id)}</span>
+            </span>
+            <button class="act-btn pa-follow${a.following ? " on-save" : ""}"
+              data-pafollow="${a.openalex_author_id}" ${a.following ? "disabled" : ""}>
+              ${a.following ? "✓ 관심 저자" : "+ Follow"}
+            </button>
+          </div>`).join("")}
+      </div>`;
+  } catch (e) {
+    box.innerHTML = `<div class="pa-loading">${esc(e.message)}</div>`;
+  }
+}
+
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest("[data-pafollow]");
+  if (!btn) return;
+  btn.disabled = true;
+  try {
+    const r = await api("/api/lr/authors/follow", {
+      method: "POST",
+      body: JSON.stringify({
+        openalex_author_id: btn.dataset.pafollow,
+        source: "paper_detail",
+      }),
+    });
+    btn.textContent = "✓ 관심 저자";
+    btn.classList.add("on-save");
+    toast(r.already_following
+      ? "이미 등록된 저자입니다."
+      : `${r.author.display_name} 을(를) 관심 저자로 등록했습니다. 신규 논문을 추적합니다.`);
+  } catch (err) {
+    btn.disabled = false;
+    toast(err.message.includes("로그인") ? "로그인이 필요합니다." : err.message);
+  }
+});
+
+// ---------- 공유 ----------
+function openShareModal(recId) {
+  state.shareRecId = recId;
+  $("shareTarget").innerHTML = state.researchers
+    .map((r) => `<option value="${r.id}">${esc(r.display_name || r.name)}</option>`).join("");
+  $("shareModal").classList.add("open");
+}
+
+$("shareSubmit").addEventListener("click", async () => {
+  try {
+    const r = await api(`/api/lr/recommendations/${state.shareRecId}/share`, {
+      method: "POST",
+      body: JSON.stringify({ target_researcher_id: parseInt($("shareTarget").value, 10) }),
+    });
+    $("shareModal").classList.remove("open");
+    toast(`${r.target_name.split("(")[0].trim()}님에게 이메일로 공유했습니다.`);
+  } catch (e) { toast(e.message); }
+});
+
+// =====================================================================
+// 우: 대시보드
+// =====================================================================
+function renderDashboard() {
+  if (!state.feed) return;
+
+  let core, related, reference, total, unread, saved, label;
+  if (state.selected === "all") {
+    const t = state.feed.totals;
+    core = t.core; related = t.related; reference = t.reference;
+    total = t.recommendations; unread = t.unread; saved = t.saved;
+    label = "추천 논문 (전체 연구원)";
+  } else {
+    const cutoff = Date.now() - state.days * 86400 * 1000;
+    const seen = new Set();
+    const recs = state.memberRecs.filter((r) => {
+      const t = r.created_at ? Date.parse(r.created_at.replace(" ", "T")) : 0;
+      return t >= cutoff && !seen.has(r.paper_id) && seen.add(r.paper_id);
+    });
+    core = recs.filter((r) => r.grade === "core").length;
+    related = recs.filter((r) => r.grade === "related").length;
+    reference = recs.filter((r) => r.grade === "reference").length;
+    total = recs.length;
+    unread = recs.filter((r) => !r.is_read).length;
+    saved = recs.filter((r) => r.is_saved).length;
+    const rr = state.researchers.find((x) => x.id === state.selected);
+    label = `추천 논문 (${rr ? (rr.display_name || rr.name) : ""})`;
+
+  }
+
+  $("dashRecLabel").textContent = label;
+  $("dashRecCount").textContent = total;
+  $("dashUnread").textContent = unread;
+  $("dashSaved").textContent = saved;
+  $("lgCore").textContent = core;
+  $("lgRelated").textContent = related;
+  $("lgReference").textContent = reference;
+
+  const sum = Math.max(core + related + reference, 1);
+  $("gradeBar").innerHTML = `
+    <div class="seg core" style="width:${(core / sum) * 100}%"></div>
+    <div class="seg related" style="width:${(related / sum) * 100}%"></div>
+    <div class="seg reference" style="width:${(reference / sum) * 100}%"></div>`;
+}
+
+// 저널 정보(IF·분위 등) 조회 링크.
+// Scimago 는 로그인 없이 저널의 분위·SJR·h-index 를 보여줘서 기본값으로 쓴다.
+// 다른 곳으로 바꾸려면 이 함수 하나만 고치면 된다.
+function journalInfoUrl(name, issn) {
+  const q = encodeURIComponent(issn || name || "");
+  return `https://www.scimagojr.com/journalsearch.php?q=${q}`;
+}
+
+function journalLink(name, issn, extraClass) {
+  const url = journalInfoUrl(name, issn);
+  return `<a class="jm-link ${extraClass || ""}" href="${url}" target="_blank" rel="noopener noreferrer"
+             title="${esc(name)} — 저널 정보 보기">${esc(name)}</a>`;
+}
+
+async function loadJournalMonitoring() {
+  const rid = state.selected === "all" ? "" : `?researcher_id=${state.selected}`;
+  try {
+    const d = await api(`/api/lr/journal-monitoring${rid}${rid ? "&" : "?"}days=${state.days}`);
+
+    $("jmCount").textContent = d.monitored_count ? `${d.monitored_count}종 감시 중` : "";
+
+    const mon = d.monitored || [];
+    $("topJournals").innerHTML = mon.length
+      ? mon.map((j) => {
+          const ct = j.count
+            ? `<span class="ct" title="최근 ${d.days}일 추천 논문 수">${j.count}</span>`
+            : `<span class="ct jm-zero" title="최근 ${d.days}일 동안 추천된 논문 없음">-</span>`;
+          return `<li>${journalLink(j.journal, j.issn, "grow")}${ct}</li>`;
+        }).join("")
+      : '<li><span class="nm" style="color:var(--text-faint)">모니터링 중인 저널이 없습니다</span></li>';
+
+    const nj = d.new_journals || [];
+    $("jmNewHint").style.display = nj.length ? "" : "none";
+    $("newJournals").innerHTML = nj.length
+      ? nj.map((j) => {
+          const badge = j.source === "discovery"
+            ? `<span class="jm-badge disc" title="저널 발굴 파이프라인이 찾은 저널">발굴</span>`
+            : `<span class="jm-badge rec" title="최근 추천 논문에 등장했으나 모니터링 목록에 없는 저널">신규</span>`;
+          const metric = j.score != null
+            ? `<span class="ct" title="발굴 점수">${j.score.toFixed(2)}</span>`
+            : `<span class="ct" title="최근 추천 논문 수">${j.count ?? ""}</span>`;
+          return `<li>${badge}${journalLink(j.journal, j.issn, "grow")}${metric}</li>`;
+        }).join("")
+      : '<li><span class="nm" style="color:var(--text-faint)">새로 발견된 저널 없음</span></li>';
+  } catch {
+    $("newJournals").innerHTML =
+      '<li><span class="nm" style="color:var(--text-faint)">불러오지 못했습니다</span></li>';
+    $("jmNewHint").style.display = "none";
+  }
+}
+
+function fmtKrw(v) {
+  if (v == null) return "-";
+  if (v >= 1000) return "₩" + Math.round(v).toLocaleString("ko-KR");
+  if (v >= 1) return "₩" + v.toFixed(1);
+  return "₩" + v.toFixed(3);
+}
+
+async function loadApiUsage() {
+  try {
+    const d = await api(`/api/lr/api-usage?days=${state.days}`);
+    const p = d.period;
+
+    $("costPeriod").textContent = `최근 ${d.days}일`;
+    $("costKrw").textContent = fmtKrw(p.krw);
+    $("costUsd").textContent = p.usd ? `($${p.usd.toFixed(4)})` : "";
+
+    const tok = (p.total_tokens || 0).toLocaleString("ko-KR");
+    $("costMeta").innerHTML =
+      `호출 ${p.calls}회 · 토큰 ${tok}` +
+      (p.unpriced_calls ? ` · <b style="color:var(--reference)">단가 미상 ${p.unpriced_calls}건</b>` : "");
+
+    const ops = { embedding: "임베딩", summary: "논문 요약" };
+    const rows = Object.entries(p.by_operation || {})
+      .sort((a, b) => b[1].krw - a[1].krw);
+    $("costRows").innerHTML = rows.length
+      ? rows.map(([k, v]) =>
+          `<div class="r"><span class="k">${esc(ops[k] || k)}</span>` +
+          `<span class="v">${fmtKrw(v.krw)}</span></div>`).join("")
+        + `<div class="r"><span class="k">누적 전체</span>` +
+          `<span class="v">${fmtKrw(d.all_time.krw)}</span></div>`
+      : '<div class="r"><span class="k" style="color:var(--text-faint)">기록된 호출이 없습니다</span></div>';
+
+    const wk = d.weekly || [];
+    const max = Math.max(...wk.map((w) => w.krw), 1);
+    $("costSpark").innerHTML = wk.length
+      ? wk.map((w) =>
+          `<div class="b" style="height:${Math.max(2, (w.krw / max) * 100)}%" ` +
+          `title="${w.week} · ${fmtKrw(w.krw)}"></div>`).join("")
+      : "";
+
+    $("costRate").innerHTML = d.rate.usd_krw
+      ? `환율 $1 = ₩${d.rate.usd_krw.toFixed(2)} (${esc(d.rate.date || "")}, ${esc(d.rate.source || "")})<br>` +
+        `<span title="${esc(d.note)}">시장 기준환율 — 카드 청구액은 수수료만큼 더 높습니다</span>`
+      : "";
+  } catch {
+    $("costKrw").textContent = "-";
+    $("costMeta").textContent = "불러오지 못했습니다";
+  }
+}
+
+async function loadTrendingKeywords() {
+  const rid = state.selected === "all" ? "" : `&researcher_id=${state.selected}`;
+  $("kwLabel").textContent = state.selected === "all" ? "트렌딩 키워드 (연구실 전체)" : "연구 키워드 (선택 멤버)";
+  try {
+    const kws = await api(`/api/lr/trending-keywords?limit=10${rid}`);
+    $("kwChips").innerHTML = kws.length
+      ? kws.map((k) => `<span class="kw-chip">${esc(k.keyword)}<span class="ct">${k.count}</span></span>`).join("")
+      : '<span style="color:var(--text-faint); font-size:12px;">키워드 없음</span>';
+  } catch { $("kwChips").innerHTML = ""; }
+}
+
+async function loadBatchStatus() {
+  try {
+    const logs = await api("/litreview/api/batch-logs?limit=3");
+    const nameMap = {
+      weekly_paper_pipeline: "주간 추천 파이프라인",
+      weekly_email_notification: "이메일 발송",
+      weekly_journal_monitoring: "저널 모니터링",
+      publication_sync: "출판물 동기화",
+      monthly_journal_discovery: "저널 탐색",
+    };
+    $("batchStatus").innerHTML = logs.map((l) => `
+      <div class="batch-item">
+        <span class="st ${esc(l.status)}">${l.status === "completed" ? "&#10003;" : "&#9888;"}</span>
+        ${esc(nameMap[l.job_type] || l.job_type)}
+        <div class="tm">${esc((l.started_at || "").slice(0, 16))} · ${esc(l.status)}</div>
+      </div>`).join("") || '<div style="color:var(--text-faint); font-size:12px;">기록 없음</div>';
+  } catch { $("batchStatus").innerHTML = ""; }
+}
+
+// =====================================================================
+// 알림
+// =====================================================================
+$("notifBtn").addEventListener("click", (e) => {
+  e.stopPropagation();
+  $("notifPanel").classList.toggle("open");
+});
+document.addEventListener("click", (e) => {
+  if (!e.target.closest("#notifPanel") && !e.target.closest("#notifBtn")) {
+    $("notifPanel").classList.remove("open");
+  }
+});
+
+async function loadNotifications() {
+  try {
+    const n = await api("/api/lr/notifications");
+    const badge = $("notifBadge");
+    if (n.unread_count > 0) {
+      badge.textContent = n.unread_count > 99 ? "99+" : n.unread_count;
+      badge.style.display = "flex";
+    } else badge.style.display = "none";
+
+    const typeIcon = { batch: "&#9881;&#65039;", email: "&#128231;" };
+    $("notifList").innerHTML = n.items.length
+      ? (n.unread_count ? `<div class="notif-item"><span class="t" style="color:var(--danger)">&#128276; 읽지 않은 추천 논문 ${n.unread_count}편</span></div>` : "")
+        + n.items.map((it) => `
+          <div class="notif-item">
+            <span class="t">${typeIcon[it.type] || ""} ${esc(it.title)}</span>
+            <div class="m">${esc((it.at || "").slice(0, 16))} · ${esc(it.status)}</div>
+          </div>`).join("")
+      : '<div class="empty-note" style="padding:16px 0;">알림이 없습니다.</div>';
+  } catch { /* 무시 */ }
+}
+
+// ---------- 모달 공통 닫기 ----------
+document.querySelectorAll("[data-close]").forEach((btn) => {
+  btn.addEventListener("click", () => $(btn.dataset.close).classList.remove("open"));
+});
+document.querySelectorAll(".modal-back").forEach((back) => {
+  back.addEventListener("click", (e) => { if (e.target === back) back.classList.remove("open"); });
+});
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+# BIST Lab Ontology v0.1
+# 클래스: ResearchLab → Researcher → ResearchKeyword (+ ResearchGroup)
+# 인스턴스 데이터는 bist_data.ttl 참조.
+
+@prefix bist:    <http://example.org/bist/onto#> .
+@prefix :        <http://example.org/bist/data#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+
+# ----- Ontology header ---------------------------------------------------
+
+<http://example.org/bist/onto> a owl:Ontology ;
+    dcterms:title       "BIST Lab Ontology"@en ;
+    dcterms:description "BIST Research Lab의 연구원·연구 키워드 관계 온톨로지."@ko ;
+    dcterms:created     "2026-05-01"^^xsd:date ;
+    owl:versionInfo     "0.1.0" ;
+    rdfs:comment        "URI base는 임시값(example.org). 운영 시 lab 도메인으로 교체할 것." .
+
+# ----- Classes ------------------------------------------------------------
+
+bist:ResearchLab a owl:Class ;
+    rdfs:label   "Research Lab"@en, "연구실"@ko ;
+    rdfs:comment "An academic research laboratory."@en .
+
+bist:Researcher a owl:Class ;
+    rdfs:subClassOf foaf:Person ;
+    rdfs:label   "Researcher"@en, "연구원"@ko .
+
+bist:ResearchGroup a owl:Class ;
+    rdfs:label   "Research Group"@en, "연구 그룹"@ko ;
+    rdfs:comment "Lab 안의 sub-team. 예: HVAC, UBI, AI agent, IEI."@en .
+
+bist:ResearchKeyword a owl:Class ;
+    rdfs:label   "Research Keyword"@en, "연구 키워드"@ko ;
+    rdfs:comment "저자가 논문에 부여한 키워드. 연구원의 관심사 시그널."@en .
+
+bist:KeywordUsage a owl:Class ;
+    rdfs:label   "Keyword Usage"@en ;
+    rdfs:comment "연구원이 특정 키워드를 사용한 빈도(논문 수). hasKeyword의 reified 형태."@en .
+
+# ----- Object properties --------------------------------------------------
+
+bist:hasMember a owl:ObjectProperty ;
+    rdfs:label   "has member"@en, "구성원 보유"@ko ;
+    rdfs:domain  bist:ResearchLab ;
+    rdfs:range   bist:Researcher ;
+    owl:inverseOf bist:memberOf .
+
+bist:memberOf a owl:ObjectProperty ;
+    rdfs:label  "member of"@en ;
+    rdfs:domain bist:Researcher ;
+    rdfs:range  bist:ResearchLab .
+
+bist:inGroup a owl:ObjectProperty ;
+    rdfs:label  "in group"@en, "소속 그룹"@ko ;
+    rdfs:domain bist:Researcher ;
+    rdfs:range  bist:ResearchGroup .
+
+bist:hasKeyword a owl:ObjectProperty ;
+    rdfs:label  "has keyword"@en, "연구 키워드"@ko ;
+    rdfs:domain bist:Researcher ;
+    rdfs:range  bist:ResearchKeyword ;
+    rdfs:comment "연구원이 본인의 논문 어딘가에서 사용한 모든 키워드. 빈도는 KeywordUsage 참조." .
+
+# 빈도 정보를 담은 n-ary 노드의 두 connecting 프로퍼티
+bist:usageOf a owl:ObjectProperty ;
+    rdfs:domain bist:KeywordUsage ;
+    rdfs:range  bist:ResearchKeyword .
+
+bist:usageBy a owl:ObjectProperty ;
+    rdfs:domain bist:KeywordUsage ;
+    rdfs:range  bist:Researcher .
+
+# ----- Datatype properties ------------------------------------------------
+
+bist:scopusId a owl:DatatypeProperty ;
+    rdfs:label  "Scopus author ID"@en ;
+    rdfs:domain bist:Researcher ;
+    rdfs:range  xsd:string .
+
+bist:researcherType a owl:DatatypeProperty ;
+    rdfs:label   "Researcher type"@en ;
+    rdfs:comment "A=10편+ / B=2~9편 / C=0~1편."@en ;
+    rdfs:domain  bist:Researcher ;
+    rdfs:range   xsd:string .
+
+bist:paperCount a owl:DatatypeProperty ;
+    rdfs:label  "Paper count"@en ;
+    rdfs:domain bist:Researcher ;
+    rdfs:range  xsd:nonNegativeInteger .
+
+bist:frequency a owl:DatatypeProperty ;
+    rdfs:label   "Usage frequency"@en ;
+    rdfs:comment "이 키워드가 연구원의 논문 중 몇 편에서 등장했는지."@en ;
+    rdfs:domain  bist:KeywordUsage ;
+    rdfs:range   xsd:nonNegativeInteger .
+
+bist:keywordRaw a owl:DatatypeProperty ;
+    rdfs:label   "Original keyword text"@en ;
+    rdfs:comment "DB의 paper_keywords.keyword 원문."@en ;
+    rdfs:domain  bist:ResearchKeyword ;
+    rdfs:range   xsd:string .

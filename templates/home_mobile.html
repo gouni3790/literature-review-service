@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0f13" />
+<title>Paper Radar · Mobile</title>
+<style>
+  :root {
+    --bg: #0a0f13;
+    --bg-elev: #0e1418;
+    --bg-card: #111a20;
+    --bg-card-2: #0c141a;
+    --border: #1b2630;
+    --border-soft: #152028;
+    --text: #e6f1ef;
+    --text-dim: #8aa0a8;
+    --text-mute: #5a6b73;
+    --accent: #3fe0b0;
+    --accent-soft: #1c3c36;
+    --core: #3fe0b0;
+    --related: #f4a25c;
+    --reference: #b48cff;
+    --danger: #ff6b6b;
+    --mono: ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: "Pretendard", "Inter", -apple-system, BlinkMacSystemFont,
+            "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    --tabbar-h: calc(56px + env(safe-area-inset-bottom, 0px));
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg); color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior-y: contain;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+  /* ===== Top Header ===== */
+  .top {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(10,15,19,0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border-soft);
+    padding: 10px 16px;
+    padding-top: calc(10px + env(safe-area-inset-top, 0px));
+    display: flex; align-items: center; gap: 10px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 8px; flex: 1;
+  }
+  .brand .logo {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, #153a33, #0e1f1b);
+    color: var(--accent);
+    display: grid; place-items: center;
+    box-shadow: inset 0 0 0 1px rgba(63,224,176,0.25);
+    font-size: 15px; font-weight: 700;
+  }
+  .brand .title { font-weight: 700; font-size: 15px; letter-spacing: 0.2px; }
+  .brand .sub { color: var(--text-mute); font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; }
+  .user-chip {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px;
+    background: var(--bg-card-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    max-width: 160px;
+  }
+  .user-chip .av {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(63,224,176,0.18); color: var(--accent);
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0;
+  }
+  .user-chip .name {
+    font-size: 12px; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* ===== Main scroll area ===== */
+  main {
+    padding: 14px 16px var(--tabbar-h);
+    max-width: 720px; margin: 0 auto;
+  }
+
+  /* ===== Login card (guest) ===== */
+  .login-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 20px;
+    margin: 32px 0;
+    text-align: center;
+  }
+  .login-card h2 {
+    margin: 0 0 6px;
+    font-size: 18px; font-weight: 700;
+  }
+  .login-card .desc {
+    color: var(--text-mute); font-size: 13px; margin-bottom: 20px;
+  }
+  .login-card input {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--bg-card-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 15px;
+    margin-bottom: 10px;
+    outline: none;
+  }
+  .login-card input:focus { border-color: var(--accent); }
+  .login-card .btn-primary {
+    width: 100%;
+    padding: 13px 16px;
+    background: var(--accent); color: #0a0f13;
+    font-weight: 700; font-size: 15px;
+    border-radius: 10px;
+    margin-top: 6px;
+  }
+  .login-card .err {
+    color: var(--danger); font-size: 12px; min-height: 16px; margin-top: 8px;
+  }
+
+  /* ===== Digest greeting ===== */
+  .digest {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .digest .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    flex-shrink: 0;
+  }
+  .digest .body { flex: 1; min-width: 0; }
+  .digest .kicker {
+    font-size: 10px; letter-spacing: 1.6px;
+    color: var(--text-mute); text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .digest h3 { margin: 0; font-size: 15px; font-weight: 600; }
+  .digest .num {
+    font-family: var(--mono); font-size: 22px; font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  /* ===== Filter tabs ===== */
+  .filters {
+    display: flex; gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .filters::-webkit-scrollbar { display: none; }
+  .filters .chip {
+    flex-shrink: 0;
+    padding: 7px 14px;
+    background: var(--bg-card-2);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    color: var(--text-dim);
+    font-size: 13px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .filters .chip.on {
+    background: var(--text); color: #0a0f13;
+    border-color: var(--text); font-weight: 600;
+  }
+  .filters .chip .n {
+    font-family: var(--mono); font-size: 11px; opacity: 0.7;
+  }
+
+  /* ===== Paper card ===== */
+  .paper {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: border-color 0.15s;
+  }
+  .paper.grade-core      { border-left: 3px solid var(--core); }
+  .paper.grade-related   { border-left: 3px solid var(--related); }
+  .paper.grade-reference { border-left: 3px solid var(--reference); }
+
+  .paper .head {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+  }
+  .badge {
+    font-family: var(--mono); font-size: 9px; font-weight: 700;
+    letter-spacing: 1px; padding: 3px 8px; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .badge.core      { color: var(--core);      background: rgba(63,224,176,0.12);  border: 1px solid rgba(63,224,176,0.35); }
+  .badge.related   { color: var(--related);   background: rgba(244,162,92,0.12);  border: 1px solid rgba(244,162,92,0.35); }
+  .badge.reference { color: var(--reference); background: rgba(180,140,255,0.12); border: 1px solid rgba(180,140,255,0.35); }
+  .score {
+    font-family: var(--mono); font-size: 13px; font-weight: 700;
+    color: var(--text-dim);
+  }
+  .score b { color: var(--text); font-size: 14px; }
+  .new-tag {
+    font-family: var(--mono); font-size: 9px;
+    color: var(--accent); border: 1px solid rgba(63,224,176,0.4);
+    padding: 2px 6px; border-radius: 4px;
+    margin-left: auto;
+  }
+
+  .paper .title {
+    font-size: 15px; line-height: 1.4; font-weight: 600;
+    color: var(--text); margin: 0 0 6px;
+    word-break: keep-all; overflow-wrap: anywhere;
+  }
+  .paper .meta {
+    font-size: 12px; color: var(--text-mute);
+    margin-bottom: 8px;
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .paper .meta .dot-sep::before { content: "·"; margin-right: 4px; opacity: 0.5; }
+
+  .paper .topic-chip {
+    display: inline-block;
+    font-size: 11px; color: var(--accent);
+    background: rgba(63,224,176,0.08);
+    border: 1px solid rgba(63,224,176,0.3);
+    padding: 3px 9px; border-radius: 12px;
+    margin-bottom: 10px;
+  }
+
+  .paper .summary {
+    font-size: 13px; color: var(--text-dim); line-height: 1.55;
+    margin-bottom: 12px;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .paper.expanded .summary {
+    -webkit-line-clamp: unset; display: block;
+  }
+
+  .paper .detail {
+    display: none;
+    border-top: 1px dashed var(--border-soft);
+    padding-top: 12px; margin-top: 4px; margin-bottom: 12px;
+  }
+  .paper.expanded .detail { display: block; }
+  .paper .detail .row {
+    display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px;
+  }
+  .paper .detail .row .lbl {
+    font-size: 10px; letter-spacing: 1px;
+    color: var(--text-mute); text-transform: uppercase;
+  }
+  .paper .detail .row .val {
+    font-size: 13px; color: var(--text); line-height: 1.5;
+  }
+
+  /* Action row */
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .actions button {
+    padding: 11px 6px;
+    background: var(--bg-card-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-dim);
+    font-size: 13px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: all 0.15s;
+    min-height: 44px;
+  }
+  .actions button:active { transform: scale(0.97); }
+  .actions button.on.useful { color: var(--accent); border-color: var(--accent); background: rgba(63,224,176,0.08); }
+  .actions button.on.notrel { color: var(--danger); border-color: var(--danger); background: rgba(255,107,107,0.08); }
+  .actions button.on.save   { color: var(--related); border-color: var(--related); background: rgba(244,162,92,0.08); }
+  .actions button .ic { font-size: 15px; line-height: 1; }
+
+  .expand-btn {
+    width: 100%; margin-top: 10px;
+    padding: 8px;
+    background: transparent;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    color: var(--text-mute);
+    font-size: 12px;
+  }
+
+  /* ===== Trending keywords mini ===== */
+  .mini-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .mini-card h3 {
+    margin: 0 0 10px;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  .kw-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 0;
+  }
+  .kw-row .name {
+    flex: 1; font-size: 13px; color: var(--text);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .kw-row .bar {
+    flex-shrink: 0; width: 80px; height: 4px;
+    background: var(--bg-card-2); border-radius: 2px;
+    overflow: hidden;
+  }
+  .kw-row .bar > span {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, var(--accent), rgba(63,224,176,0.4));
+  }
+  .kw-row .cnt {
+    font-family: var(--mono); font-size: 12px;
+    color: var(--text-mute); width: 24px; text-align: right;
+  }
+
+  /* ===== Profile mini stats ===== */
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  }
+  .stat-cell {
+    background: var(--bg-card-2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 8px;
+    text-align: center;
+  }
+  .stat-cell .v {
+    font-family: var(--mono); font-size: 20px; font-weight: 700;
+    color: var(--text);
+  }
+  .stat-cell .l {
+    font-size: 10px; letter-spacing: 1px;
+    color: var(--text-mute); text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* ===== Empty / loading state ===== */
+  .empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-mute);
+    font-size: 13px;
+  }
+  .empty .em-ic {
+    font-size: 32px; opacity: 0.4; margin-bottom: 10px;
+  }
+  .skeleton {
+    background: linear-gradient(90deg,
+      var(--bg-card-2) 0%, var(--border) 50%, var(--bg-card-2) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 8px;
+  }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+  .skel-card { height: 140px; margin-bottom: 12px; }
+
+  /* ===== Bottom tab bar ===== */
+  .tabbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    background: rgba(10,15,19,0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border);
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .tabbar button {
+    padding: 8px 4px;
+    color: var(--text-mute);
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 10px;
+    min-height: 56px;
+  }
+  .tabbar button .ic { font-size: 19px; line-height: 1; }
+  .tabbar button.on { color: var(--accent); }
+
+  /* ===== Toast ===== */
+  .toast {
+    position: fixed; left: 50%; bottom: calc(var(--tabbar-h) + 16px);
+    transform: translateX(-50%) translateY(20px);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 100;
+    pointer-events: none;
+    max-width: 80%;
+  }
+  .toast.show {
+    opacity: 1; transform: translateX(-50%) translateY(0);
+  }
+
+  /* ===== Pull-to-refresh hint ===== */
+  .refreshing {
+    text-align: center;
+    padding: 8px;
+    color: var(--text-mute);
+    font-size: 11px;
+  }
+
+  /* Hide elements by default */
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- ============ Top Header ============ -->
+<header class="top">
+  <div class="brand">
+    <div class="logo">P</div>
+    <div>
+      <div class="title">Paper Radar</div>
+      <div class="sub">Mobile</div>
+    </div>
+  </div>
+  <div id="userChip" class="user-chip hidden">
+    <div class="av" id="userAv">?</div>
+    <div class="name" id="userName">게스트</div>
+  </div>
+</header>
+
+<!-- ============ Main scroll area ============ -->
+<main id="main">
+
+  <!-- Login card (shown when guest) -->
+  <section id="loginSec" class="login-card hidden">
+    <h2>로그인</h2>
+    <div class="desc">이름과 비밀번호로 로그인하세요</div>
+    <input id="loginName" type="text" placeholder="이름 (예: 윤성민)" autocomplete="username" />
+    <input id="loginPw" type="password" placeholder="비밀번호" autocomplete="current-password" />
+    <button class="btn-primary" id="loginBtn">로그인</button>
+    <div class="err" id="loginErr"></div>
+  </section>
+
+  <!-- Logged-in main feed -->
+  <section id="feedSec" class="hidden">
+
+    <!-- Digest greeting -->
+    <div class="digest">
+      <div class="dot"></div>
+      <div class="body">
+        <div class="kicker">오늘의 추천</div>
+        <h3 id="digestText">불러오는 중...</h3>
+      </div>
+      <div class="num" id="digestNum">0</div>
+    </div>
+
+    <!-- Home tab content -->
+    <div id="tabHome">
+      <!-- Filter tabs -->
+      <div class="filters" id="filters">
+        <button class="chip on" data-grade="all">전체 <span class="n" id="cnt-all">0</span></button>
+        <button class="chip" data-grade="core">Core <span class="n" id="cnt-core">0</span></button>
+        <button class="chip" data-grade="related">Related <span class="n" id="cnt-related">0</span></button>
+        <button class="chip" data-grade="reference">Reference <span class="n" id="cnt-reference">0</span></button>
+        <button class="chip" data-grade="unread">미열람 <span class="n" id="cnt-unread">0</span></button>
+      </div>
+      <!-- Paper list -->
+      <div id="paperList"></div>
+    </div>
+
+    <!-- Saved tab content -->
+    <div id="tabSaved" class="hidden">
+      <div id="savedList"></div>
+    </div>
+
+    <!-- Trending tab content -->
+    <div id="tabTrend" class="hidden">
+      <div class="mini-card">
+        <h3>트렌딩 키워드 (연구실)</h3>
+        <div id="trendList"></div>
+      </div>
+    </div>
+
+    <!-- Profile tab content -->
+    <div id="tabProfile" class="hidden">
+      <div class="mini-card">
+        <h3>내 통계</h3>
+        <div class="stats-grid">
+          <div class="stat-cell"><div class="v" id="stTotal">0</div><div class="l">추천</div></div>
+          <div class="stat-cell"><div class="v" id="stSaved">0</div><div class="l">저장</div></div>
+          <div class="stat-cell"><div class="v" id="stUseful">0</div><div class="l">useful</div></div>
+        </div>
+      </div>
+      <div class="mini-card">
+        <h3>계정</h3>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div style="font-size:13px; color:var(--text-dim);">
+            <span id="profileName"></span> · ID <span id="profileId"></span>
+          </div>
+          <button id="logoutBtn"
+            style="margin-top:8px; padding:11px; background:transparent; border:1px solid var(--border);
+                   border-radius:10px; color:var(--text-dim); font-size:13px;">
+            로그아웃
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<!-- ============ Bottom Tab Bar ============ -->
+<nav class="tabbar" id="tabbar">
+  <button data-tab="home" class="on"><div class="ic">🏠</div><div>홈</div></button>
+  <button data-tab="saved"><div class="ic">⭐</div><div>저장</div></button>
+  <button data-tab="trend"><div class="ic">📈</div><div>트렌드</div></button>
+  <button data-tab="profile"><div class="ic">👤</div><div>프로필</div></button>
+</nav>
+
+<!-- ============ Toast ============ -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================================
+   State
+   ========================================================================= */
+const state = {
+  me: null,            // { logged_in, researcher_id, name }
+  recs: [],            // 추천 논문 전체
+  filterGrade: 'all',  // all | core | related | reference | unread
+  activeTab: 'home',
+};
+
+/* =========================================================================
+   Toast
+   ========================================================================= */
+let toastTimer = null;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+/* =========================================================================
+   Auth
+   ========================================================================= */
+async function fetchMe() {
+  try {
+    const r = await fetch('/api/lr/auth/me');
+    return await r.json();
+  } catch { return { logged_in: false }; }
+}
+
+async function login(name, pw) {
+  const resp = await fetch('/api/lr/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, password: pw }),
+  });
+  return await resp.json();
+}
+
+async function logout() {
+  await fetch('/api/lr/auth/logout', { method: 'POST' });
+}
+
+/* =========================================================================
+   Recommendations
+   ========================================================================= */
+async function fetchRecommendations(rid) {
+  try {
+    const r = await fetch(`/api/lr/researchers/${rid}/recommendations`);
+    if (!r.ok) return [];
+    return await r.json();
+  } catch { return []; }
+}
+
+async function sendFeedback(recId, fb) {
+  try {
+    const r = await fetch('/api/lr/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: recId, feedback: fb }),
+    });
+    return r.ok;
+  } catch { return false; }
+}
+
+async function savePaper(rec) {
+  if (!state.me?.researcher_id) return false;
+  try {
+    const r = await fetch('/api/lr/save_paper', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        researcher_id: state.me.researcher_id,
+        paper_doi: rec.doi,
+        paper_title: rec.title,
+        paper_keywords: [],
+      }),
+    });
+    return r.ok;
+  } catch { return false; }
+}
+
+async function fetchTrending(limit = 8) {
+  try {
+    const r = await fetch(`/api/lr/trending-keywords?limit=${limit}`);
+    if (!r.ok) return [];
+    return await r.json();
+  } catch { return []; }
+}
+
+/* =========================================================================
+   Render — Paper card
+   ========================================================================= */
+function escapeHtml(s) {
+  if (!s) return '';
+  return String(s)
+    .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+}
+
+function paperCardHtml(rec) {
+  const grade = rec.grade || 'reference';
+  const score = Math.round(rec.score || 0);
+  const isNew = !rec.is_read;
+  const summary = rec.summary_purpose || rec.abstract || '';
+  const meta = [];
+  if (rec.journal) meta.push(`<span>${escapeHtml(rec.journal)}</span>`);
+  if (rec.year) meta.push(`<span class="dot-sep">${rec.year}</span>`);
+  if (rec.authors) meta.push(`<span class="dot-sep">${escapeHtml((rec.authors || '').split(';')[0])}</span>`);
+
+  const usefulOn = rec.user_feedback === 'useful' ? 'on useful' : '';
+  const notrelOn = rec.user_feedback === 'not_relevant' ? 'on notrel' : '';
+  const saveOn   = rec.is_saved ? 'on save' : '';
+
+  const detail = [
+    ['Purpose',    rec.summary_purpose],
+    ['Method',     rec.summary_method],
+    ['Results',    rec.summary_results],
+    ['Limitations',rec.summary_limitations],
+    ['Future',     rec.summary_future],
+    ['Reason',     rec.recommendation_reason],
+  ].filter(([_, v]) => v && v.trim());
+
+  const detailHtml = detail.length
+    ? detail.map(([l, v]) =>
+        `<div class="row"><div class="lbl">${l}</div><div class="val">${escapeHtml(v)}</div></div>`
+      ).join('')
+    : '<div style="color:var(--text-mute); font-size:12px;">상세 요약 없음 (core 등급에서만 생성)</div>';
+
+  return `
+    <article class="paper grade-${grade}" data-rec-id="${rec.id}">
+      <div class="head">
+        <span class="badge ${grade}">${grade}</span>
+        <span class="score"><b>${score}</b>%</span>
+        ${isNew ? '<span class="new-tag">NEW</span>' : ''}
+      </div>
+      <h3 class="title">${escapeHtml(rec.title || '제목 없음')}</h3>
+      <div class="meta">${meta.join('')}</div>
+      ${rec.topic_name ? `<div class="topic-chip">${escapeHtml(rec.topic_name)}</div>` : ''}
+      <div class="summary">${escapeHtml(summary) || '<span style="color:var(--text-mute)">요약 없음</span>'}</div>
+
+      <div class="detail">${detailHtml}</div>
+
+      ${detail.length ? `<button class="expand-btn" data-act="expand">자세히 보기</button>` : ''}
+
+      <div class="actions" style="margin-top:10px;">
+        <button class="${usefulOn}" data-act="useful"><span class="ic">♥</span><span>좋아요</span></button>
+        <button class="${notrelOn}" data-act="notrel"><span class="ic">✕</span><span>관련 없음</span></button>
+        <button class="${saveOn}"   data-act="save"><span class="ic">★</span><span>${rec.is_saved ? '저장됨' : '저장'}</span></button>
+      </div>
+    </article>
+  `;
+}
+
+/* =========================================================================
+   Render — lists
+   ========================================================================= */
+function filterRecs() {
+  const g = state.filterGrade;
+  if (g === 'all') return state.recs;
+  if (g === 'unread') return state.recs.filter(r => !r.is_read);
+  return state.recs.filter(r => r.grade === g);
+}
+
+function renderPaperList() {
+  const target = document.getElementById('paperList');
+  const list = filterRecs();
+  if (!list.length) {
+    target.innerHTML = `
+      <div class="empty">
+        <div class="em-ic">📭</div>
+        <div>표시할 논문이 없습니다</div>
+      </div>`;
+    return;
+  }
+  target.innerHTML = list.map(paperCardHtml).join('');
+}
+
+function renderSavedList() {
+  const target = document.getElementById('savedList');
+  const list = state.recs.filter(r => r.is_saved);
+  if (!list.length) {
+    target.innerHTML = `
+      <div class="empty">
+        <div class="em-ic">⭐</div>
+        <div>저장한 논문이 없습니다</div>
+      </div>`;
+    return;
+  }
+  target.innerHTML = list.map(paperCardHtml).join('');
+}
+
+function renderCounts() {
+  const all = state.recs.length;
+  const core = state.recs.filter(r => r.grade === 'core').length;
+  const related = state.recs.filter(r => r.grade === 'related').length;
+  const reference = state.recs.filter(r => r.grade === 'reference').length;
+  const unread = state.recs.filter(r => !r.is_read).length;
+  document.getElementById('cnt-all').textContent = all;
+  document.getElementById('cnt-core').textContent = core;
+  document.getElementById('cnt-related').textContent = related;
+  document.getElementById('cnt-reference').textContent = reference;
+  document.getElementById('cnt-unread').textContent = unread;
+
+  document.getElementById('digestNum').textContent = unread;
+  const dt = unread > 0
+    ? `미열람 ${unread}건이 있습니다`
+    : `모두 확인했어요 · 총 ${all}건`;
+  document.getElementById('digestText').textContent = dt;
+}
+
+function renderProfileTab() {
+  document.getElementById('stTotal').textContent = state.recs.length;
+  document.getElementById('stSaved').textContent = state.recs.filter(r => r.is_saved).length;
+  document.getElementById('stUseful').textContent = state.recs.filter(r => r.user_feedback === 'useful').length;
+  document.getElementById('profileName').textContent = state.me?.name || '-';
+  document.getElementById('profileId').textContent = state.me?.researcher_id ?? '-';
+}
+
+async function renderTrendTab() {
+  const list = await fetchTrending(8);
+  const target = document.getElementById('trendList');
+  if (!list.length) {
+    target.innerHTML = `<div style="color:var(--text-mute); font-size:12px;">키워드 데이터 없음</div>`;
+    return;
+  }
+  const max = Math.max(...list.map(k => k.count || 0)) || 1;
+  target.innerHTML = list.map(k => {
+    const pct = ((k.count || 0) / max) * 100;
+    return `
+      <div class="kw-row">
+        <div class="name">${escapeHtml(k.keyword)}</div>
+        <div class="bar"><span style="width:${pct}%"></span></div>
+        <div class="cnt">${k.count}</div>
+      </div>`;
+  }).join('');
+}
+
+/* =========================================================================
+   Tab switching
+   ========================================================================= */
+function switchTab(name) {
+  state.activeTab = name;
+  document.querySelectorAll('#tabbar button').forEach(b =>
+    b.classList.toggle('on', b.dataset.tab === name)
+  );
+  for (const id of ['tabHome', 'tabSaved', 'tabTrend', 'tabProfile']) {
+    document.getElementById(id).classList.add('hidden');
+  }
+  document.getElementById({
+    home:    'tabHome',
+    saved:   'tabSaved',
+    trend:   'tabTrend',
+    profile: 'tabProfile',
+  }[name]).classList.remove('hidden');
+
+  if (name === 'saved') renderSavedList();
+  else if (name === 'trend') renderTrendTab();
+  else if (name === 'profile') renderProfileTab();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* =========================================================================
+   Card actions (event delegation)
+   ========================================================================= */
+function handlePaperClick(e) {
+  const article = e.target.closest('.paper');
+  if (!article) return;
+
+  const recId = parseInt(article.dataset.recId);
+  const rec = state.recs.find(r => r.id === recId);
+  if (!rec) return;
+
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  const act = btn.dataset.act;
+  if (!act) return;
+
+  if (act === 'expand') {
+    article.classList.toggle('expanded');
+    btn.textContent = article.classList.contains('expanded') ? '접기' : '자세히 보기';
+    return;
+  }
+
+  if (act === 'useful') {
+    const next = rec.user_feedback === 'useful' ? null : 'useful';
+    rec.user_feedback = next;
+    rec.is_read = true;
+    if (next) sendFeedback(rec.id, 'useful').then(ok => ok && toast('좋아요로 기록됨'));
+    rerenderActiveList();
+    renderCounts();
+  } else if (act === 'notrel') {
+    const next = rec.user_feedback === 'not_relevant' ? null : 'not_relevant';
+    rec.user_feedback = next;
+    rec.is_read = true;
+    if (next) sendFeedback(rec.id, 'not_relevant').then(ok => ok && toast('관련 없음으로 기록됨'));
+    rerenderActiveList();
+    renderCounts();
+  } else if (act === 'save') {
+    rec.is_saved = !rec.is_saved;
+    if (rec.is_saved) savePaper(rec).then(ok => ok && toast('저장됨'));
+    else toast('저장 해제');
+    rerenderActiveList();
+    renderCounts();
+  }
+}
+
+function rerenderActiveList() {
+  if (state.activeTab === 'home') renderPaperList();
+  else if (state.activeTab === 'saved') renderSavedList();
+}
+
+/* =========================================================================
+   Init / wiring
+   ========================================================================= */
+async function loadRecs() {
+  if (!state.me?.researcher_id) return;
+  document.getElementById('paperList').innerHTML =
+    `<div class="skeleton skel-card"></div>
+     <div class="skeleton skel-card"></div>
+     <div class="skeleton skel-card"></div>`;
+  state.recs = await fetchRecommendations(state.me.researcher_id);
+  renderCounts();
+  renderPaperList();
+}
+
+function showLoggedIn() {
+  document.getElementById('loginSec').classList.add('hidden');
+  document.getElementById('feedSec').classList.remove('hidden');
+  document.getElementById('userChip').classList.remove('hidden');
+  document.getElementById('userName').textContent = state.me.name || '연구원';
+  document.getElementById('userAv').textContent = (state.me.name || '?')[0];
+}
+
+function showGuest() {
+  document.getElementById('loginSec').classList.remove('hidden');
+  document.getElementById('feedSec').classList.add('hidden');
+  document.getElementById('userChip').classList.add('hidden');
+}
+
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const name = document.getElementById('loginName').value.trim();
+  const pw = document.getElementById('loginPw').value;
+  const err = document.getElementById('loginErr');
+  err.textContent = '';
+  if (!name || !pw) { err.textContent = '이름과 비밀번호를 입력하세요.'; return; }
+  try {
+    const data = await login(name, pw);
+    if (!data.success) {
+      err.textContent = data.error || '로그인 실패';
+      return;
+    }
+    state.me = await fetchMe();
+    showLoggedIn();
+    await loadRecs();
+  } catch {
+    err.textContent = '서버 연결 오류';
+  }
+});
+
+document.getElementById('loginPw').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('loginBtn').click();
+});
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await logout();
+  state.me = null;
+  state.recs = [];
+  showGuest();
+});
+
+document.getElementById('filters').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  state.filterGrade = chip.dataset.grade;
+  document.querySelectorAll('#filters .chip').forEach(c =>
+    c.classList.toggle('on', c === chip)
+  );
+  renderPaperList();
+});
+
+document.getElementById('tabbar').addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  switchTab(btn.dataset.tab);
+});
+
+document.getElementById('main').addEventListener('click', handlePaperClick);
+
+/* Boot */
+(async () => {
+  state.me = await fetchMe();
+  if (state.me?.logged_in) {
+    showLoggedIn();
+    await loadRecs();
+  } else {
+    showGuest();
+  }
+})();
+</script>
+</body>
+</html>

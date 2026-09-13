@@ -1,0 +1,4433 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Paper Radar · BIST Research Lab</title>
+<style>
+  :root {
+    --bg: #0a0f13;
+    --bg-elev: #0e1418;
+    --bg-card: #111a20;
+    --bg-card-2: #0c141a;
+    --border: #1b2630;
+    --border-soft: #152028;
+    --text: #e6f1ef;
+    --text-dim: #8aa0a8;
+    --text-mute: #5a6b73;
+    --accent: #3fe0b0;      /* teal/mint */
+    --accent-soft: #1c3c36;
+    --ai: #3fe0b0;          /* Agentic AI */
+    --dt: #f4a25c;          /* Digital Twin */
+    --iot: #b48cff;         /* Smart IoT */
+    --danger: #ff6b6b;
+    --shadow: 0 0 0 1px rgba(63,224,176,0.08), 0 8px 30px rgba(0,0,0,0.45);
+    --mono: ui-monospace, "JetBrains Mono", Menlo, Consolas, "Courier New", monospace;
+    --sans: "Pretendard", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+            "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font-family: "Pretendard", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+                 "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    font-size: 13px; line-height: 1.45; -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* ===== Layout ===== */
+  .app { display: grid; grid-template-columns: 264px 1fr 300px;
+    min-height: 100vh; gap: 0; }
+
+  /* ===== Left Sidebar ===== */
+  .sidebar {
+    background: var(--bg-elev);
+    border-right: 1px solid var(--border-soft);
+    padding: 18px 14px 18px;
+    display: flex; flex-direction: column; gap: 14px;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 4px 4px 6px; }
+  .brand .logo {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: linear-gradient(135deg, #153a33, #0e1f1b);
+    display: grid; place-items: center; color: var(--accent);
+    box-shadow: inset 0 0 0 1px rgba(63,224,176,0.25);
+    font-size: 16px;
+  }
+  .brand .title { font-weight: 700; letter-spacing: 0.2px; font-size: 14px; }
+  .brand .sub { color: var(--text-mute); font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase; }
+
+  .new-list-btn {
+    background: transparent; color: var(--accent);
+    border: 1px dashed rgba(63,224,176,0.35);
+    border-radius: 10px; padding: 10px 12px; font-size: 12.5px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: background .15s, border-color .15s;
+  }
+  .new-list-btn:hover { background: rgba(63,224,176,0.06); border-color: rgba(63,224,176,0.6); }
+
+  .search {
+    position: relative;
+  }
+  .search input {
+    width: 100%; background: var(--bg-card-2);
+    border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px;
+    padding: 8px 34px 8px 10px; font-size: 12px; outline: none;
+  }
+  .search input::placeholder { color: var(--text-mute); }
+  .search .kbd {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    color: var(--text-mute); font-family: var(--mono), monospace; font-size: 10px;
+    border: 1px solid var(--border); padding: 1px 5px; border-radius: 4px;
+  }
+
+  .section-label {
+    font-size: 10px; letter-spacing: 1.6px; text-transform: uppercase;
+    color: var(--text-mute); padding: 6px 4px 2px;
+  }
+
+  .tree { display: flex; flex-direction: column; gap: 2px; }
+  .tree-node {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px; border-radius: 7px; cursor: pointer;
+    color: var(--text-dim); font-size: 12.5px;
+    transition: background .12s, color .12s;
+  }
+  .tree-node:hover { background: rgba(255,255,255,0.03); color: var(--text); }
+  .tree-node.active { background: rgba(63,224,176,0.08); color: var(--text); }
+
+  .tree-node .icon { width: 14px; color: var(--text-mute); font-size: 11px; flex-shrink: 0; }
+  .tree-node .name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .tree-node .badge {
+    font-family: var(--mono), monospace; font-size: 9.5px; letter-spacing: 0.5px;
+    color: var(--text-mute); background: var(--bg-card);
+    padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border);
+    flex-shrink: 0; white-space: nowrap;
+  }
+  .tree-node .count {
+    font-family: var(--mono), monospace; font-size: 10px; color: var(--text-mute);
+    min-width: 16px; text-align: right; flex-shrink: 0;
+  }
+  .tree-node .avatar { flex-shrink: 0; }
+  .tree .child { padding-left: 20px; }
+  .avatar {
+    width: 18px; height: 18px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 10px; font-weight: 600;
+    color: #0a0f13;
+  }
+  .avatar.ai  { background: var(--ai); }
+  .avatar.dt  { background: var(--dt); }
+  .avatar.iot { background: var(--iot); }
+  .badge.ai { color: var(--ai); border-color: rgba(63,224,176,0.3); }
+  .badge.dt { color: var(--dt); border-color: rgba(244,162,92,0.3); }
+  .badge.iot{ color: var(--iot); border-color: rgba(180,140,255,0.3); }
+
+  .user-chip {
+    margin-top: auto;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px; border-top: 1px solid var(--border-soft);
+  }
+  .user-chip .avatar { width: 26px; height: 26px; background: var(--ai); font-size: 11px;}
+  .user-chip .meta { line-height: 1.25; }
+  .user-chip .meta .n { font-size: 12.5px; }
+  .user-chip .meta .s { color: var(--text-mute); font-size: 10.5px; }
+  .user-chip .status { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-left: auto; box-shadow: 0 0 8px var(--accent); }
+
+  /* ===== Main ===== */
+  .main { padding: 16px 24px 60px; min-width: 0; }
+  .topbar {
+    display: flex; align-items: center; gap: 14px;
+    padding: 4px 4px 18px;
+  }
+  .topbar .spacer { flex: 1; }
+  .search-top { position: relative; width: 260px; }
+  .search-top input {
+    width: 100%; background: var(--bg-card-2);
+    border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px;
+    padding: 7px 10px 7px 30px; font-size: 12px; outline: none;
+  }
+  .search-top::before {
+    content: "⌕"; position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+    color: var(--text-mute);
+  }
+  .icon-btn {
+    width: 32px; height: 32px; border-radius: 7px;
+    background: var(--bg-card-2); border: 1px solid var(--border);
+    color: var(--text-dim); display: grid; place-items: center;
+  }
+  .sort-btn {
+    background: var(--bg-card-2); border: 1px solid var(--border);
+    color: var(--text-dim); border-radius: 7px; padding: 7px 12px; font-size: 12px;
+  }
+
+  /* ===== Cards ===== */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .card-head { padding: 18px 22px 14px; display: flex; align-items: flex-end; justify-content: space-between; }
+  .kicker { font-size: 10px; letter-spacing: 2px; color: var(--text-mute); text-transform: uppercase;
+           display: flex; align-items: center; gap: 8px; }
+  .kicker .live {
+    color: var(--accent); display: inline-flex; align-items: center; gap: 5px;
+    font-weight: 600;
+  }
+  .kicker .live::before {
+    content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+    box-shadow: 0 0 8px var(--accent); animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.4 } }
+  .h2 { font-size: 20px; margin: 6px 0 2px; letter-spacing: -0.2px; }
+  .sub { color: var(--text-mute); font-size: 12px; }
+
+  .head-actions { display: flex; gap: 8px; }
+  .btn {
+    background: var(--bg-card-2); color: var(--text-dim);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 7px 14px; font-size: 12px;
+  }
+  .btn.primary {
+    background: rgba(63,224,176,0.12); color: var(--accent);
+    border-color: rgba(63,224,176,0.35);
+  }
+
+  /* ===== VR Room ===== */
+  .vr-stage {
+    position: relative; height: 340px; margin: 0 14px 14px;
+    border-radius: 14px; overflow: hidden;
+    background: radial-gradient(ellipse at 50% 120%, rgba(63,224,176,0.12), transparent 60%),
+                linear-gradient(180deg, #0b1418 0%, #08100f 100%);
+    border: 1px solid var(--border-soft);
+  }
+  .vr-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(63,224,176,0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(63,224,176,0.08) 1px, transparent 1px);
+    background-size: 40px 40px;
+    transform: perspective(600px) rotateX(58deg) translateY(40px) scale(1.8);
+    transform-origin: center bottom;
+    mask-image: radial-gradient(ellipse at 50% 40%, #000 20%, transparent 75%);
+  }
+  .vr-glow {
+    position: absolute; left: 50%; bottom: 0; transform: translate(-50%, 40%);
+    width: 440px; height: 180px;
+    background: radial-gradient(ellipse, rgba(63,224,176,0.35), transparent 65%);
+    filter: blur(6px);
+  }
+  .vr-label { position: absolute; left: 16px; bottom: 14px; color: var(--text-mute);
+    font-size: 11px; letter-spacing: 1.5px; }
+  .vr-label::before { content: "👁  "; }
+  .vr-legend { position: absolute; right: 16px; bottom: 14px; display: flex; gap: 14px;
+    font-size: 11px; color: var(--text-dim); }
+  .vr-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .vr-legend span::before { content: ""; width: 8px; height: 8px; border-radius: 50%; }
+  .vr-legend .ai::before  { background: var(--ai); }
+  .vr-legend .dt::before  { background: var(--dt); }
+  .vr-legend .iot::before { background: var(--iot); }
+
+  .avatar-node {
+    position: absolute; transform: translate(-50%, -50%);
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .avatar-node .ring {
+    width: 44px; height: 44px; border-radius: 50%;
+    display: grid; place-items: center; font-weight: 700; font-size: 14px;
+    color: #0a0f13; position: relative;
+  }
+  .avatar-node .ring::after {
+    content: ""; position: absolute; inset: -6px; border-radius: 50%;
+    border: 1px solid currentColor; opacity: 0.25;
+  }
+  .avatar-node.online .ring::before {
+    content: ""; position: absolute; top: 2px; right: 2px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 0 2px var(--bg-card);
+  }
+  .avatar-node .tag {
+    font-size: 10.5px; color: var(--text-dim);
+    display: flex; gap: 4px; align-items: center;
+  }
+  .avatar-node .tag .chip {
+    font-family: var(--mono), monospace; font-size: 9px; padding: 1px 4px; border-radius: 3px;
+  }
+  .ring.ai { background: var(--ai); color: #0a0f13; }
+  .ring.dt { background: var(--dt); color: #0a0f13; }
+  .ring.iot { background: var(--iot); color: #0a0f13; }
+  .chip.ai { background: rgba(63,224,176,0.15); color: var(--ai); }
+  .chip.dt { background: rgba(244,162,92,0.15); color: var(--dt); }
+  .chip.iot { background: rgba(180,140,255,0.15); color: var(--iot); }
+
+  /* ===== Knowledge Graph (legacy, used minimally) ===== */
+  .kg-stage {
+    position: relative; height: 360px; margin: 0 14px 16px;
+    border-radius: 14px; overflow: hidden;
+    background: radial-gradient(ellipse at 50% 55%, rgba(63,224,176,0.06), transparent 60%), var(--bg-card-2);
+    border: 1px solid var(--border-soft);
+  }
+
+  /* ===== Knowledge Graph — TBox / ABox dual pane (cosmic theme) ===== */
+  .onto-section { padding: 0 !important; overflow: hidden; }
+
+  .onto-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px;
+    background: linear-gradient(180deg, rgba(244,114,182,0.06), transparent),
+                var(--bg-card);
+    border-bottom: 1px solid var(--border-soft);
+    flex-wrap: wrap; gap: 10px;
+  }
+  .onto-title {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    font-size: 13px; font-weight: 600; color: var(--text);
+  }
+  .onto-title .onto-globe { font-size: 14px; }
+  .onto-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.4px;
+    padding: 3px 9px; border-radius: 999px;
+    border: 1px solid;
+  }
+  .onto-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
+  .onto-pill-abox {
+    color: #4ade80; border-color: rgba(74,222,128,0.45);
+    background: rgba(74,222,128,0.08);
+  }
+  .onto-pill-abox::before { background: #4ade80; box-shadow: 0 0 6px #4ade80; }
+
+  .onto-rel-filter {
+    display: flex; align-items: center; gap: 12px;
+    color: var(--text-dim); font-size: 11px;
+  }
+  .onto-rel-label { color: var(--text-mute); letter-spacing: 0.5px; }
+  .onto-rel-filter label {
+    display: inline-flex; align-items: center; gap: 5px;
+    cursor: pointer; user-select: none;
+  }
+  .onto-rel-filter input[type=checkbox] {
+    accent-color: #ff6bd6; width: 12px; height: 12px;
+  }
+
+  .onto-body {
+    display: grid; grid-template-columns: 1fr;
+    height: 600px; gap: 0;
+    background: radial-gradient(circle at 50% 50%,
+                  rgba(244,114,182,0.04), transparent 55%),
+                radial-gradient(circle at 80% 30%,
+                  rgba(94,168,255,0.03), transparent 50%),
+                #050912;
+    background-image:
+      radial-gradient(circle at 50% 50%, rgba(244,114,182,0.04), transparent 55%),
+      radial-gradient(circle at 80% 30%, rgba(94,168,255,0.03), transparent 50%),
+      radial-gradient(1px 1px at 13% 14%, rgba(244,162,92,0.55) 50%, transparent),
+      radial-gradient(1px 1px at 27% 80%, rgba(244,162,92,0.45) 50%, transparent),
+      radial-gradient(1px 1px at 43% 25%, rgba(255,255,255,0.35) 50%, transparent),
+      radial-gradient(1px 1px at 67% 60%, rgba(244,162,92,0.50) 50%, transparent),
+      radial-gradient(1px 1px at 78% 12%, rgba(255,255,255,0.30) 50%, transparent),
+      radial-gradient(1px 1px at 92% 78%, rgba(244,162,92,0.55) 50%, transparent),
+      radial-gradient(1px 1px at 5% 65%, rgba(255,255,255,0.25) 50%, transparent),
+      radial-gradient(1px 1px at 88% 40%, rgba(244,162,92,0.40) 50%, transparent);
+  }
+  .onto-pane {
+    position: relative; overflow: hidden;
+  }
+  .onto-canvas {
+    position: absolute; inset: 0;
+    cursor: grab;
+    background: transparent;
+  }
+  .onto-canvas .vis-network { background: transparent !important; }
+  .onto-canvas canvas { background: transparent !important; }
+  .onto-canvas:active { cursor: grabbing; }
+  .onto-pane-abox .onto-canvas { top: 56px; }
+
+  .onto-controls {
+    position: absolute; top: 12px; left: 12px; right: 12px; z-index: 5;
+    display: flex; gap: 6px; align-items: center;
+  }
+  .onto-search-input {
+    flex: 1; padding: 6px 10px;
+    background: rgba(10,15,19,0.8);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--text); font-size: 12px; outline: none;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+  .onto-search-input::placeholder { color: var(--text-mute); }
+  .onto-search-input:focus { border-color: #ff6bd6; }
+  .onto-search-btn {
+    padding: 6px 14px;
+    background: rgba(255,107,214,0.18);
+    border: 1px solid rgba(255,107,214,0.45);
+    border-radius: 999px;
+    color: #ff6bd6; font-size: 12px; font-weight: 600;
+    cursor: pointer;
+  }
+  .onto-search-btn:hover { background: rgba(255,107,214,0.28); }
+  .onto-filter-btn {
+    padding: 6px 12px;
+    background: rgba(10,15,19,0.8);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--text-dim); font-size: 12px;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    flex-shrink: 0;
+  }
+  .onto-filter-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  .onto-stats {
+    position: absolute; bottom: 14px; left: 14px; z-index: 5;
+    display: flex; gap: 14px; flex-wrap: wrap;
+    font-family: var(--mono), monospace;
+    font-size: 10px; color: var(--text-mute);
+    pointer-events: none;
+  }
+  .onto-stats b { color: var(--text); margin-left: 3px; font-weight: 700; }
+
+  .onto-actions {
+    position: absolute; bottom: 14px; right: 14px; z-index: 5;
+    display: flex; gap: 6px;
+  }
+  .onto-actions .btn {
+    padding: 5px 11px; font-size: 11px;
+    background: rgba(10,15,19,0.85);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  /* ABox 키워드 hide 토글 */
+  .onto-section.hide-keywords .onto-stats::after {
+    content: " · 키워드 숨김"; color: var(--dt);
+  }
+
+  @media (max-width: 1100px) {
+    .onto-body { height: 540px; }
+  }
+  .kg-legend { position: absolute; right: 16px; top: 12px; display: flex; gap: 14px;
+    font-size: 11px; color: var(--text-dim); align-items: center;}
+  .kg-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .kg-legend .l-lab::before { content:""; width: 10px; height:10px; border-radius:50%; background: var(--accent); box-shadow: 0 0 8px var(--accent);}
+  .kg-legend .l-grp::before { content:""; width: 10px; height:10px; border-radius:2px; background: var(--dt);}
+  .kg-legend .l-res::before { content:""; width: 10px; height:10px; border-radius:50%; background: #0e1418; border: 1px solid var(--accent);}
+  .kg-legend .l-kw::before  { content:""; width: 10px; height:10px; border-radius:50%; background: #1a132e; border: 1px solid var(--iot);}
+  .kg-legend .l-top::before { content:""; width: 10px; height:10px; border-radius:50%; background: var(--iot);}
+  .kg-legend .l-rel { color: var(--text-mute); }
+  .kg-legend .l-rel::before { content:"—"; margin-right: 6px; color: var(--text-mute); }
+
+  /* ===== Annual Chart ===== */
+  .chart-wrap { padding: 0 24px 22px; }
+  .chart-meta { display:flex; justify-content: space-between; align-items:center;
+    font-size: 11px; color: var(--text-mute); padding: 0 2px 10px; }
+  .chart-meta .legend { display: flex; gap: 12px; }
+  .chart-meta .legend span::before { content: ""; display: inline-block;
+    width: 10px; height: 10px; border-radius: 2px; background: var(--accent); margin-right: 6px; vertical-align: middle; }
+  .bars { display: flex; gap: 8px;
+    align-items: flex-end; padding: 8px 4px 28px;
+    border-bottom: 1px solid var(--border-soft); position: relative; }
+  .bar { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; min-width: 0; }
+  .bar .val { font-size: 13px; color: var(--text); font-family: var(--mono), monospace; font-weight: 600; }
+  .bar .col {
+    width: 100%; border-radius: 4px 4px 0 0;
+    background: linear-gradient(180deg, var(--accent), #1a8567);
+    box-shadow: 0 0 16px rgba(63,224,176,0.25);
+  }
+  .bar .col.forecast {
+    background: repeating-linear-gradient(45deg, rgba(63,224,176,0.3) 0 6px, transparent 6px 12px),
+                linear-gradient(180deg, rgba(63,224,176,0.35), rgba(26,133,103,0.35));
+    border: 1px dashed rgba(63,224,176,0.4);
+  }
+  .bar .yr { position: absolute; bottom: -20px; font-family: var(--mono), monospace; font-size: 10px; color: var(--text-mute); white-space: nowrap; }
+
+  /* ===== Stats Grid 2×2 ===== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .stats-grid .card { margin-bottom: 0; display: flex; flex-direction: column; }
+  .stats-grid .card-head { padding: 14px 20px 6px; }
+  .stats-grid .h2 { font-size: 18px; }
+  .stats-grid .kicker { font-size: 11px; }
+
+  /* Row 1: Annual + Authors — equal height */
+  .stats-grid .card-annual { grid-column: 1; grid-row: 1; }
+  .stats-grid .card-authors { grid-column: 2; grid-row: 1; }
+  /* Row 2: Venues + Author-Year — equal height */
+  .stats-grid .card-venues { grid-column: 1; grid-row: 2; }
+  .stats-grid .card-ayyear { grid-column: 2; grid-row: 2; }
+
+  /* bars inside Annual Output */
+  .stats-grid .chart-wrap { padding: 0 20px 16px; flex: 1; display: flex; flex-direction: column; justify-content: flex-end; }
+  .stats-grid .bars { gap: 6px; padding-bottom: 24px; }
+  .stats-grid .bar .val { font-size: 12px; }
+  .stats-grid .bar .yr { font-size: 10px; bottom: -18px; }
+
+  /* venue / author list */
+  .rank-list { padding: 4px 20px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+  .rank-row { display: grid; grid-template-columns: 24px 1fr auto; gap: 8px; align-items: center; }
+  .rank-row .idx { font-family: var(--mono), monospace; font-size: 12px; color: var(--text-mute); }
+  .rank-row .main { min-width: 0; }
+  .rank-row .name { font-size: 14px; color: var(--text); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .venue-row { align-items: center; }
+  .venue-row .main { text-align: center; }
+  .venue-row .name { white-space: normal; text-align: center; }
+  .venue-row .right-grp { justify-content: center; }
+  .rank-row .sub-m { font-size: 11.5px; color: var(--text-mute); margin-top: 1px; }
+  .rank-row .meter { width: 100px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.05); overflow: hidden; position: relative; }
+  .rank-row .meter > span { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 3px; }
+  .rank-row .meter.dt > span  { background: var(--dt); }
+  .rank-row .meter.iot > span { background: var(--iot); }
+  .rank-row .cnt { font-family: var(--mono), monospace; font-size: 15px; color: var(--text); min-width: 36px; text-align: right; font-weight: 600; }
+  .rank-row .right-grp { display: flex; align-items: center; gap: 10px; }
+
+  /* Top Authors — avatar + name + bar + count */
+  .rank-row .avatar-lg {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 13px; font-weight: 700;
+    background: transparent; border: 1.5px solid currentColor;
+  }
+  .rank-row .avatar-lg.ai  { color: var(--ai); }
+  .rank-row .avatar-lg.dt  { color: var(--dt); }
+  .rank-row .avatar-lg.iot { color: var(--iot); }
+  .rank-row .author-name { font-size: 15px; color: var(--text); font-style: normal; font-weight: 600; }
+  .author-row { display: grid; grid-template-columns: 24px auto 1fr auto; gap: 8px; align-items: center; }
+  .author-row .who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .author-row .who .author-name {
+    cursor: pointer;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .author-row .who .author-name:hover { color: var(--accent); text-decoration: underline; }
+  .author-row .author-bar-wrap { display: flex; align-items: center; gap: 8px; justify-self: stretch; }
+  .author-hbar {
+    height: 14px; border-radius: 3px; transition: width .3s ease;
+  }
+  .author-hbar.ai  { background: linear-gradient(90deg, #1a8567, var(--accent)); }
+  .author-hbar.dt  { background: linear-gradient(90deg, #c07a30, var(--dt)); }
+  .author-hbar.iot { background: linear-gradient(90deg, #7a5cc8, var(--iot)); }
+  .author-hbar.iei { background: linear-gradient(90deg, #3a7abf, #5ea8ff); }
+  .author-row .cnt { font-family: var(--mono), monospace; font-size: 15px; color: var(--text); font-weight: 700; min-width: 30px; text-align: right; }
+  .author-row .sub-info { font-size: 11px; color: var(--text-mute); margin-top: 1px; }
+
+  /* ===== Author × Year (By Year) ===== */
+  .ay-filters { display: flex; gap: 0; padding: 0 20px 6px; flex-wrap: wrap; }
+  .ay-filters button {
+    background: transparent; border: 1px solid var(--border); color: var(--text-mute);
+    padding: 4px 10px; font-size: 12px; font-family: var(--mono), monospace;
+    cursor: pointer; transition: all .15s;
+  }
+  .ay-filters button:first-child { border-radius: 6px 0 0 6px; }
+  .ay-filters button:last-child { border-radius: 0 6px 6px 0; }
+  .ay-filters button + button { border-left: 0; }
+  .ay-filters button.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+  .ay-filters button:hover:not(.active) { background: rgba(63,224,176,0.08); color: var(--text); }
+
+  .ay-list { padding: 0 20px 10px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
+  .ay-row { display: flex; align-items: center; gap: 8px; height: 22px; }
+  .ay-row .ay-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .ay-row .ay-dot.ai  { background: var(--ai); }
+  .ay-row .ay-dot.dt  { background: var(--dt); }
+  .ay-row .ay-dot.iot { background: var(--iot); }
+  .ay-row .ay-dot.iei { background: #5ea8ff; }
+  .ay-row .ay-dot.none { background: var(--text-mute); }
+  .ay-row .ay-name { font-size: 13px; color: var(--text); font-weight: 600; min-width: 56px; white-space: nowrap; }
+  .ay-row .ay-bar-bg { flex: 1; height: 14px; background: rgba(255,255,255,0.04); border-radius: 3px; overflow: hidden; position: relative; }
+  .ay-row .ay-bar-fill { height: 100%; border-radius: 3px; transition: width .3s ease; }
+  .ay-row .ay-bar-fill.ai  { background: linear-gradient(90deg, #1a8567, var(--accent)); }
+  .ay-row .ay-bar-fill.dt  { background: linear-gradient(90deg, #c07a30, var(--dt)); }
+  .ay-row .ay-bar-fill.iot { background: linear-gradient(90deg, #7a5cc8, var(--iot)); }
+  .ay-row .ay-bar-fill.iei { background: linear-gradient(90deg, #3a7abf, #5ea8ff); }
+  .ay-row .ay-bar-fill.none { background: linear-gradient(90deg, #4a5568, #718096); }
+  .ay-row .ay-cnt { font-family: var(--mono), monospace; font-size: 14px; color: var(--text); font-weight: 700; min-width: 24px; text-align: right; }
+
+  /* ===== Paper List ===== */
+  .papers-head { display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 24px 10px; }
+  .papers-head .h2 { margin: 0; font-size: 16px; }
+  .seg {
+    display: inline-flex; background: var(--bg-card-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 2px;
+  }
+  .seg button {
+    background: transparent; border: 0; color: var(--text-mute);
+    padding: 5px 12px; font-size: 11.5px; border-radius: 6px;
+  }
+  .seg button.active { background: rgba(63,224,176,0.12); color: var(--accent); }
+
+  table.papers { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.papers thead th {
+    text-align: left; font-weight: 500; color: var(--text-mute);
+    font-size: 11px; letter-spacing: 0.3px;
+    padding: 10px 12px; border-top: 1px solid var(--border-soft);
+    border-bottom: 1px solid var(--border-soft);
+    background: var(--bg-card-2);
+  }
+  table.papers tbody td {
+    padding: 12px; border-bottom: 1px solid var(--border-soft);
+    color: var(--text-dim); vertical-align: top;
+  }
+  table.papers tbody tr:hover { background: rgba(63,224,176,0.03); }
+  table.papers td.num { font-family: var(--mono), monospace; color: var(--text-mute); width: 28px; }
+  table.papers td.title { color: var(--text); }
+  table.papers td.title .tag-new {
+    margin-left: 6px; font-family: var(--mono), monospace; font-size: 9px;
+    color: var(--accent); background: rgba(63,224,176,0.1);
+    border: 1px solid rgba(63,224,176,0.3);
+    padding: 1px 5px; border-radius: 3px; letter-spacing: 1px;
+  }
+  table.papers td.journal { font-style: italic; color: var(--text-dim); }
+  table.papers td.year { font-family: var(--mono), monospace; color: var(--text-mute); width: 60px; }
+  table.papers td.cite { font-family: var(--mono), monospace; color: var(--accent); text-align: right; width: 60px; }
+
+  /* ===== Right Sidebar ===== */
+  .rail {
+    background: var(--bg-elev);
+    border-left: 1px solid var(--border-soft);
+    padding: 18px 16px 18px;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .rail-head { display: flex; align-items: center; justify-content: space-between; }
+  .rail-head h3 { margin: 0; font-size: 13px; font-weight: 600; }
+  .rail-head .num {
+    font-family: var(--mono), monospace; font-size: 10px;
+    background: var(--accent); color: #0a0f13;
+    padding: 1px 6px; border-radius: 4px; font-weight: 700;
+  }
+  /* Lab Agent chat */
+  .rail-chat { display: flex; flex-direction: column; gap: 10px; min-height: 800px; max-height: 100vh; }
+  .rail-chat .chat-msgs {
+    flex: 1; overflow-y: auto; padding: 4px 2px;
+    display: flex; flex-direction: column; gap: 8px;
+    border: 1px solid var(--border-soft); border-radius: 10px;
+    background: var(--bg-card-2); padding: 10px;
+  }
+  .chat-msg { display: flex; }
+  .chat-msg.agent { justify-content: flex-start; }
+  .chat-msg.user { justify-content: flex-end; }
+  .chat-msg .bubble {
+    max-width: 90%;
+    padding: 8px 11px; border-radius: 10px;
+    font-size: 12px; line-height: 1.5; color: var(--text);
+    background: var(--bg-card); border: 1px solid var(--border);
+    word-break: keep-all; overflow-wrap: anywhere;
+  }
+  .chat-msg.user .bubble {
+    background: rgba(63,224,176,0.1); border-color: rgba(63,224,176,0.3); color: var(--text);
+  }
+  .rail-chat .chat-input {
+    display: flex; gap: 6px; align-items: stretch;
+  }
+  .rail-chat .chat-input input {
+    flex: 1; padding: 8px 10px;
+    background: var(--bg-card-2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 12px; outline: none;
+  }
+  .rail-chat .chat-input input:focus { border-color: var(--accent); }
+  .rail-chat .send-btn {
+    padding: 0 12px; border: none; border-radius: 8px;
+    background: var(--accent); color: #0a0f13; font-weight: 700;
+    cursor: pointer; font-size: 13px;
+  }
+  .rail-chat .send-btn:hover { filter: brightness(1.1); }
+
+  .paper-mini {
+    padding: 10px 2px; border-bottom: 1px solid var(--border-soft);
+  }
+  .paper-mini:last-child { border-bottom: 0; }
+  .paper-mini .when { color: var(--text-mute); font-size: 10px; font-family: var(--mono), monospace; margin-bottom: 6px; }
+  .paper-mini .t { font-size: 12.5px; color: var(--text); line-height: 1.35; margin-bottom: 6px; }
+  .paper-mini .m { color: var(--text-mute); font-size: 10.5px; }
+  .paper-mini .m em { font-style: italic; color: var(--text-dim); margin-right: 8px; }
+
+  .trend .t-row {
+    display: grid; grid-template-columns: 14px 1fr 90px 24px;
+    align-items: center; gap: 8px; padding: 7px 0;
+    font-size: 12px; color: var(--text-dim);
+  }
+  .t-row .arrow.up { color: var(--accent); }
+  .t-row .arrow.flat { color: var(--text-mute); }
+  .t-row .arrow.down { color: var(--danger); }
+  .t-row .bar-mini {
+    height: 3px; border-radius: 2px; background: var(--accent);
+    opacity: 0.9;
+  }
+  .t-row .num { font-family: var(--mono), monospace; font-size: 10.5px; color: var(--text-mute); text-align: right; }
+
+  /* ===== Auth Bar ===== */
+  .auth-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg-card); border: 1px solid var(--border-soft);
+    border-radius: 10px; padding: 5px 6px 5px 14px;
+  }
+  .auth-bar .auth-label {
+    color: var(--text-mute); font-size: 11.5px; white-space: nowrap;
+  }
+  .auth-bar input {
+    background: var(--bg-card-2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 6px; padding: 6px 10px;
+    font-size: 12px; outline: none; width: 100px;
+  }
+  .auth-bar input::placeholder { color: var(--text-mute); }
+  .auth-bar input[type="password"] { width: 90px; }
+  .auth-bar .login-btn {
+    background: var(--accent); color: #0a0f13; border: none;
+    border-radius: 6px; padding: 6px 14px; font-size: 12px;
+    font-weight: 600; white-space: nowrap;
+  }
+  .auth-bar .login-btn:hover { background: #52eabd; }
+  .auth-bar .login-btn:disabled {
+    opacity: 0.4; cursor: not-allowed;
+  }
+  .auth-user {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(63,224,176,0.08); border: 1px solid rgba(63,224,176,0.25);
+    border-radius: 10px; padding: 5px 8px 5px 14px;
+  }
+  .auth-user .u-avatar {
+    width: 22px; height: 22px; border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 10px; font-weight: 700; color: #0a0f13;
+  }
+  .auth-user .u-name { font-size: 12.5px; color: var(--accent); font-weight: 500; }
+  .auth-user .u-group { font-size: 10.5px; color: var(--text-mute); }
+  .auth-user .logout-btn {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text-mute); border-radius: 5px; padding: 4px 8px;
+    font-size: 10.5px; margin-left: 4px;
+  }
+  .auth-user .logout-btn:hover { color: var(--text); border-color: var(--text-dim); }
+
+  .locked-overlay {
+    position: relative;
+  }
+  .locked-overlay.locked::after {
+    content: "로그인 후 이용할 수 있습니다";
+    position: absolute; inset: 0; z-index: 10;
+    display: grid; place-items: center;
+    background: rgba(10, 15, 19, 0.7);
+    backdrop-filter: blur(2px);
+    color: var(--text-mute); font-size: 13px;
+    border-radius: 14px;
+    pointer-events: all; cursor: default;
+  }
+
+  /* ===== Researcher View ===== */
+  .crumb-path { display: flex; align-items: center; gap: 8px; color: var(--text-dim); font-size: 13px; }
+  .crumb-path .sep { color: var(--text-mute); }
+  .crumb-path a { color: var(--text-dim); cursor: pointer; }
+  .crumb-path a:hover { color: var(--text); }
+  .crumb-path .cur { color: var(--text); }
+
+  /* Profile card */
+  .profile-card {
+    display: grid; grid-template-columns: 96px 1fr 200px;
+    gap: 24px; align-items: center;
+    padding: 24px 26px;
+    background: var(--bg-card); border: 1px solid var(--border-soft);
+    border-radius: 14px; margin-bottom: 18px;
+  }
+  .profile-card .pa {
+    width: 82px; height: 82px; border-radius: 14px;
+    display: grid; place-items: center;
+    font-size: 36px; font-weight: 700;
+    background: transparent; border: 1.5px solid currentColor;
+  }
+  .profile-card .pa.ai  { color: var(--ai); }
+  .profile-card .pa.dt  { color: var(--dt); }
+  .profile-card .pa.iot { color: var(--iot); }
+
+  .profile-body h1 {
+    font-size: 26px; font-weight: 700; margin: 0 0 8px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .profile-body .role-chip {
+    font-family: var(--mono), monospace; font-size: 10px; letter-spacing: 0.5px;
+    color: var(--text-dim); background: var(--bg-card-2);
+    border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px;
+  }
+  .profile-body .interests { color: var(--text-dim); font-size: 12.5px; margin-bottom: 8px; }
+  .profile-body .interests b { color: var(--text-mute); font-weight: 400; margin-right: 6px; }
+  .profile-body .recent { color: var(--text); font-size: 13px; margin-bottom: 12px; }
+  .profile-body .recent .pill {
+    display: inline-block; font-family: var(--mono), monospace; font-size: 10px;
+    color: var(--text-mute); margin-left: 6px;
+  }
+  .profile-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .profile-tags span {
+    font-size: 11px; color: var(--accent);
+    background: rgba(63,224,176,0.08); border: 1px solid rgba(63,224,176,0.3);
+    padding: 4px 10px; border-radius: 14px;
+  }
+
+  .profile-stats { display: flex; flex-direction: column; gap: 8px; }
+  .profile-stats .row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 3px 0;
+  }
+  .profile-stats .row .l { color: var(--text-mute); font-size: 12px; }
+  .profile-stats .row .v { font-family: var(--mono), monospace; font-size: 18px; color: var(--text); font-weight: 600; }
+
+  /* Weekly digest banner */
+  .digest-banner {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 22px;
+    background: var(--bg-card); border: 1px solid var(--border-soft);
+    border-radius: 14px; margin-bottom: 18px;
+  }
+  .digest-banner .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 10px var(--accent);
+    flex-shrink: 0;
+  }
+  .digest-banner .body { flex: 1; }
+  .digest-banner .kicker2 {
+    font-size: 10px; letter-spacing: 2px; color: var(--text-mute);
+    text-transform: uppercase; margin-bottom: 2px;
+  }
+  .digest-banner .body h3 { margin: 0 0 3px; font-size: 15px; font-weight: 600; }
+  .digest-banner .body .sub-d { color: var(--text-mute); font-size: 11.5px; }
+  .digest-banner .actions { display: flex; gap: 8px; }
+
+  /* Home view tabs (Home / BIST paper) — section toggling */
+  .view-section.is-hidden { display: none !important; }
+
+  /* ===== BIST paper — Pure/SciVal 스타일 ===== */
+  /* 검색 + 수동등록 툴바 */
+  .pub-toolbar {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    padding: 14px 16px;
+  }
+  .pub-search {
+    display: flex; align-items: stretch; flex: 1 1 380px; min-width: 260px;
+    border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+    background: var(--bg-card-2);
+  }
+  .pub-search select {
+    background: var(--bg-card); border: 0; border-right: 1px solid var(--border);
+    color: var(--text-dim); font-size: 12px; padding: 0 10px; cursor: pointer;
+  }
+  .pub-search input {
+    flex: 1; background: transparent; border: 0; color: var(--text);
+    padding: 9px 12px; font-size: 12.5px; min-width: 80px;
+  }
+  .pub-search input:focus { outline: none; }
+  .pub-search input::placeholder { color: var(--text-mute); }
+  .pub-search .pub-search-btn {
+    background: var(--accent); border: 0; color: #06231b; padding: 0 14px;
+    font-size: 13px; cursor: pointer;
+  }
+  .pub-toolbar-actions { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+  .pub-sync { font-size: 11px; color: var(--text-mute); }
+  .pub-sync .ok { color: var(--accent); }
+  .pub-sync .warn { color: var(--dt); }
+  .pub-sync .err { color: #ff7a7a; }
+  .btn-reg {
+    background: var(--bg-card); border: 1px solid var(--accent); border-radius: 8px;
+    color: var(--accent); padding: 7px 14px; font-size: 12px; cursor: pointer; white-space: nowrap;
+  }
+  .btn-reg:hover { background: rgba(63,224,176,0.1); }
+  .btn-sync {
+    background: transparent; border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text-dim); padding: 7px 12px; font-size: 12px; cursor: pointer; white-space: nowrap;
+  }
+  .btn-sync:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-sync:disabled { opacity: 0.5; cursor: default; }
+
+  /* 라인차트 + 지표 카드 오버뷰 */
+  .pub-overview {
+    display: grid; grid-template-columns: 1.6fr 1fr; gap: 14px; align-items: stretch;
+    background: transparent; border: 0; padding: 0; margin-bottom: 22px;
+  }
+  /* 결과 리스트 섹션 위쪽 간격 */
+  .pub-overview + .view-bist { margin-top: 8px; }
+  @media (max-width: 1100px) { .pub-overview { grid-template-columns: 1fr; } }
+  .pub-linechart { margin: 0; }
+  .pub-linechart .chart-body { padding: 8px 4px 0; }
+  #pubLineChart svg { width: 100%; height: auto; display: block; }
+  #pubLineChart .ln-area { fill: rgba(63,224,176,0.12); }
+  #pubLineChart .ln-line { fill: none; stroke: var(--accent); stroke-width: 2; }
+  #pubLineChart .ln-dot { fill: var(--bg-card); stroke: var(--accent); stroke-width: 2; }
+  #pubLineChart .ln-dot-fore { fill: var(--dt); stroke: var(--dt); }
+  #pubLineChart .ln-val { fill: var(--text); font-size: 10px; font-family: var(--mono), monospace; text-anchor: middle; }
+  #pubLineChart .ln-xlabel { fill: var(--text-mute); font-size: 9.5px; font-family: var(--mono), monospace; text-anchor: middle; }
+  #pubLineChart .ln-grid { stroke: var(--border-soft); stroke-width: 1; }
+
+  .pub-metrics {
+    display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px;
+  }
+  .metric-card {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; display: flex; flex-direction: column; justify-content: center;
+    gap: 8px; min-height: 112px;
+  }
+  .metric-card .m-label { font-size: 23px; font-weight: 600; color: var(--text-dim); letter-spacing: 0.2px; line-height: 1.15; }
+  .metric-card .m-value { font-size: 30px; font-weight: 700; color: var(--accent); line-height: 1; }
+  .metric-card .m-sub { font-size: 10.5px; color: var(--text-mute); }
+  .metric-card.accent .m-value { color: var(--accent); }
+
+  /* 결과 리스트 (Pure 스타일) */
+  .pub-results-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 4px 24px 12px; margin-bottom: 4px; border-bottom: 1px solid var(--border-soft);
+    flex-wrap: wrap;
+  }
+  .pub-found { font-size: 13px; color: var(--text); font-weight: 600; }
+  .pub-found .q { color: var(--accent); }
+  .pub-sort { display: flex; align-items: center; gap: 8px; }
+  .pub-sort label { font-size: 11px; color: var(--text-mute); }
+  .pub-sort select {
+    background: var(--bg-card-2); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text-dim); padding: 6px 10px; font-size: 12px; cursor: pointer;
+  }
+  .pub-row {
+    padding: 14px 24px; border-bottom: 1px solid var(--border-soft);
+  }
+  .pub-row:last-child { border-bottom: 0; }
+  .pub-row .pr-title {
+    font-size: 13.5px; color: var(--text); font-weight: 600; line-height: 1.45;
+    margin-bottom: 5px;
+  }
+  .pub-row .pr-title a { color: inherit; text-decoration: none; }
+  .pub-row .pr-title a:hover { color: var(--accent); text-decoration: underline; }
+  .pub-row .pr-title .tag-new {
+    display: inline-block; font-size: 9px; font-weight: 700; color: #06231b;
+    background: var(--accent); border-radius: 4px; padding: 1px 5px; margin-left: 6px;
+    vertical-align: middle; letter-spacing: 0.5px;
+  }
+  .pub-row .pr-authors { font-size: 12px; color: var(--text-dim); margin-bottom: 7px; line-height: 1.4; }
+  .pub-row .pr-authors .me { color: var(--accent); font-weight: 600; }
+  .pub-row .pr-meta {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px;
+    font-size: 11px; color: var(--text-mute);
+  }
+  .pub-row .pr-meta .k { color: var(--text-dim); }
+  .pub-row .pr-meta .v { color: var(--text-dim); }
+  .pub-row .pr-meta .src { font-style: italic; color: var(--text-dim); }
+  .pub-row .pr-meta .sep { color: var(--border); }
+  .pub-row .pr-meta .db {
+    display: inline-block; font-size: 9.5px; font-weight: 600; padding: 1px 7px;
+    border-radius: 4px; letter-spacing: 0.3px;
+  }
+  .pub-row .pr-meta .db.scopus { background: rgba(230,80,55,0.14); color: #ff8a6e; }
+  .pub-row .pr-meta .db.manual { background: rgba(180,140,255,0.14); color: var(--iot); }
+  .pub-row .pr-meta .db.scie { background: rgba(63,224,176,0.14); color: var(--accent); }
+  .pub-row .pr-meta .db.kci { background: rgba(94,168,255,0.16); color: #5ea8ff; }
+  .pub-empty { padding: 40px; text-align: center; color: var(--text-mute); font-size: 12.5px; }
+
+  /* DOI 수동 등록 모달 */
+  .pub-modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 300;
+    background: rgba(0,0,0,0.62); align-items: center; justify-content: center;
+  }
+  .pub-modal-overlay.open { display: flex; }
+  .pub-modal {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 22px; width: 440px; max-width: calc(100vw - 40px);
+  }
+  .pub-modal h3 { margin: 0 0 4px; font-size: 15px; color: var(--text); }
+  .pub-modal .sub { font-size: 11.5px; color: var(--text-mute); margin-bottom: 16px; line-height: 1.5; }
+  .pub-modal label { display: block; font-size: 11px; color: var(--text-mute); margin: 12px 0 5px; }
+  .pub-modal input, .pub-modal select {
+    width: 100%; box-sizing: border-box; background: var(--bg-card-2);
+    border: 1px solid var(--border); border-radius: 8px; color: var(--text);
+    padding: 9px 12px; font-size: 12.5px;
+  }
+  .pub-modal input:focus, .pub-modal select:focus { outline: none; border-color: var(--accent); }
+  .pub-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+  .pub-modal-actions .cancel {
+    background: transparent; border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text-dim); padding: 8px 16px; font-size: 12px; cursor: pointer;
+  }
+  .pub-modal-actions .submit {
+    background: var(--accent); border: 1px solid var(--accent); border-radius: 8px;
+    color: #06231b; padding: 8px 18px; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .pub-modal-actions .submit:disabled { opacity: 0.5; cursor: default; }
+  .pub-modal-msg { font-size: 11.5px; margin-top: 12px; min-height: 16px; line-height: 1.4; }
+  .pub-modal-msg.err { color: #ff7a7a; }
+  .pub-modal-msg.ok { color: var(--accent); }
+  .btn-more {
+    display: block; width: auto; margin: 12px 24px 4px; padding: 10px;
+    background: var(--bg-card-2); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text-mute); font-size: 12px; cursor: pointer;
+  }
+  .btn-more:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* 수동 등록 모달 — 탭·투고논문 폼·관리리스트 */
+  .pub-modal-lg { width: 520px; }
+  .reg-tabs { display: flex; gap: 4px; margin: 6px 0 14px; border-bottom: 1px solid var(--border); }
+  .reg-tab {
+    background: transparent; border: 0; border-bottom: 2px solid transparent;
+    color: var(--text-mute); padding: 8px 12px; font-size: 12.5px; cursor: pointer; margin-bottom: -1px;
+  }
+  .reg-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .reg-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .reg-row3 { display: grid; grid-template-columns: 1fr 0.7fr 1.1fr; gap: 10px; }
+  .cls-seg { display: inline-flex; gap: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .cls-seg .cls-opt {
+    background: var(--bg-card-2); border: 0; border-right: 1px solid var(--border);
+    color: var(--text-mute); padding: 8px 18px; font-size: 12px; cursor: pointer;
+  }
+  .cls-seg .cls-opt:last-child { border-right: 0; }
+  .cls-seg .cls-opt.active { background: rgba(63,224,176,0.14); color: var(--accent); font-weight: 600; }
+  .reg-manage { margin-top: 20px; border-top: 1px solid var(--border-soft); padding-top: 14px; }
+  .reg-manage-head { font-size: 12px; color: var(--text-dim); margin-bottom: 8px; font-weight: 600; }
+  .reg-manage-head span { color: var(--text-mute); font-weight: 400; }
+  #progList { max-height: 220px; overflow-y: auto; }
+  .reg-item {
+    display: flex; align-items: center; gap: 8px; padding: 8px 2px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .reg-item:last-child { border-bottom: 0; }
+  .reg-item .ri-main { flex: 1; min-width: 0; }
+  .reg-item .ri-title { font-size: 12px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .reg-item .ri-sub { font-size: 10.5px; color: var(--text-mute); margin-top: 2px; }
+  .reg-item select {
+    background: var(--bg-card-2); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text-dim); font-size: 11px; padding: 4px 6px;
+  }
+  .reg-item .ri-del {
+    background: transparent; border: 0; color: var(--text-mute); cursor: pointer; font-size: 14px; padding: 2px 6px;
+  }
+  .reg-item .ri-del:hover { color: #ff7a7a; }
+  .reg-empty { color: var(--text-mute); font-size: 11.5px; padding: 14px 0; text-align: center; }
+
+  /* 상태 뱃지 (결과 리스트·관리리스트 공용) */
+  .st-badge {
+    display: inline-block; font-size: 9.5px; font-weight: 700; padding: 1px 7px;
+    border-radius: 4px; letter-spacing: 0.3px; vertical-align: middle;
+  }
+  .st-badge.under_review { background: rgba(244,162,92,0.16); color: var(--dt); }
+  .st-badge.published { background: rgba(63,224,176,0.14); color: var(--accent); }
+
+  /* 관리자 페이지 */
+  .admin-stats { display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 16px; padding: 0 24px; }
+  .admin-stats .as-chip {
+    background: var(--bg-card-2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 16px; font-size: 12px; color: var(--text-dim);
+  }
+  .admin-stats .as-chip b { color: var(--text); font-size: 18px; font-weight: 700; margin-right: 4px; }
+  /* 관리 패널 — 카드 좌우 여백(카드헤드 22~24px와 정렬) */
+  .admin-panel { padding: 0 24px 6px; }
+  .admin-table-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 13px; font-weight: 700; color: var(--text);
+    padding-bottom: 8px; border-bottom: 1px solid var(--border-soft); margin-bottom: 12px;
+  }
+  .admin-table-head span:first-child span { color: var(--text-mute); font-weight: 400; }
+  .admin-controls { display: flex; gap: 8px; margin-bottom: 10px; }
+  .admin-controls input[type="text"] {
+    flex: 1; background: var(--bg-card-2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); padding: 7px 12px; font-size: 12px;
+  }
+  .admin-controls input[type="text"]:focus { outline: none; border-color: var(--accent); }
+  .admin-controls select {
+    background: var(--bg-card-2); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text-dim); padding: 7px 10px; font-size: 12px; cursor: pointer;
+  }
+  .admin-row .ar-src {
+    font-size: 9.5px; font-weight: 600; padding: 1px 7px; border-radius: 4px; flex-shrink: 0;
+  }
+  .admin-row .ar-src.scopus { background: rgba(230,80,55,0.14); color: #ff8a6e; }
+  .admin-row .ar-src.scie { background: rgba(63,224,176,0.14); color: var(--accent); }
+  .admin-row .ar-src.kci { background: rgba(94,168,255,0.16); color: #5ea8ff; }
+  .admin-row .ar-ro { font-size: 11px; color: var(--text-mute); flex-shrink: 0; padding: 5px 8px; }
+  .admin-row {
+    display: flex; align-items: center; gap: 12px; padding: 11px 4px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .admin-row:last-child { border-bottom: 0; }
+  .admin-row .ar-main { flex: 1; min-width: 0; }
+  .admin-row .ar-title { font-size: 12.5px; color: var(--text); line-height: 1.4; }
+  .admin-row .ar-sub { font-size: 11px; color: var(--text-mute); margin-top: 3px; }
+  .admin-row select {
+    background: var(--bg-card-2); border: 1px solid var(--border); border-radius: 7px;
+    color: var(--text-dim); font-size: 11.5px; padding: 5px 8px; flex-shrink: 0;
+  }
+  .admin-row .ar-del {
+    background: transparent; border: 1px solid var(--border); border-radius: 7px;
+    color: var(--text-mute); cursor: pointer; font-size: 12px; padding: 5px 9px; flex-shrink: 0;
+  }
+  .admin-row .ar-del:hover { color: #ff7a7a; border-color: #ff7a7a; }
+  .head-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+  /* 상태 필터 (결과 헤드) */
+  .pub-status-filter {
+    background: var(--bg-card-2); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text-dim); padding: 6px 10px; font-size: 12px; cursor: pointer; margin-right: 8px;
+  }
+  .btn-excel {
+    display: inline-flex; align-items: center; gap: 6px; margin-left: 10px;
+    background: rgba(33,115,70,0.18); border: 1px solid #2e7d46; border-radius: 8px;
+    color: #6fce8f; padding: 6px 12px; font-size: 12px; cursor: pointer; white-space: nowrap;
+  }
+  .btn-excel:hover { background: rgba(33,115,70,0.30); }
+
+  /* Tabs */
+  .tabs {
+    display: flex; gap: 6px; align-items: center;
+    margin-bottom: 14px; padding: 0 2px;
+  }
+  #homeViewTabs { width: 100%; }
+  #homeViewTabs .spacer { flex: 1 1 auto; }
+  #tabAdmin { margin-left: auto; }
+  .tabs .tab {
+    background: var(--bg-card-2); border: 1px solid var(--border);
+    color: var(--text-dim); padding: 7px 14px; border-radius: 20px;
+    font-size: 12px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .tabs .tab.active { background: var(--text); color: #0a0f13; border-color: var(--text); font-weight: 600; }
+  .tabs .tab .n { font-family: var(--mono), monospace; font-size: 10.5px; opacity: 0.75; }
+  .tabs .spacer { flex: 1; }
+  .tabs .display-info { color: var(--text-mute); font-size: 11px; }
+  .date-filter {
+    background: var(--bg-card-2); border: 1px solid var(--border);
+    color: var(--text-dim); border-radius: 8px; padding: 6px 10px;
+    font-size: 12px; outline: none;
+  }
+  .date-filter:focus { border-color: var(--accent); color: var(--text); }
+
+  /* Matched paper card */
+  .match-card {
+    background: var(--bg-card); border: 1px solid var(--border-soft);
+    border-radius: 14px; padding: 20px 22px; margin-bottom: 14px;
+    cursor: pointer; transition: border-color .15s, background .15s;
+  }
+  .match-card:hover { border-color: rgba(63,224,176,0.3); }
+  .match-card.grade-core { border-left: 3px solid var(--accent); }
+  .match-card.grade-related { border-left: 3px solid var(--dt); }
+  .match-card.grade-reference { border-left: 3px solid var(--iot); }
+  .match-head { display: grid; grid-template-columns: 56px 1fr auto; gap: 16px; align-items: flex-start; }
+
+  /* Grade badge */
+  .grade-badge {
+    font-family: var(--mono), monospace; font-size: 9px; font-weight: 700;
+    letter-spacing: 1px; padding: 2px 8px; border-radius: 4px;
+    text-transform: uppercase; display: inline-block; margin-right: 6px;
+  }
+  .grade-badge.core {
+    color: var(--accent); background: rgba(63,224,176,0.12);
+    border: 1px solid rgba(63,224,176,0.35);
+  }
+  .grade-badge.related {
+    color: var(--dt); background: rgba(244,162,92,0.12);
+    border: 1px solid rgba(244,162,92,0.35);
+  }
+  .grade-badge.reference {
+    color: var(--iot); background: rgba(180,140,255,0.12);
+    border: 1px solid rgba(180,140,255,0.35);
+  }
+
+  .score-ring {
+    --p: 90;
+    width: 52px; height: 52px; border-radius: 50%;
+    display: grid; place-items: center;
+    font-family: var(--mono), monospace; font-size: 16px; font-weight: 700;
+    color: var(--accent);
+    background:
+      conic-gradient(var(--accent) calc(var(--p) * 1%), rgba(63,224,176,0.1) 0);
+    position: relative;
+  }
+  .score-ring.ring-related { color: var(--dt);
+    background: conic-gradient(var(--dt) calc(var(--p) * 1%), rgba(244,162,92,0.1) 0);
+  }
+  .score-ring.ring-reference { color: var(--iot);
+    background: conic-gradient(var(--iot) calc(var(--p) * 1%), rgba(180,140,255,0.1) 0);
+  }
+  .score-ring::after {
+    content: ""; position: absolute; inset: 3px; border-radius: 50%;
+    background: var(--bg-card);
+  }
+  .score-ring span { position: relative; z-index: 1; }
+
+  .match-title {
+    font-size: 16px; color: var(--text); margin: 0 0 4px;
+    font-weight: 600;
+  }
+  .match-meta {
+    color: var(--text-mute); font-size: 11.5px;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .match-meta em { color: var(--text-dim); font-style: italic; }
+  .match-meta .dot-sep { color: var(--text-mute); }
+  .match-meta .when { font-family: var(--mono), monospace; font-size: 10.5px; color: var(--text-mute); }
+  .match-new {
+    font-family: var(--mono), monospace; font-size: 9px; color: var(--accent);
+    background: rgba(63,224,176,0.1); border: 1px solid rgba(63,224,176,0.35);
+    padding: 2px 6px; border-radius: 3px; letter-spacing: 1px;
+  }
+
+  /* Structured summary sections */
+  .summary-sections { margin: 12px 0 14px; }
+  .summary-sections .ss-row {
+    display: flex; gap: 8px; padding: 4px 0; font-size: 12.5px; line-height: 1.55;
+  }
+  .summary-sections .ss-icon {
+    flex-shrink: 0; width: 20px; text-align: center; font-size: 11px; padding-top: 2px;
+  }
+  .summary-sections .ss-label {
+    flex-shrink: 0; width: 56px; color: var(--text-mute); font-size: 11px;
+    font-weight: 600; padding-top: 1px;
+  }
+  .summary-sections .ss-text { color: var(--text-dim); flex: 1; }
+  .match-summary {
+    color: var(--text); font-size: 13px; line-height: 1.55;
+    margin: 12px 0 14px;
+  }
+
+  /* 3-axis score bar */
+  .score-axes {
+    display: flex; gap: 16px; font-size: 10.5px; color: var(--text-mute);
+    font-family: var(--mono), monospace; margin-top: 8px;
+  }
+  .score-axes .ax {
+    display: flex; align-items: center; gap: 4px;
+  }
+  .score-axes .ax-label { color: var(--text-mute); }
+  .score-axes .ax-val { color: var(--text-dim); font-weight: 600; }
+
+  .why-box {
+    background: var(--bg-card-2); border: 1px solid var(--border-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;
+  }
+  .why-box .why-head {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10.5px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--text-mute); margin-bottom: 8px;
+  }
+  .why-box .why-head::before { content: "✦"; color: var(--accent); }
+  .why-box p { margin: 0 0 8px; color: var(--text-dim); font-size: 12.5px; line-height: 1.55; }
+  .why-box .why-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .why-box .why-tags span {
+    font-family: var(--mono), monospace; font-size: 10px; color: var(--text-dim);
+    background: var(--bg-card); border: 1px solid var(--border);
+    padding: 2px 7px; border-radius: 3px;
+  }
+
+  .match-foot {
+    display: flex; align-items: center; gap: 6px;
+    border-top: 1px solid var(--border-soft); padding-top: 12px;
+  }
+  .match-foot .kw {
+    font-size: 10.5px; color: var(--text-dim);
+    background: var(--bg-card-2); border: 1px solid var(--border);
+    padding: 2px 8px; border-radius: 3px;
+  }
+  .match-foot .cite {
+    font-family: var(--mono), monospace; font-size: 11px; color: var(--text-mute);
+    margin-left: 4px;
+  }
+  .match-foot .spacer { flex: 1; }
+  .match-foot .ico {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text-mute); display: grid; place-items: center;
+    font-size: 12px;
+  }
+  .match-foot .ico:hover { color: var(--text); border-color: var(--text-dim); }
+  .match-foot .fb-btn {
+    padding: 4px 10px; border-radius: 6px; font-size: 11px;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--text-dim); display: inline-flex; align-items: center; gap: 4px;
+    cursor: pointer; transition: all .15s; font-family: inherit;
+  }
+  .match-foot .fb-btn:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+  .match-foot .fb-btn.active-useful {
+    background: rgba(63,224,176,0.12); color: var(--accent);
+    border-color: rgba(63,224,176,0.4);
+  }
+  .match-foot .fb-btn.active-not-relevant {
+    background: rgba(255,107,107,0.1); color: var(--danger);
+    border-color: rgba(255,107,107,0.3);
+  }
+  .share-modal {
+    width: min(420px, 100%); max-height: 80vh; overflow-y: auto;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 22px;
+  }
+  .share-modal .close {
+    float: right; background: transparent; border: 0; color: var(--text-mute);
+    font-size: 16px; cursor: pointer;
+  }
+  .share-modal .close:hover { color: var(--text); }
+  .share-modal h3 { margin: 0 0 6px; font-size: 16px; }
+  .share-modal .share-sub { color: var(--text-mute); font-size: 12px; margin-bottom: 14px; }
+  .share-list { display: flex; flex-direction: column; gap: 6px; }
+  .share-person {
+    display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: center;
+    width: 100%; padding: 9px 10px; border-radius: 8px;
+    background: var(--bg-card-2); border: 1px solid var(--border-soft);
+    color: var(--text); text-align: left;
+  }
+  .share-person:hover { border-color: rgba(63,224,176,0.4); }
+  .share-person .mini-avatar {
+    width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 12px;
+  }
+  .share-person .who { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .share-person .name { font-size: 13px; font-weight: 600; }
+  .share-person .email { color: var(--text-mute); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .share-person .group { color: var(--text-mute); font-size: 10px; }
+  .share-status { min-height: 18px; margin-top: 12px; color: var(--text-mute); font-size: 12px; }
+  .share-status.ok { color: var(--accent); }
+  .share-status.err { color: var(--danger); }
+
+  /* ===== Paper Modal ===== */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(4, 8, 10, 0.72);
+    backdrop-filter: blur(6px); z-index: 100;
+    display: none; align-items: center; justify-content: center;
+    padding: 40px 20px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    width: min(820px, 100%); max-height: 90vh; overflow-y: auto;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 32px 36px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(63,224,176,0.06);
+    display: grid; grid-template-columns: 1fr 220px; gap: 28px;
+    position: relative;
+  }
+  .modal .close {
+    position: absolute; top: 16px; right: 16px;
+    background: transparent; border: 0; color: var(--text-mute);
+    font-size: 18px; width: 28px; height: 28px; border-radius: 6px;
+  }
+  .modal .close:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+  .modal .m-meta {
+    font-size: 11.5px; color: var(--text-mute);
+    display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  }
+  .modal .m-meta em { color: var(--text-dim); font-style: italic; }
+  .modal .m-meta .tag-new {
+    font-family: var(--mono), monospace; font-size: 9px; color: var(--accent);
+    background: rgba(63,224,176,0.1); border: 1px solid rgba(63,224,176,0.35);
+    padding: 2px 6px; border-radius: 3px; letter-spacing: 1px;
+  }
+  .modal h1.m-title {
+    font-size: 22px; font-weight: 600; line-height: 1.3;
+    color: var(--text); margin: 0 0 10px;
+  }
+  .modal .m-authors { color: var(--text-dim); font-size: 13px; margin-bottom: 22px; }
+  .modal .m-label {
+    font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--text-mute); display: flex; align-items: center; gap: 6px;
+    margin-bottom: 8px;
+  }
+  .modal .m-label::before { content: "✦"; color: var(--accent); font-size: 10px; }
+  .modal .m-section { margin-bottom: 18px; }
+  .modal .m-section p { margin: 0; color: var(--text); font-size: 13px; line-height: 1.6; }
+  .modal .m-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .modal .m-chips span {
+    font-family: var(--mono), monospace; font-size: 11px; color: var(--text-dim);
+    background: var(--bg-card-2); border: 1px solid var(--border);
+    padding: 4px 10px; border-radius: 4px;
+  }
+
+  .modal .m-right { display: flex; flex-direction: column; gap: 10px; }
+  .modal .stat-box {
+    background: var(--bg-card-2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px 14px; text-align: center;
+  }
+  .modal .stat-box .big {
+    font-size: 30px; font-weight: 700; color: var(--accent);
+    font-family: var(--mono), monospace; line-height: 1;
+  }
+  .modal .stat-box .lbl { font-size: 11px; color: var(--text-mute); margin-top: 6px; }
+  .modal .m-tags-box { }
+  .modal .m-tags-box .m-label { margin-bottom: 6px; }
+  .modal .m-tags-box .tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .modal .m-tags-box .tags span {
+    font-size: 10.5px; color: var(--accent);
+    background: rgba(63,224,176,0.08); border: 1px solid rgba(63,224,176,0.25);
+    padding: 2px 8px; border-radius: 3px;
+  }
+  .modal .m-btn {
+    background: var(--bg-card-2); border: 1px solid var(--border);
+    color: var(--text-dim); border-radius: 8px; padding: 10px 12px;
+    font-size: 12.5px; text-align: left;
+    display: flex; align-items: center; gap: 8px;
+    transition: background .12s, color .12s, border-color .12s;
+  }
+  .modal .m-btn:hover { background: rgba(255,255,255,0.03); color: var(--text); }
+  .modal .m-btn.primary {
+    background: var(--accent); color: #0a0f13; border-color: var(--accent);
+    font-weight: 600; justify-content: center; padding: 12px;
+    box-shadow: 0 0 20px rgba(63,224,176,0.25);
+  }
+  .modal .m-btn.primary:hover { background: #52eabd; color: #0a0f13; }
+
+  /* clickable rows */
+  table.papers tbody tr { cursor: pointer; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #1d2a32; border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: #2a3a44; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ========== LEFT SIDEBAR ========== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">▦</div>
+      <div>
+        <div class="title">Paper Radar</div>
+        <div class="sub">BIST Research Lab</div>
+      </div>
+    </div>
+
+    <div class="search">
+      <input placeholder="연구자 또는 그룹 검색..." />
+      <span class="kbd">⌘K</span>
+    </div>
+
+    <div class="section-label">Hierarchy</div>
+
+    <div class="tree">
+      <div class="tree-node active">
+        <span class="icon">⌂</span>
+        <span class="name">BIST Lab</span>
+        <span class="count">17</span>
+      </div>
+
+      <!-- Professor -->
+      <div class="tree-node">
+        <span class="icon">★</span>
+        <span class="name">윤성민</span>
+        <span class="badge">Professor</span>
+      </div>
+
+      <!-- HVAC -->
+      <div class="tree-node">
+        <span class="icon">∷</span>
+        <span class="name">HVAC</span>
+        <span class="badge ai">HVAC</span>
+        <span class="count">5</span>
+      </div>
+      <div class="child">
+        <div class="tree-node"><span class="avatar ai">구</span><span class="name">구자범</span><span class="badge">박사과정</span></div>
+        <div class="tree-node"><span class="avatar ai">이</span><span class="name">이제윤</span><span class="badge">박사과정</span></div>
+        <div class="tree-node"><span class="avatar ai">M</span><span class="name">Min Htet Myint</span><span class="badge">박사과정</span></div>
+        <div class="tree-node"><span class="avatar ai">이</span><span class="name">이우흠</span><span class="badge">석박사통합</span></div>
+        <div class="tree-node"><span class="avatar ai">이</span><span class="name">이지텅</span><span class="badge">박사후연구원</span></div>
+      </div>
+
+      <!-- UBI -->
+      <div class="tree-node">
+        <span class="icon">∷</span>
+        <span class="name">UBI</span>
+        <span class="badge dt">UBI</span>
+        <span class="count">5</span>
+      </div>
+      <div class="child">
+        <div class="tree-node"><span class="avatar dt">최</span><span class="name">최세빈</span><span class="badge">석박사통합</span></div>
+        <div class="tree-node"><span class="avatar dt">이</span><span class="name">이고운</span><span class="badge">석사과정</span></div>
+        <div class="tree-node"><span class="avatar dt">유</span><span class="name">유재현</span><span class="badge">석사과정</span></div>
+        <div class="tree-node"><span class="avatar dt">석</span><span class="name">석민주</span><span class="badge">석사과정</span></div>
+        <div class="tree-node"><span class="avatar dt">장</span><span class="name">장세원</span><span class="badge">석박사통합</span></div>
+      </div>
+
+      <!-- AI agent -->
+      <div class="tree-node">
+        <span class="icon">∷</span>
+        <span class="name">AI agent</span>
+        <span class="badge iot">AI</span>
+        <span class="count">3</span>
+      </div>
+      <div class="child">
+        <div class="tree-node"><span class="avatar iot">송</span><span class="name">송지환</span><span class="badge">석사과정</span></div>
+        <div class="tree-node"><span class="avatar iot">사</span><span class="name">사이에드</span><span class="badge">석사과정</span></div>
+        <div class="tree-node"><span class="avatar iot">장</span><span class="name">장병준</span><span class="badge">학부연구생</span></div>
+      </div>
+
+      <!-- IEI -->
+      <div class="tree-node">
+        <span class="icon">∷</span>
+        <span class="name">IEI</span>
+        <span class="badge" style="color:#5ea8ff; border-color:rgba(94,168,255,0.3);">IEI</span>
+        <span class="count">3</span>
+      </div>
+      <div class="child">
+        <div class="tree-node"><span class="avatar" style="background:#5ea8ff;">황</span><span class="name">황재민</span><span class="badge">석사과정</span></div>
+        <div class="tree-node"><span class="avatar" style="background:#5ea8ff;">황</span><span class="name">황여진</span><span class="badge">학부연구생</span></div>
+        <div class="tree-node"><span class="avatar" style="background:#5ea8ff;">이</span><span class="name">이장원</span><span class="badge">석사과정</span></div>
+      </div>
+    </div>
+
+    <div class="user-chip">
+      <div class="avatar" style="background:var(--accent);">G</div>
+      <div class="meta">
+        <div class="n">게스트</div>
+        <div class="s">로그인 필요</div>
+      </div>
+      <span class="status" style="background:var(--text-mute); box-shadow:none;"></span>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN ========== -->
+  <main class="main">
+    <div class="topbar">
+      <div class="crumb-path" id="crumb">
+        <a data-go-home>BIST Lab</a>
+      </div>
+      <div class="spacer"></div>
+
+      <!-- Auth: 로그인 전 -->
+      <div class="auth-bar" id="authBar">
+        <span class="auth-label">연구원 로그인</span>
+        <input id="authName" placeholder="이름" autocomplete="off" />
+        <input id="authPw" type="password" placeholder="비밀번호" />
+        <button class="login-btn" id="loginBtn">로그인</button>
+        <a class="login-btn" href="/litreview/login" style="background:transparent; color:var(--accent); border:1px solid rgba(63,224,176,0.35);">회원가입</a>
+      </div>
+
+      <!-- Auth: 로그인 후 (숨김) -->
+      <div class="auth-user" id="authUser" style="display:none;">
+        <span class="u-avatar" id="authAvatar">이</span>
+        <span class="u-name" id="authUserName">이고운</span>
+        <span class="u-group" id="authUserGroup">Agentic AI</span>
+        <button class="logout-btn" id="logoutBtn">로그아웃</button>
+      </div>
+
+      <a class="icon-btn" href="/litreview/profile" title="프로필 설정" id="profileBtn" style="text-decoration:none; display:none;">⚙</a>
+      <button class="sort-btn">정렬: 관련도 ↓</button>
+    </div>
+
+    <!-- ========== RESEARCHER VIEW (hidden by default) ========== -->
+    <div id="viewResearcher" style="display:none;">
+      <!-- Profile card -->
+      <div class="profile-card">
+        <div class="pa" id="rPA">이</div>
+        <div class="profile-body">
+          <h1>
+            <span id="rName">이고운</span>
+            <span class="role-chip" id="rRole">PhD Candidate · Agentic AI</span>
+            <a id="rRecLink" href="#" style="margin-left:auto; padding:4px 12px; background:rgba(63,224,176,0.1); border:1px solid var(--accent); border-radius:6px; color:var(--accent); font-size:12px; font-weight:500; text-decoration:none;">📖 추천 상세 보기 →</a>
+          </h1>
+          <div class="interests"><b>관심 키워드:</b><span id="rInterests">로딩 중…</span></div>
+          <div class="recent" id="rRecent" style="display:none;"></div>
+          <div class="profile-tags" id="rTags">
+            <span>LLM 에이전트</span><span>건물 FDD</span><span>Tool-calling</span>
+          </div>
+        </div>
+        <div class="profile-stats">
+          <div class="row"><span class="l">읽음</span><span class="v" id="rRead">142</span></div>
+          <div class="row"><span class="l">저장</span><span class="v" id="rSaved">38</span></div>
+          <div class="row"><span class="l">인용</span><span class="v" id="rCites">12</span></div>
+        </div>
+      </div>
+
+      <!-- Weekly digest banner -->
+      <div class="digest-banner">
+        <div class="dot"></div>
+        <div class="body">
+          <div class="kicker2">Daily Digest · DB 연동</div>
+          <h3 id="digestLine">추천 데이터 로딩 중…</h3>
+          <div class="sub-d">매일 10:00 자동 발송 · 구독 활성</div>
+        </div>
+        <div class="actions">
+          <button class="btn primary">전체 보기</button>
+          <button class="btn">설정</button>
+        </div>
+      </div>
+
+      <!-- Tabs: 등급별 + 상태별 필터 -->
+      <div class="tabs">
+        <button class="tab active" data-filter="all">전체 <span class="n" id="tabAll">0</span></button>
+        <button class="tab" data-filter="core" style="border-color:rgba(63,224,176,0.3);">Core <span class="n" id="tabCore" style="color:var(--accent);">0</span></button>
+        <button class="tab" data-filter="related" style="border-color:rgba(244,162,92,0.3);">Related <span class="n" id="tabRelated" style="color:var(--dt);">0</span></button>
+        <button class="tab" data-filter="reference" style="border-color:rgba(180,140,255,0.3);">Reference <span class="n" id="tabRef" style="color:var(--iot);">0</span></button>
+        <button class="tab" data-filter="saved">저장 <span class="n" id="tabSaved">0</span></button>
+        <button class="tab" data-filter="unread">안 읽음 <span class="n" id="tabUnread">0</span></button>
+        <div class="spacer"></div>
+        <select class="date-filter" id="recDateFilter" title="추천 날짜 필터">
+          <option value="all">전체 날짜</option>
+        </select>
+        <span class="display-info" id="displayInfo">0건 표시 중</span>
+      </div>
+
+      <!-- Matched papers list -->
+      <div id="matchList"></div>
+    </div>
+
+    <!-- ========== HOME VIEW ========== -->
+    <div id="viewHome">
+
+    <!-- ========== Home / BIST paper Tabs ========== -->
+    <div class="tabs" id="homeViewTabs">
+      <button class="tab active" data-view="home">Home</button>
+      <button class="tab" data-view="bist">BIST paper</button>
+      <span class="spacer"></span>
+      <button class="tab" id="tabAdmin" data-view="admin" style="display:none;">Paper Management</button>
+    </div>
+
+    <!-- ========== VR Room ========== -->
+    <section class="card view-section view-home">
+      <div class="card-head">
+        <div>
+          <div class="kicker"><span class="live">● VR ROOM</span> · LIVE</div>
+          <h2 class="h2">연구실 가상 공간</h2>
+          <div class="sub">현재 접속 중인 연구원 5명 · VR 헤드셋 2명</div>
+        </div>
+        <div class="head-actions">
+          <button class="btn" id="vrFullscreenBtn">◻ 전체 화면</button>
+          <button class="btn" id="vrExitBtn" style="display:none;">◂ 돌아가기</button>
+          <button class="btn primary" id="vrEnterBtn" style="text-decoration:none;">▸ VR 입장</button>
+        </div>
+      </div>
+
+      <div class="vr-stage" id="vrStage">
+        <div class="vr-grid"></div>
+        <div class="vr-glow"></div>
+
+        <!-- Researchers scattered in virtual space -->
+        <div class="avatar-node online" style="left:12%; top:36%;">
+          <div class="ring ai" style="background:var(--accent); width:50px; height:50px; font-size:12px;">Prof</div>
+          <div class="tag">윤성민</div>
+        </div>
+
+        <!-- HVAC group -->
+        <div class="avatar-node online" style="left:22%; top:52%;">
+          <div class="ring ai">구</div>
+          <div class="tag">구자범 <span class="chip ai">HVAC</span></div>
+        </div>
+        <div class="avatar-node" style="left:28%; top:68%;">
+          <div class="ring ai">이</div>
+          <div class="tag">이제윤 <span class="chip ai">HVAC</span></div>
+        </div>
+        <div class="avatar-node" style="left:36%; top:56%;">
+          <div class="ring ai">M</div>
+          <div class="tag">Min Htet <span class="chip ai">HVAC</span></div>
+        </div>
+        <div class="avatar-node online" style="left:16%; top:72%;">
+          <div class="ring ai">이</div>
+          <div class="tag">이우흠 <span class="chip ai">HVAC</span></div>
+        </div>
+        <div class="avatar-node" style="left:34%; top:42%;">
+          <div class="ring ai">이</div>
+          <div class="tag">이지텅 <span class="chip ai">HVAC</span></div>
+        </div>
+
+        <!-- UBI group -->
+        <div class="avatar-node online" style="left:52%; top:48%;">
+          <div class="ring dt">최</div>
+          <div class="tag">최세빈 <span class="chip dt">UBI</span></div>
+        </div>
+        <div class="avatar-node" style="left:58%; top:64%;">
+          <div class="ring dt">이</div>
+          <div class="tag">이고운 <span class="chip dt">UBI</span></div>
+        </div>
+        <div class="avatar-node" style="left:48%; top:72%;">
+          <div class="ring dt">유</div>
+          <div class="tag">유재현 <span class="chip dt">UBI</span></div>
+        </div>
+        <div class="avatar-node online" style="left:62%; top:52%;">
+          <div class="ring dt">석</div>
+          <div class="tag">석민주 <span class="chip dt">UBI</span></div>
+        </div>
+        <div class="avatar-node" style="left:55%; top:40%;">
+          <div class="ring dt">장</div>
+          <div class="tag">장세원 <span class="chip dt">UBI</span></div>
+        </div>
+
+        <!-- AI agent group -->
+        <div class="avatar-node" style="left:76%; top:44%;">
+          <div class="ring iot">송</div>
+          <div class="tag">송지환 <span class="chip iot">AI</span></div>
+        </div>
+        <div class="avatar-node online" style="left:84%; top:60%;">
+          <div class="ring iot">사</div>
+          <div class="tag">사이에드 <span class="chip iot">AI</span></div>
+        </div>
+        <div class="avatar-node" style="left:80%; top:72%;">
+          <div class="ring iot">장</div>
+          <div class="tag">장병준 <span class="chip iot">AI</span></div>
+        </div>
+
+        <!-- IEI -->
+        <div class="avatar-node" style="left:90%; top:46%;">
+          <div class="ring" style="background:#5ea8ff;">황</div>
+          <div class="tag">황재민 <span class="chip" style="background:rgba(94,168,255,0.15); color:#5ea8ff;">IEI</span></div>
+        </div>
+        <div class="avatar-node" style="left:92%; top:64%;">
+          <div class="ring" style="background:#5ea8ff;">황</div>
+          <div class="tag">황여진 <span class="chip" style="background:rgba(94,168,255,0.15); color:#5ea8ff;">IEI</span></div>
+        </div>
+        <div class="avatar-node online" style="left:88%; top:78%;">
+          <div class="ring" style="background:#5ea8ff;">이</div>
+          <div class="tag">이장원 <span class="chip" style="background:rgba(94,168,255,0.15); color:#5ea8ff;">IEI</span></div>
+        </div>
+
+        <div class="vr-label">BIST Virtual Lounge</div>
+        <div class="vr-legend">
+          <span class="ai">HVAC</span>
+          <span class="dt">UBI</span>
+          <span class="iot">AI agent</span>
+        </div>
+
+        <iframe id="vrFrame"
+                src="about:blank"
+                allow="autoplay; fullscreen; xr-spatial-tracking; gamepad; clipboard-read; clipboard-write"
+                allowfullscreen
+                style="display:none; position:absolute; inset:0; width:100%; height:100%;
+                       border:0; background:#000; z-index:5;"></iframe>
+      </div>
+    </section>
+
+    <script>
+      (function () {
+        const enterBtn = document.getElementById('vrEnterBtn');
+        const exitBtn  = document.getElementById('vrExitBtn');
+        const fsBtn    = document.getElementById('vrFullscreenBtn');
+        const stage    = document.getElementById('vrStage');
+        const frame    = document.getElementById('vrFrame');
+        if (!enterBtn || !stage || !frame) return;
+
+        const VR_URL = '/bist-office/';
+
+        function enterVR() {
+          if (frame.getAttribute('src') !== VR_URL) {
+            frame.setAttribute('src', VR_URL);
+          }
+          frame.style.display = 'block';
+          // 뷰포트에 맞춰 카드 본문이 한 화면에 들어오도록 높이를 동적으로 설정
+          stage.style.height = 'min(78vh, 820px)';
+          enterBtn.style.display = 'none';
+          if (exitBtn) exitBtn.style.display = '';
+        }
+
+        function exitVR() {
+          frame.style.display = 'none';
+          stage.style.height = '';      // 원래 CSS(340px)로 복귀
+          enterBtn.style.display = '';
+          if (exitBtn) exitBtn.style.display = 'none';
+          // Unity 인스턴스 완전 종료 — 재입장 시 fresh load
+          frame.setAttribute('src', 'about:blank');
+        }
+
+        enterBtn.addEventListener('click', () => {
+          enterVR();
+        });
+
+        exitBtn?.addEventListener('click', exitVR);
+
+        fsBtn?.addEventListener('click', () => {
+          if (frame.style.display === 'block') {
+            // VR 입장 후: Unity 캔버스만 풀스크린 (Unity 내장 SetFullscreen)
+            frame.contentWindow?.postMessage('vr-fullscreen', '*');
+          } else {
+            // VR 입장 전: 지금 보이는 아바타 mockup(vr-stage)을 풀스크린
+            if (stage.requestFullscreen) stage.requestFullscreen();
+            else if (stage.webkitRequestFullscreen) stage.webkitRequestFullscreen();
+          }
+        });
+      })();
+    </script>
+
+    <!-- ========== Knowledge Graph — ABox (instance) only ========== -->
+    <section class="card view-section view-home onto-section">
+      <div class="onto-topbar">
+        <div class="onto-title">
+          <span class="onto-globe">🏙️</span>
+          <span class="onto-name">BIST Lab Ontology — Knowledge Graph</span>
+          <span class="onto-pill onto-pill-abox">ABox (인스턴스)</span>
+        </div>
+        <div class="onto-rel-filter">
+          <span class="onto-rel-label">관계:</span>
+          <label><input type="checkbox" class="onto-rel-cb" data-rel="hasMember" checked> hasMember</label>
+          <label><input type="checkbox" class="onto-rel-cb" data-rel="inGroup"   checked> inGroup</label>
+          <label><input type="checkbox" class="onto-rel-cb" data-rel="hasKeyword" checked> hasKeyword</label>
+        </div>
+      </div>
+
+      <div class="onto-body">
+        <div class="onto-pane onto-pane-abox">
+          <div class="onto-controls">
+            <input type="text" id="ontoSearch"
+                   class="onto-search-input"
+                   placeholder="인스턴스 검색 (예: 윤성민, Digital twin…)" />
+            <button class="onto-search-btn" id="ontoSearchBtn">검색</button>
+            <button class="onto-filter-btn" id="ontoFilterBtn">⚙ 필터</button>
+          </div>
+          <div id="ontoABoxStats" class="onto-stats">로딩 중…</div>
+          <div id="ontoABoxCanvas" class="onto-canvas"></div>
+          <div class="onto-actions">
+            <button class="btn" id="ontoFitBtn">⤢ 맞춤</button>
+            <button class="btn" id="ontoPhysBtn">⏸ 정지</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- vis-network: force-directed graph for ontology (TBox + ABox) -->
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vis-network@9.1.9/styles/vis-network.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+    <script>
+    (function () {
+      // ABox 노드 색상: 우주 테마 (블루/오렌지/그린/마젠타)
+      const ABOX_COLORS = {
+        lab:        { bg: '#3a1f44', border: '#ff6bd6', font: '#fff' },     // magenta center
+        group:      { bg: '#1d3a26', border: '#4ade80', font: '#a7f3c5' },  // green
+        researcher: { bg: '#0e2540', border: '#5ea8ff', font: '#cbe1ff' },  // blue
+        keyword:    { bg: '#3a2a14', border: '#f4a25c', font: '#fbd9b0' },  // orange/tan
+      };
+      const ABOX_SIZES = { lab: 30, group: 22, researcher: 14, keyword: 8 };
+
+      function buildAboxData(graph, relFilter) {
+        const filtered = graph.edges.filter(e => relFilter[e.rel] !== false);
+        // 사용 노드만
+        const usedIds = new Set();
+        filtered.forEach(e => { usedIds.add(e.from); usedIds.add(e.to); });
+
+        const nodes = graph.nodes
+          .filter(n => usedIds.has(n.id))
+          .map(n => {
+            const c = ABOX_COLORS[n.group] || ABOX_COLORS.keyword;
+            return {
+              id: n.id, label: n.label, title: n.title || n.label,
+              shape: n.group === 'lab' ? 'star'
+                   : n.group === 'group' ? 'diamond'
+                   : 'dot',
+              size: ABOX_SIZES[n.group] || 8,
+              color: { background: c.bg, border: c.border,
+                       highlight: { background: c.bg, border: '#fff' } },
+              font: { color: c.font,
+                      size: n.group === 'lab' ? 15 :
+                            n.group === 'group' ? 12 :
+                            n.group === 'researcher' ? 10 : 8,
+                      face: 'Pretendard, Inter, sans-serif', multi: true,
+                      strokeWidth: 0 },
+              borderWidth: n.group === 'lab' ? 2 : 1,
+              _group: n.group,
+            };
+          });
+
+        const edges = filtered.map((e, i) => ({
+          id: `e_${i}`, from: e.from, to: e.to,
+          color: { color: 'rgba(244,114,182,0.18)', highlight: 'rgba(244,114,182,0.9)' },
+          smooth: { enabled: true, type: 'continuous' },
+          width: e.rel === 'hasKeyword' ? 0.4 : 1,
+          arrows: { to: { enabled: false } },
+        }));
+        return { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
+      }
+
+      let aboxNet = null;
+      let aboxRaw = null;
+      let physicsOn = true;
+      const relFilter = { hasMember: true, inGroup: true, hasKeyword: true };
+
+      function applyRelFilter() {
+        if (!aboxNet || !aboxRaw) return;
+        const data = buildAboxData(aboxRaw, relFilter);
+        aboxNet.setData(data);
+      }
+
+      function highlightSearch(query) {
+        if (!aboxNet || !aboxRaw) return;
+        const q = (query || '').trim().toLowerCase();
+        if (!q) {
+          // 모두 원래 색으로
+          const allNodes = aboxNet.body.data.nodes.get();
+          aboxNet.body.data.nodes.update(allNodes.map(n => ({
+            id: n.id, opacity: 1.0,
+          })));
+          return;
+        }
+        const allNodes = aboxNet.body.data.nodes.get();
+        const matched = [];
+        allNodes.forEach(n => {
+          const label = (n.label || '').toLowerCase();
+          const title = (n.title || '').toLowerCase();
+          if (label.includes(q) || title.includes(q)) matched.push(n.id);
+        });
+        aboxNet.body.data.nodes.update(allNodes.map(n => ({
+          id: n.id,
+          opacity: matched.includes(n.id) ? 1.0 : 0.15,
+        })));
+        if (matched.length > 0) {
+          aboxNet.focus(matched[0], { scale: 1.3, animation: true });
+        }
+      }
+
+      async function loadABox() {
+        const stats = document.getElementById('ontoABoxStats');
+        try {
+          const resp = await fetch('/api/lr/ontology/abox');
+          if (!resp.ok) throw new Error('abox fetch failed');
+          aboxRaw = await resp.json();
+          const s = aboxRaw.stats || {};
+          if (stats) stats.innerHTML =
+            `<span>Lab <b>1</b></span>` +
+            `<span>Groups <b>${s.groups || 0}</b></span>` +
+            `<span>Researchers <b>${s.researchers || 0}</b></span>` +
+            `<span>Keywords <b>${s.keywords || 0}</b></span>` +
+            `<span>Edges <b>${s.edges || 0}</b></span>`;
+
+          const container = document.getElementById('ontoABoxCanvas');
+          aboxNet = new vis.Network(container, buildAboxData(aboxRaw, relFilter), {
+            interaction: { hover: true, tooltipDelay: 150, dragNodes: true,
+                           zoomView: true, hideEdgesOnDrag: true,
+                           hideEdgesOnZoom: true },
+            physics: {
+              enabled: true,
+              solver: 'forceAtlas2Based',
+              forceAtlas2Based: { gravitationalConstant: -45,
+                                   centralGravity: 0.012,
+                                   springLength: 90, avoidOverlap: 0.35 },
+              stabilization: { iterations: 380 },
+            },
+            edges: { selectionWidth: 2 },
+            nodes: { shadow: false, scaling: { min: 6, max: 30 } },
+          });
+          aboxNet.once('stabilizationIterationsDone',
+            () => aboxNet.fit({ animation: { duration: 700,
+                                              easingFunction: 'easeInOutQuad' } }));
+
+          // 연구원 노드 클릭 → 상세 화면
+          aboxNet.on('click', params => {
+            if (!params.nodes || !params.nodes.length) return;
+            const id = params.nodes[0];
+            if (id.startsWith('R_') && typeof window.openResearcher === 'function') {
+              const node = aboxRaw.nodes.find(n => n.id === id);
+              const label = (node?.label || '').split('\n')[0].trim();
+              if (label && window.RESEARCHERS && window.RESEARCHERS[label]) {
+                window.openResearcher(label);
+              }
+            }
+          });
+        } catch (e) {
+          if (stats) stats.textContent = 'ABox 로드 실패';
+          console.warn('[onto abox]', e);
+        }
+      }
+
+      function bind() {
+        document.getElementById('ontoFitBtn')?.addEventListener('click', () => {
+          if (aboxNet) aboxNet.fit({ animation: true });
+        });
+        const physBtn = document.getElementById('ontoPhysBtn');
+        physBtn?.addEventListener('click', () => {
+          physicsOn = !physicsOn;
+          if (aboxNet) aboxNet.setOptions({ physics: { enabled: physicsOn } });
+          physBtn.textContent = physicsOn ? '⏸ 정지' : '▶ 시뮬';
+        });
+
+        const searchInput = document.getElementById('ontoSearch');
+        const searchBtn = document.getElementById('ontoSearchBtn');
+        const doSearch = () => highlightSearch(searchInput?.value || '');
+        searchBtn?.addEventListener('click', doSearch);
+        searchInput?.addEventListener('keydown', e => {
+          if (e.key === 'Enter') doSearch();
+          if (e.key === 'Escape') { searchInput.value = ''; doSearch(); }
+        });
+
+        document.querySelectorAll('.onto-rel-cb').forEach(cb => {
+          cb.addEventListener('change', () => {
+            relFilter[cb.dataset.rel] = cb.checked;
+            applyRelFilter();
+          });
+        });
+
+        document.getElementById('ontoFilterBtn')?.addEventListener('click', () => {
+          // 간이 필터: 키워드 노드 토글
+          const sec = document.querySelector('.onto-section');
+          sec?.classList.toggle('hide-keywords');
+          if (aboxRaw && aboxNet) {
+            const hide = sec?.classList.contains('hide-keywords');
+            const updates = aboxRaw.nodes
+              .filter(n => n.group === 'keyword')
+              .map(n => ({ id: n.id, hidden: !!hide }));
+            aboxNet.body.data.nodes.update(updates);
+          }
+        });
+      }
+
+      function init() {
+        bind();
+        loadABox();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+    </script>
+
+    <!-- ========== Search + Manual Register Toolbar ========== -->
+    <section class="card view-section view-bist pub-toolbar">
+      <div class="pub-search">
+        <select id="pubScope" title="검색 범위">
+          <option value="all">전체</option>
+          <option value="title">제목</option>
+          <option value="author">저자</option>
+          <option value="journal">저널</option>
+        </select>
+        <input type="text" id="pubSearchInput" placeholder="논문 제목·저자·저널 검색…">
+        <button class="pub-search-btn" id="pubSearchBtn" title="검색">🔍</button>
+      </div>
+      <div class="pub-toolbar-actions">
+        <span class="pub-sync" id="pubSyncStatus">동기화 상태 확인 중…</span>
+        <button class="btn-sync" id="btnSyncNow" style="display:none;">지금 동기화</button>
+      </div>
+    </section>
+
+    <!-- ========== Line Chart + Metric Cards ========== -->
+    <section class="pub-overview view-section view-bist">
+      <div class="card pub-linechart">
+        <div class="card-head">
+          <div>
+            <div class="kicker">Yearly Publications</div>
+            <h2 class="h2">연도별 논문 게재 현황</h2>
+          </div>
+          <div class="sub" id="pubLineRange"></div>
+        </div>
+        <div class="chart-body">
+          <div id="pubLineChart">
+            <div style="color:var(--text-mute); padding:40px; text-align:center;">로딩 중…</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pub-metrics">
+        <div class="metric-card accent">
+          <div class="m-label">Scholarly Output</div>
+          <div class="m-value" id="mScholarly">–</div>
+          <div class="m-sub">전체 논문 수 (공저 중복 제거)</div>
+        </div>
+        <div class="metric-card">
+          <div class="m-label">Citation Count</div>
+          <div class="m-value" id="mCitations">–</div>
+          <div class="m-sub">총 피인용 수</div>
+        </div>
+        <div class="metric-card">
+          <div class="m-label">Citations / Publication</div>
+          <div class="m-value" id="mCitePerPub">–</div>
+          <div class="m-sub">논문당 평균 피인용</div>
+        </div>
+        <div class="metric-card">
+          <div class="m-label">h-index</div>
+          <div class="m-value" id="mHindex">–</div>
+          <div class="m-sub">랩 전체 h-index</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== Results List (Pure style) ========== -->
+    <section class="card view-section view-bist">
+      <div class="pub-results-head">
+        <span class="pub-found" id="pubFound">Found 0 results</span>
+        <div class="pub-sort">
+          <label for="pubSortSelect">Sort by</label>
+          <select id="pubSortSelect">
+            <option value="date">Date: newest first</option>
+            <option value="date_old">Date: oldest first</option>
+            <option value="cite">Citations: high to low</option>
+            <option value="title">Title: A–Z</option>
+          </select>
+        </div>
+      </div>
+      <div id="pubResultsList">
+        <div class="pub-empty">로딩 중…</div>
+      </div>
+      <button class="btn-more" id="pubMoreBtn" style="display:none;">더 보기</button>
+    </section>
+
+    <!-- ========== 관리자 페이지 (로그인 시 노출) ========== -->
+    <section class="card view-section view-admin">
+      <div class="card-head">
+        <div>
+          <div class="kicker">Admin</div>
+          <h2 class="h2">논문 관리</h2>
+          <div class="sub" style="margin-top:4px;">수동 등록 논문과 심사중 논문을 관리합니다. 심사중을 <b style="color:var(--accent);">게재</b>로 바꾸면 BIST paper 목록·지표에 반영됩니다.</div>
+        </div>
+        <div class="head-actions">
+          <button class="btn-sync" id="adminSyncBtn">↻ 동기화</button>
+          <button class="btn-reg" id="adminAddBtn">+ 수동 등록</button>
+          <button class="btn-excel" id="adminExcelBtn" title="연구실 논문 현황(게재+심사중) 엑셀 다운로드">⬇ Excel 다운로드</button>
+        </div>
+      </div>
+
+      <div class="admin-stats" id="adminStats"></div>
+
+      <div class="admin-panel">
+        <div class="admin-table-head">
+          <span>수동 등록 현황 <span id="adminListCount"></span></span>
+          <span style="color:var(--text-mute);font-size:11px;">수동 등록 논문은 상태를 바꾸거나 삭제할 수 있습니다</span>
+        </div>
+        <div class="admin-controls">
+          <input type="text" id="adminSearch" placeholder="제목·주저자·저널 검색…">
+          <select id="adminScope">
+            <option value="all">전체 논문</option>
+            <option value="manual">수동 등록만</option>
+            <option value="under_review">심사중만</option>
+            <option value="published">게재만</option>
+          </select>
+        </div>
+        <div id="adminList"><div class="reg-empty">불러오는 중…</div></div>
+        <button class="btn-more" id="adminMoreBtn" style="display:none;">더 보기</button>
+      </div>
+    </section>
+
+    <!-- ========== 논문 수동 등록 모달 (투고 / DOI 탭) ========== -->
+    <div class="pub-modal-overlay" id="doiModal">
+      <div class="pub-modal pub-modal-lg">
+        <h3>논문 수동 등록</h3>
+        <div class="reg-tabs">
+          <button class="reg-tab active" data-regtab="progress">투고 논문</button>
+          <button class="reg-tab" data-regtab="doi">DOI (게재 논문)</button>
+        </div>
+
+        <!-- 투고(심사중) 논문 등록 -->
+        <div class="reg-pane" id="regPaneProgress">
+          <div class="sub">논문을 제목·주저자·저널로 직접 등록합니다. 상태를 <b>게재</b>로 두면 BIST paper 목록·지표에 바로 반영되고, <b>심사중</b>이면 Paper Management에서만 관리됩니다.</div>
+          <label for="progTitle">논문 제목 *</label>
+          <input type="text" id="progTitle" placeholder="예: Digital twin-based fault detection for HVAC systems">
+          <label for="progAuthor">주저자 *</label>
+          <input type="text" id="progAuthor" placeholder="예: 홍길동 (Hong G.)">
+          <label>분류</label>
+          <div class="cls-seg" id="progClassSeg">
+            <button type="button" class="cls-opt active" data-cls="SCIE">SCIE</button>
+            <button type="button" class="cls-opt" data-cls="KCI">KCI</button>
+            <button type="button" class="cls-opt" data-cls="">미지정</button>
+          </div>
+          <label for="progJournal">저널</label>
+          <input type="text" id="progJournal" placeholder="예: Energy and Buildings (선택)">
+          <div class="reg-row2">
+            <div>
+              <label for="progStatus">상태 *</label>
+              <select id="progStatus">
+                <option value="under_review">심사중</option>
+                <option value="published">게재</option>
+              </select>
+            </div>
+            <div>
+              <label for="progYear">연도</label>
+              <input type="number" id="progYear" placeholder="예: 2026" min="1990" max="2099">
+            </div>
+          </div>
+          <div style="font-size:10.5px;color:var(--text-mute);margin-top:5px;">게재 논문은 연도를 입력해야 목록 상단에 정렬됩니다. 심사중은 비워도 됩니다.</div>
+          <div class="pub-modal-msg" id="progMsg"></div>
+          <div class="pub-modal-actions">
+            <button class="cancel" id="progCancel">닫기</button>
+            <button class="submit" id="progSubmit">등록</button>
+          </div>
+        </div>
+
+        <!-- DOI 등록 -->
+        <div class="reg-pane" id="regPaneDoi" style="display:none;">
+          <div class="sub">이미 게재됐지만 Scopus에 아직 없는 논문(국내지·in-press 등)을 Crossref 메타데이터로 등록합니다. Volume·Publisher·피인용수가 자동으로 채워집니다.</div>
+          <label for="doiInput">DOI *</label>
+          <input type="text" id="doiInput" placeholder="10.1016/j.enbuild.2026.113456 또는 https://doi.org/…">
+          <label for="doiResearcher">연구원</label>
+          <select id="doiResearcher"></select>
+          <div class="pub-modal-msg" id="doiMsg"></div>
+          <div class="pub-modal-actions">
+            <button class="cancel" id="doiCancel">닫기</button>
+            <button class="submit" id="doiSubmit">등록</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Weekly Recommendations ========== -->
+    <section class="card view-section view-home">
+      <div class="papers-head">
+        <div>
+          <h2 class="h2">이번 주 추천 논문</h2>
+          <div class="sub" style="margin-top:4px;">BIST Lab의 3축 온톨로지(Topic · Domain · Method)에 가장 잘 맞는 최신 논문</div>
+        </div>
+        <div class="seg">
+          <button class="active">관련도</button>
+          <button>최신</button>
+          <button>인용</button>
+        </div>
+      </div>
+
+      <table class="papers">
+        <thead>
+          <tr><th></th><th>제목 / 추천 이유</th><th>저자</th><th>저널</th><th>연도</th><th style="text-align:right;">매칭도</th></tr>
+        </thead>
+        <tbody id="weeklyRecsTbody">
+          <tr><td colspan="6" style="color:var(--text-mute); text-align:center; padding:30px;">로딩 중…</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    </div> <!-- /viewHome -->
+  </main>
+
+  <!-- ========== RIGHT RAIL ========== -->
+  <aside class="rail">
+    <div id="railChat" class="rail-chat">
+      <div class="rail-head">
+        <h3>BIST literature review agent</h3>
+        <span class="num" style="font-size:9px; letter-spacing:1px; color:var(--text-mute);">CHAT</span>
+      </div>
+      <div class="chat-msgs" id="chatMsgs">
+        <div class="chat-msg agent">
+          <div class="bubble">
+            안녕하세요. BIST Lab 온톨로지(<strong>연구실 → 연구원 → 키워드</strong>) 기반 에이전트입니다.<br><br>
+            <span style="color:var(--text-mute); font-size:11px;">예시:<br>
+            · "디지털 트윈 하는 사람"<br>
+            · "구자범의 키워드"<br>
+            · "구자범이랑 비슷한 사람"<br>
+            · "구자범과 이제윤의 공통 키워드"<br>
+            · "BIST 전체 키워드"
+            </span>
+          </div>
+        </div>
+      </div>
+      <form class="chat-input" id="chatForm" autocomplete="off">
+        <input type="text" id="chatInput" placeholder="연구실 관련 질문을 입력하세요…" />
+        <button type="submit" class="send-btn" title="전송">➤</button>
+      </form>
+    </div>
+
+  </aside>
+
+</div>
+
+<!-- ========== Paper Detail Modal ========== -->
+<div class="modal-backdrop" id="paperModal">
+  <div class="modal" role="dialog" aria-modal="true">
+    <button class="close" data-close>✕</button>
+    <div class="m-main">
+      <div class="m-meta">
+        <em data-f="journal">Advanced Engineering Informatics</em>
+        <span data-f="year">2026</span>
+        <span class="tag-new" data-f="new">NEW</span>
+      </div>
+      <h1 class="m-title" data-f="title">Digital twin framework unifying BIM, IoT and ontology layers</h1>
+      <div class="m-authors" data-f="authors">M. Rossi · T. Alvarez</div>
+
+      <!-- 구조화 요약 (Core 등급 시 표시) -->
+      <div class="m-section" data-f="summary-structured" style="display:none;">
+        <div class="m-label">핵심 주제</div>
+        <p data-f="s-core-topic"></p>
+      </div>
+      <div class="m-section" data-f="summary-purpose-section" style="display:none;">
+        <div class="m-label">연구 목적</div>
+        <p data-f="s-purpose"></p>
+      </div>
+      <div class="m-section" data-f="summary-method-section" style="display:none;">
+        <div class="m-label">방법론</div>
+        <p data-f="s-method"></p>
+      </div>
+      <div class="m-section" data-f="summary-results-section" style="display:none;">
+        <div class="m-label">결과</div>
+        <p data-f="s-results"></p>
+      </div>
+      <!-- 일반 요약 (구조화 요약 없을 때) -->
+      <div class="m-section" data-f="summary-fallback">
+        <div class="m-label">요약</div>
+        <p data-f="summary"></p>
+      </div>
+
+      <div class="m-section">
+        <div class="m-label">추천 이유</div>
+        <p data-f="reason"></p>
+      </div>
+
+      <div class="m-section">
+        <div class="m-label">키워드</div>
+        <div class="m-chips" data-f="keywords"></div>
+      </div>
+    </div>
+
+    <div class="m-right">
+      <div style="display:flex;gap:6px;margin-bottom:6px;">
+        <span class="grade-badge" data-f="m-grade" style="font-size:11px;">CORE</span>
+      </div>
+      <div class="stat-box">
+        <div class="big" data-f="score">91</div>
+        <div class="lbl">관련도 점수</div>
+      </div>
+      <div class="stat-box" style="padding:12px 10px;">
+        <div style="font-size:11px;color:var(--text-mute);margin-bottom:4px;">코사인 유사도</div>
+        <div data-f="similarity-display" style="font-family:var(--mono),monospace;font-size:14px;font-weight:600;color:var(--text);">-</div>
+      </div>
+      <div class="m-tags-box">
+        <div class="m-label">태그</div>
+        <div class="tags" data-f="tags">
+          <span>Digital Twin</span><span>BIM</span><span>Platform</span>
+        </div>
+      </div>
+      <button class="m-btn" id="btnSave" onclick="savePaper()">☆ 저장</button>
+      <button class="m-btn">◎ 읽음 표시</button>
+      <button class="m-btn">↗ 그룹 공유</button>
+      <a class="m-btn primary" data-f="link" href="#" target="_blank" rel="noopener">논문 페이지 열기 ↗</a>
+    </div>
+  </div>
+</div>
+
+<!-- ========== Share Recommendation Modal ========== -->
+<div class="modal-backdrop" id="shareModal">
+  <div class="share-modal" role="dialog" aria-modal="true">
+    <button class="close" data-share-close>✕</button>
+    <h3>추천 논문 공유</h3>
+    <div class="share-sub">공유할 연구원을 선택하면 추천 내용을 발췌해 메일로 발송합니다.</div>
+    <div class="share-list" id="shareResearcherList">
+      <div class="share-status">연구원 목록 로딩 중...</div>
+    </div>
+    <div class="share-status" id="shareStatus"></div>
+  </div>
+</div>
+
+<script>
+  // ===== Paper detail data =====
+  const PAPERS = {
+    "p01": {
+      title: "Agentic virtual modeling of HVAC systems using ontology-aware LLMs",
+      authors: "이고운, 구자범, 박지원",
+      journal: "Applied Energy", year: "2026", new: true,
+      summary: "LLM 에이전트가 온톨로지 스키마를 해석하여 HVAC 시스템의 가상 모델을 자율적으로 구성하는 프레임워크.",
+      reason: "이고운·구자범·박지원 연구원의 공동 성과이며 연구실 3축(AI × DT × HVAC)을 모두 포괄합니다.",
+      keywords: ["LLM 에이전트","HVAC","온톨로지","가상 모델링"],
+      tags: ["Agentic AI","HVAC","Ontology"],
+      score: 98, cites: 4,
+      link: "https://doi.org/10.1016/j.apenergy.2026.00001"
+    },
+    "p02": {
+      title: "Physics-informed virtual sensors for digital twin of office buildings",
+      authors: "윤서연, 장수혜, 박지원",
+      journal: "Automation in Construction", year: "2026", new: true,
+      summary: "물리 법칙을 제약으로 부과한 학습형 가상 센서로 사무용 건물 DT의 센서 커버리지를 확장.",
+      reason: "윤서연 연구원이 1저자인 최신 DT 연구. 연구실 가상 센서 벤치마크와 동일한 데이터셋을 사용합니다.",
+      keywords: ["가상 센서","Digital Twin","Physics-informed","사무용 건물"],
+      tags: ["Digital Twin","Virtual Sensor"],
+      score: 96, cites: 2,
+      link: "https://doi.org/10.1016/j.autcon.2026.00002"
+    },
+    "p03": {
+      title: "Edge-AI occupancy estimation with sub-milliwatt inference",
+      authors: "한지훈, 김연지",
+      journal: "ACM BuildSys", year: "2026", new: true,
+      summary: "MCU 상에서 1mW 이하로 구동되는 경량 모델로 재실자 수를 실시간 추정.",
+      reason: "한지훈 연구원의 Edge-AI 연구와 동일 하드웨어 계열에서의 확장 가능성.",
+      keywords: ["Edge AI","재실자 추정","MCU","저전력"],
+      tags: ["Smart IoT","Edge AI"],
+      score: 94, cites: 1,
+      link: "https://doi.org/10.1145/buildsys.2026.00003"
+    },
+    "p04": {
+      title: "Reinforcement learning for occupant-centric thermal comfort control",
+      authors: "최세빈, 한지훈, 이고운",
+      journal: "Building and Environment", year: "2025", new: false,
+      summary: "재실자 피드백을 보상으로 포함한 RL 기반 HVAC 제어로 쾌적성과 에너지의 균형을 달성.",
+      reason: "최세빈 연구원이 1저자인 쾌적 제어 연구로, 연구실의 RL·HVAC 축과 정확히 일치합니다.",
+      keywords: ["강화학습","쾌적 제어","HVAC"],
+      tags: ["Agentic AI","RL","Thermal Comfort"],
+      score: 90, cites: 33,
+      link: "https://doi.org/10.1016/j.buildenv.2025.00004"
+    },
+    "p05": {
+      title: "Ontology alignment for cross-building data interoperability",
+      authors: "장수혜, 박지원",
+      journal: "Advanced Engineering Informatics", year: "2025", new: false,
+      summary: "서로 다른 건물 데이터 스키마 간 온톨로지 정합을 자동화하여 상호 운용성을 확보.",
+      reason: "장수혜 연구원 1저자 연구. 연구실 DT 파이프라인의 스키마 매핑 단계에 직접 적용 가능합니다.",
+      keywords: ["온톨로지 정합","상호 운용성","건물 데이터"],
+      tags: ["Digital Twin","Ontology"],
+      score: 88, cites: 24,
+      link: "https://doi.org/10.1016/j.aei.2025.00005"
+    },
+    "p06": {
+      title: "Transformer-based short-term load forecasting with weather attention",
+      authors: "김현수, 최세빈, 이고운",
+      journal: "Energy and Buildings", year: "2025", new: false,
+      summary: "기상 변수에 대한 어텐션을 포함한 Transformer로 단기 건물 부하를 예측.",
+      reason: "김현수 연구원 1저자의 부하 예측 연구. 연구실 예측 파이프라인의 베이스라인을 대체 가능합니다.",
+      keywords: ["Transformer","부하 예측","기상 어텐션"],
+      tags: ["Forecasting","Transformer"],
+      score: 85, cites: 17,
+      link: "https://doi.org/10.1016/j.enbuild.2025.00006"
+    },
+    "p07": {
+      title: "A digital twin framework unifying BIM, IoT, and ontology layers",
+      authors: "박지원, 장수혜, 윤서연",
+      journal: "Automation in Construction", year: "2024", new: false,
+      summary: "BIM·IoT·온톨로지 세 계층을 하나의 DT 플랫폼으로 통합하는 아키텍처를 제안.",
+      reason: "연구실 DT 연구의 대표 논문. 후속 연구들의 이론적 토대가 됩니다.",
+      keywords: ["Digital Twin","BIM","온톨로지","IoT"],
+      tags: ["Digital Twin","BIM","Ontology"],
+      score: 95, cites: 128,
+      link: "https://doi.org/10.1016/j.autcon.2024.00007"
+    },
+    "p08": {
+      title: "Indoor air quality sensing network across 42 classrooms with LoRaWAN",
+      authors: "오유민, 김연지",
+      journal: "Sensors", year: "2024", new: false,
+      summary: "LoRaWAN 기반 IAQ 센서 네트워크를 42개 교실에 배치하여 장기 공기질 데이터를 수집.",
+      reason: "오유민 연구원의 대규모 IoT 네트워크 구축 경험. 신규 Smart IoT 프로젝트의 레퍼런스.",
+      keywords: ["LoRaWAN","IAQ","센서 네트워크","교실"],
+      tags: ["Smart IoT","LoRaWAN"],
+      score: 82, cites: 46,
+      link: "https://doi.org/10.3390/s2024.00008"
+    },
+    "p09": {
+      title: "Occupant behavior prediction using hierarchical LSTM",
+      authors: "송다현, 한지훈",
+      journal: "Energy and Buildings", year: "2023", new: false,
+      summary: "계층적 LSTM으로 재실자 행동의 시공간 패턴을 학습.",
+      reason: "송다현 연구원 1저자의 행동 예측 연구. 재실자 시뮬레이션 모듈에 재활용 가능.",
+      keywords: ["LSTM","재실자 행동","시공간 예측"],
+      tags: ["Smart IoT","Behavior"],
+      score: 78, cites: 72,
+      link: "https://doi.org/10.1016/j.enbuild.2023.00009"
+    },
+    "p10": {
+      title: "Model predictive control of HVAC with gaussian process occupancy",
+      authors: "최세빈, 이고운, 박지원",
+      journal: "Applied Energy", year: "2022", new: false,
+      summary: "가우시안 프로세스로 불확실한 재실 상태를 추정하고 MPC로 HVAC을 제어.",
+      reason: "연구실 MPC 연구의 기반 논문. 후속 RL 연구의 비교 대상으로 자주 인용됩니다.",
+      keywords: ["MPC","가우시안 프로세스","재실 추정"],
+      tags: ["Agentic AI","MPC"],
+      score: 89, cites: 154,
+      link: "https://doi.org/10.1016/j.apenergy.2022.00010"
+    },
+    "p11": {
+      title: "BIM-based simulation framework for building energy retrofit",
+      authors: "박지원, 장수혜",
+      journal: "Energy and Buildings", year: "2021", new: false,
+      summary: "BIM 모델을 활용해 리트로핏 시나리오를 자동 평가하는 시뮬레이션 프레임워크.",
+      reason: "연구실 초기 DT 연구의 기초. 현재의 통합 DT 플랫폼으로 이어지는 맥락.",
+      keywords: ["BIM","리트로핏","시뮬레이션"],
+      tags: ["Digital Twin","BIM","Retrofit"],
+      score: 80, cites: 201,
+      link: "https://doi.org/10.1016/j.enbuild.2021.00011"
+    },
+    "p12": {
+      title: "Deep learning for short-term building load forecasting: a comparative study",
+      authors: "김현수, 박지원",
+      journal: "IEEE Access", year: "2020", new: false,
+      summary: "다양한 딥러닝 아키텍처의 건물 단기 부하 예측 성능을 체계적으로 비교.",
+      reason: "김현수 연구원의 대표 비교 연구. 예측 모델 선택의 근거 자료.",
+      keywords: ["딥러닝","부하 예측","비교 연구"],
+      tags: ["Forecasting","Benchmark"],
+      score: 76, cites: 287,
+      link: "https://doi.org/10.1109/ACCESS.2020.00012"
+    },
+    "r01": {
+      title: "LLM-driven agents for HVAC fault detection and diagnosis",
+      authors: "Wang, K. et al.",
+      journal: "Applied Energy", year: "2026", new: true,
+      summary: "LLM 에이전트가 HVAC 센서 스트림을 해석해 고장 유형을 자율적으로 진단.",
+      reason: "이고운 연구원의 Agentic AI × HVAC 축과 정확히 일치. 동일 데이터셋을 사용합니다.",
+      keywords: ["LLM 에이전트","HVAC","고장 진단"],
+      tags: ["Agentic AI","FDD"],
+      score: 98, cites: 2,
+      link: "https://doi.org/10.1016/j.apenergy.2026.r0001"
+    },
+    "r02": {
+      title: "Ontology-aware agents for building virtual modeling",
+      authors: "Rossi, M. et al.",
+      journal: "Automation in Construction", year: "2026", new: true,
+      summary: "온톨로지를 인지하는 에이전트가 건물 가상 모델을 자율적으로 구축.",
+      reason: "박지원 연구원의 Digital Twin × 온톨로지 연구 방향의 자연스러운 연장선.",
+      keywords: ["Agentic","온톨로지","Digital Twin","가상 모델링"],
+      tags: ["Digital Twin","Ontology","Agents"],
+      score: 95, cites: 3,
+      link: "https://doi.org/10.1016/j.autcon.2026.r0002"
+    },
+    "r03": {
+      title: "Digital twin framework unifying BIM, IoT and ontology layers",
+      authors: "Chen, H. et al.",
+      journal: "Advanced Engineering Informatics", year: "2026", new: true,
+      summary: "BIM·IFC, 온톨로지, IoT 스트림을 일관된 그래프로 정합하는 오픈소스 DT 플랫폼을 제안.",
+      reason: "박지원 교수의 DT 총설에서 다룬 세 축을 그대로 통합. 윤서연 연구원의 가상 센서 벤치마크와 API가 호환됩니다.",
+      keywords: ["Digital Twin","BIM","온톨로지","가상 센서"],
+      tags: ["Digital Twin","BIM","Platform"],
+      score: 91, cites: 2,
+      link: "https://doi.org/10.1016/j.aei.2026.r0003"
+    },
+    "r04": {
+      title: "Sub-milliwatt occupancy inference on resource-constrained MCUs",
+      authors: "Takeda, S. et al.",
+      journal: "ACM Transactions on Sensor Networks", year: "2026", new: true,
+      summary: "저자원 MCU에서 1mW 미만으로 동작하는 재실 추정 파이프라인.",
+      reason: "한지훈 연구원의 Edge-AI 실험 세팅과 동일 하드웨어 계열.",
+      keywords: ["Edge AI","MCU","저전력","재실 추정"],
+      tags: ["Smart IoT","Edge AI"],
+      score: 88, cites: 1,
+      link: "https://doi.org/10.1145/tosn.2026.r0004"
+    },
+    "r05": {
+      title: "Reinforcement learning with comfort-aware reward shaping for HVAC",
+      authors: "Park, J. et al.",
+      journal: "Energy and Buildings", year: "2026", new: true,
+      summary: "쾌적성을 명시적으로 고려한 보상 설계로 HVAC RL 제어의 안정성을 향상.",
+      reason: "최세빈 연구원의 2025 reward design을 확장한 후속 연구.",
+      keywords: ["강화학습","Reward Shaping","쾌적성","HVAC"],
+      tags: ["Agentic AI","RL","Thermal Comfort"],
+      score: 85, cites: 0,
+      link: "https://doi.org/10.1016/j.enbuild.2026.r0005"
+    }
+  };
+
+  // Wire paper rows — attach data-paper keys in the HTML (done via JS here)
+  const paperTables = document.querySelectorAll('table.papers');
+  const rowKeyMap = [
+    // first table: 논문 실적 (p01..p12)
+    ["p01","p02","p03","p04","p05","p06","p07","p08","p09","p10","p11","p12"],
+    // second table: 이번 주 추천 논문 (r01..r05)
+    ["r01","r02","r03","r04","r05"]
+  ];
+  paperTables.forEach((tbl, ti) => {
+    const rows = tbl.querySelectorAll('tbody tr');
+    rows.forEach((tr, ri) => {
+      const key = rowKeyMap[ti] && rowKeyMap[ti][ri];
+      if (key) tr.setAttribute('data-paper', key);
+    });
+  });
+
+  // Modal open/close
+  const modal = document.getElementById('paperModal');
+  const $ = sel => modal.querySelector(sel);
+  const shareModal = document.getElementById('shareModal');
+  const shareResearcherList = document.getElementById('shareResearcherList');
+  const shareStatus = document.getElementById('shareStatus');
+
+  let currentPaperKey = null;
+  let currentShareRecId = null;
+
+  function openPaper(key) {
+    const p = PAPERS[key]; if (!p) return;
+    currentPaperKey = key;
+    $('[data-f="journal"]').textContent = p.journal;
+    $('[data-f="year"]').textContent = p.year;
+    $('[data-f="new"]').style.display = p.new ? '' : 'none';
+    $('[data-f="title"]').textContent = p.title;
+    $('[data-f="authors"]').textContent = p.authors;
+    $('[data-f="summary"]').textContent = p.summary;
+    $('[data-f="reason"]').textContent = p.reason;
+    $('[data-f="keywords"]').innerHTML = p.keywords.map(k => `<span>${k}</span>`).join('');
+    $('[data-f="tags"]').innerHTML = p.tags.map(t => `<span>${t}</span>`).join('');
+    $('[data-f="score"]').textContent = p.score;
+    $('[data-f="cites"]').textContent = p.cites;
+    const link = $('[data-f="link"]');
+    link.href = p.link;
+
+    const btn = document.getElementById('btnSave');
+    if (p.saved) {
+      btn.textContent = '★ 저장됨';
+      btn.style.color = 'var(--accent)';
+      btn.style.borderColor = 'var(--accent)';
+    } else {
+      btn.textContent = '☆ 저장';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }
+    modal.classList.add('open');
+  }
+
+  function savePaper() {
+    const p = PAPERS[currentPaperKey];
+    if (!p) return;
+
+    p.saved = !p.saved;
+    const btn = document.getElementById('btnSave');
+
+    if (p.saved) {
+      btn.textContent = '★ 저장됨';
+      btn.style.color = 'var(--accent)';
+      btn.style.borderColor = 'var(--accent)';
+
+      fetch('/api/lr/auth/me').then(r => r.json()).then(me => {
+        if (!me.logged_in || !me.researcher_id) return;
+        fetch('/api/lr/save_paper', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            researcher_id: me.researcher_id,
+            paper_doi: p.link,
+            paper_title: p.title,
+            paper_keywords: p.keywords,
+          }),
+        });
+      });
+    } else {
+      btn.textContent = '☆ 저장';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }
+  }
+  function closeModal() { modal.classList.remove('open'); }
+
+  function closeShareModal() {
+    shareModal?.classList.remove('open');
+    currentShareRecId = null;
+  }
+
+  async function openShareModal(recId) {
+    if (!recId) {
+      alert('DB에 저장된 추천 논문만 공유할 수 있습니다.');
+      return;
+    }
+    currentShareRecId = recId;
+    shareStatus.className = 'share-status';
+    shareStatus.textContent = '';
+    shareResearcherList.innerHTML = '<div class="share-status">연구원 목록 로딩 중...</div>';
+    shareModal.classList.add('open');
+
+    try {
+      const resp = await fetch('/api/lr/researchers');
+      if (!resp.ok) throw new Error('연구원 목록을 불러오지 못했습니다.');
+      const researchers = await resp.json();
+      const activeName = document.getElementById('rName')?.textContent;
+      const activeResearcherId = RESEARCHERS[activeName]?._db_id;
+      const list = researchers
+        .filter(r => r.email && r.id !== activeResearcherId)
+        .sort((a, b) => (a.group || '').localeCompare(b.group || '') || (a.display_name || a.name).localeCompare(b.display_name || b.name));
+
+      shareResearcherList.innerHTML = list.map(r => `
+        <button class="share-person" data-share-target="${r.id}">
+          <span class="mini-avatar">${escHTML((r.display_name || r.name || '?')[0])}</span>
+          <span class="who">
+            <span class="name">${escHTML(r.display_name || r.name)}</span>
+            <span class="email">${escHTML(r.email || '')}</span>
+          </span>
+          <span class="group">${escHTML(r.group || '')}</span>
+        </button>
+      `).join('') || '<div class="share-status">공유할 수 있는 연구원이 없습니다.</div>';
+    } catch (e) {
+      shareResearcherList.innerHTML = '<div class="share-status err">연구원 목록을 불러오지 못했습니다.</div>';
+      console.warn('[share researchers] error:', e);
+    }
+  }
+
+  async function sendSharedRecommendation(targetResearcherId, btn) {
+    if (!currentShareRecId || !targetResearcherId) return;
+    const prevText = btn.querySelector('.group')?.textContent || '';
+    btn.disabled = true;
+    const groupEl = btn.querySelector('.group');
+    if (groupEl) groupEl.textContent = '전송 중';
+    shareStatus.className = 'share-status';
+    shareStatus.textContent = '메일 발송 중...';
+
+    try {
+      const resp = await fetch(`/api/lr/recommendations/${currentShareRecId}/share`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ target_researcher_id: Number(targetResearcherId) }),
+      });
+      const data = await resp.json();
+      if (!resp.ok || !data.success) throw new Error(data.error || '메일 발송에 실패했습니다.');
+      shareStatus.className = 'share-status ok';
+      shareStatus.textContent = `${data.target_name} 연구원에게 메일을 발송했습니다.`;
+      setTimeout(closeShareModal, 900);
+    } catch (e) {
+      btn.disabled = false;
+      if (groupEl) groupEl.textContent = prevText;
+      shareStatus.className = 'share-status err';
+      shareStatus.textContent = e.message || '메일 발송에 실패했습니다.';
+      console.warn('[share recommendation] error:', e);
+    }
+  }
+
+  document.querySelectorAll('table.papers tbody tr').forEach(tr => {
+    tr.addEventListener('click', () => {
+      const k = tr.getAttribute('data-paper');
+      if (k) openPaper(k);
+    });
+  });
+  modal.addEventListener('click', e => {
+    if (e.target === modal || e.target.hasAttribute('data-close')) closeModal();
+  });
+  shareModal?.addEventListener('click', e => {
+    if (e.target === shareModal || e.target.hasAttribute('data-share-close')) closeShareModal();
+    const targetBtn = e.target.closest('[data-share-target]');
+    if (targetBtn) sendSharedRecommendation(targetBtn.getAttribute('data-share-target'), targetBtn);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+    if (e.key === 'Escape' && shareModal?.classList.contains('open')) closeShareModal();
+  });
+
+  // ===== Auth (login / logout) =====
+  const USERS = {
+    "윤성민":        { pw: "1234", group: "BIST Lab",  color: "ai"  },
+    "구자범":        { pw: "1234", group: "HVAC",      color: "ai"  },
+    "이제윤":        { pw: "1234", group: "HVAC",      color: "ai"  },
+    "Min Htet Myint":{ pw: "1234", group: "HVAC",      color: "ai"  },
+    "이우흠":        { pw: "1234", group: "HVAC",      color: "ai"  },
+    "이지텅":        { pw: "1234", group: "HVAC",      color: "ai"  },
+    "최세빈":        { pw: "1234", group: "UBI",        color: "dt"  },
+    "이고운":        { pw: "1234", group: "UBI",        color: "dt"  },
+    "유재현":        { pw: "1234", group: "UBI",        color: "dt"  },
+    "석민주":        { pw: "1234", group: "UBI",        color: "dt"  },
+    "장세원":        { pw: "1234", group: "UBI",        color: "dt"  },
+    "송지환":        { pw: "1234", group: "AI agent",   color: "iot" },
+    "사이에드":      { pw: "1234", group: "AI agent",   color: "iot" },
+    "장병준":        { pw: "1234", group: "AI agent",   color: "iot" },
+    "황재민":        { pw: "1234", group: "IEI",        color: "ai"  },
+    "황여진":        { pw: "1234", group: "IEI",        color: "ai"  },
+    "이장원":        { pw: "1234", group: "IEI",        color: "ai"  },
+  };
+
+  let loggedInUser = null;
+
+  function setLoginState(name) {
+    const u = USERS[name] || { pw: '', group: '', color: 'ai' };
+    loggedInUser = name;
+    localStorage.setItem('lr_user', name);
+    document.getElementById('authBar').style.display = 'none';
+    const authUser = document.getElementById('authUser');
+    authUser.style.display = '';
+    document.getElementById('profileBtn').style.display = '';
+    const avatar = document.getElementById('authAvatar');
+    avatar.textContent = name[0];
+    avatar.className = 'u-avatar';
+    avatar.style.background = `var(--${u.color || 'ai'})`;
+    document.getElementById('authUserName').textContent = name;
+    document.getElementById('authUserGroup').textContent = u.group || '';
+
+    // Update sidebar user chip
+    const chipAvatar = document.querySelector('.user-chip .avatar');
+    const chipName = document.querySelector('.user-chip .n');
+    const chipSub = document.querySelector('.user-chip .s');
+    if (chipAvatar) { chipAvatar.textContent = name[0]; }
+    if (chipName) chipName.textContent = name;
+    if (chipSub) chipSub.textContent = `Signed in · ${u.group || ''}`;
+  }
+
+  function clearLoginState() {
+    loggedInUser = null;
+    localStorage.removeItem('lr_user');
+    document.getElementById('authBar').style.display = '';
+    document.getElementById('authUser').style.display = 'none';
+    document.getElementById('profileBtn').style.display = 'none';
+    document.getElementById('authName').value = '';
+    document.getElementById('authPw').value = '';
+
+    const chipName = document.querySelector('.user-chip .n');
+    const chipSub = document.querySelector('.user-chip .s');
+    if (chipName) chipName.textContent = '게스트';
+    if (chipSub) chipSub.textContent = '로그인 필요';
+  }
+
+  document.getElementById('loginBtn').addEventListener('click', async () => {
+    const name = document.getElementById('authName').value.trim();
+    const pw = document.getElementById('authPw').value;
+    if (!name || !pw) return alert('이름과 비밀번호를 입력하세요.');
+
+    try {
+      const resp = await fetch('/api/lr/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, password: pw }),
+      });
+      const data = await resp.json();
+      if (data.success) {
+        if (!USERS[name]) {
+          USERS[name] = { pw, group: '', color: 'ai' };
+        }
+        setLoginState(name);
+        // 로그인 후 트렌딩 키워드/추천 갱신
+        if (typeof loadSidebarData === 'function') loadSidebarData();
+        if (typeof loadWeeklyRecs === 'function') loadWeeklyRecs();
+      } else {
+        alert(data.error || '로그인 실패');
+      }
+    } catch {
+      alert('서버 연결 오류');
+    }
+  });
+
+  document.getElementById('authPw').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('loginBtn').click();
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    try { await fetch('/api/lr/auth/logout', { method: 'POST' }); } catch {}
+    clearLoginState();
+    if (typeof loadSidebarData === 'function') loadSidebarData();
+    if (typeof loadWeeklyRecs === 'function') loadWeeklyRecs();
+  });
+
+  // Restore session on load (built-in + registered users)
+  (function restoreSession() {
+    const saved = localStorage.getItem('lr_user');
+    if (!saved) return;
+    if (USERS[saved]) return setLoginState(saved);
+    const custom = JSON.parse(localStorage.getItem('lr_users') || '{}');
+    if (custom[saved]) {
+      const colorMap = { 'Agentic AI': 'ai', 'Digital Twin': 'dt', 'Smart IoT': 'iot' };
+      USERS[saved] = {
+        pw: custom[saved].pw,
+        group: custom[saved].group,
+        color: colorMap[custom[saved].group] || 'ai'
+      };
+      setLoginState(saved);
+    }
+  })();
+
+  // ===== Researcher profiles & matched papers =====
+  const RESEARCHERS = {
+    "윤성민": {
+      group: "BIST Lab", color: "ai", role: "Professor",
+      interests: "Building Energy · HVAC · AI for Buildings",
+      recent: "Lab-wide research coordination",
+      tags: ["Building Energy","HVAC","AI"],
+      stats: { read: 320, saved: 95, cites: 850 },
+      matches: [
+        { score: 96, new: true, title: "LLM-driven agents for HVAC fault detection and diagnosis",
+          authors: "A. Okada, M. Hassan", journal: "Applied Energy", year: "2026", when: "3일 전",
+          summary: "HVAC 이상 징후를 진단하기 위해 도구 호출 기반의 LLM 에이전트를 제안.",
+          why: "연구실 전체 HVAC·AI 연구 방향과 정확히 일치하는 최신 논문.",
+          whyTags: ["LLM","HVAC","FDD"],
+          kw: ["LLM","HVAC","FDD"], cites: 3, saved: false, unread: true }
+      ]
+    },
+    "구자범": {
+      group: "HVAC", color: "ai", role: "박사과정",
+      interests: "HVAC Optimization · Model Predictive Control",
+      recent: "MPC-based HVAC control — 연구 진행 중",
+      tags: ["HVAC","MPC","Optimization"],
+      stats: { read: 87, saved: 22, cites: 5 },
+      matches: [
+        { score: 91, new: true, title: "Cooperative LLM planners for multi-zone HVAC",
+          authors: "Y. Liu, P. Saha", journal: "Energy and Buildings", year: "2026", when: "4일 전",
+          summary: "다중 영역 HVAC을 협업 LLM 플래너로 조율하는 계층적 의사결정 프레임워크.",
+          why: "구자범의 HVAC 최적화 연구와 동일한 환경·보상 설계.",
+          whyTags: ["HVAC","Multi-zone","MPC"],
+          kw: ["HVAC","MPC"], cites: 0, saved: false, unread: true }
+      ]
+    },
+    "이제윤": {
+      group: "HVAC", color: "ai", role: "박사과정",
+      interests: "HVAC System Design · Energy Simulation",
+      recent: "Building energy simulation framework — 연구 진행 중",
+      tags: ["HVAC","Energy Simulation","Design"],
+      stats: { read: 64, saved: 15, cites: 3 },
+      matches: [
+        { score: 88, new: true, title: "Physics-informed neural networks for HVAC energy prediction",
+          authors: "K. Chen et al.", journal: "Applied Energy", year: "2026", when: "5일 전",
+          summary: "물리 기반 신경망으로 HVAC 에너지 소비를 정밀 예측.",
+          why: "이제윤의 에너지 시뮬레이션 연구와 방법론이 유사.",
+          whyTags: ["HVAC","PINN","Energy"],
+          kw: ["HVAC","PINN"], cites: 1, saved: false, unread: true }
+      ]
+    },
+    "Min Htet Myint": {
+      group: "HVAC", color: "ai", role: "박사과정",
+      interests: "HVAC Control · Reinforcement Learning",
+      recent: "RL-based HVAC control — 연구 진행 중",
+      tags: ["HVAC","RL","Control"],
+      stats: { read: 42, saved: 10, cites: 0 },
+      matches: [
+        { score: 85, new: false, title: "Reinforcement learning with comfort-aware reward shaping for HVAC",
+          authors: "J. Park et al.", journal: "Energy and Buildings", year: "2026", when: "1주 전",
+          summary: "쾌적성을 명시적으로 고려한 보상 설계로 HVAC RL 제어의 안정성을 향상.",
+          why: "Min Htet Myint의 RL 기반 HVAC 제어 연구와 직접 연관.",
+          whyTags: ["RL","HVAC","Comfort"],
+          kw: ["RL","HVAC"], cites: 2, saved: false, unread: false }
+      ]
+    },
+    "이우흠": {
+      group: "HVAC", color: "ai", role: "석박사통합",
+      interests: "Building Load Forecasting · Deep Learning",
+      recent: "Short-term load forecasting with attention — 연구 진행 중",
+      tags: ["Load Forecasting","Deep Learning","HVAC"],
+      stats: { read: 55, saved: 12, cites: 2 },
+      matches: [
+        { score: 90, new: true, title: "Long-horizon load forecasting with state-space transformers",
+          authors: "H. Kim, S. Moreno", journal: "Applied Energy", year: "2026", when: "3일 전",
+          summary: "상태공간 변환기를 사용해 장기 건물 부하를 안정적으로 예측.",
+          why: "이우흠의 부하 예측 연구를 장기 시계열로 확장하는 방법론.",
+          whyTags: ["Transformer","Load Forecasting"],
+          kw: ["Transformer","Forecasting"], cites: 1, saved: false, unread: true }
+      ]
+    },
+    "이지텅": {
+      group: "HVAC", color: "ai", role: "박사후연구원",
+      interests: "HVAC Fault Detection · Data-driven Diagnostics",
+      recent: "Data-driven FDD for chiller systems — Energy 2025",
+      tags: ["FDD","HVAC","Data-driven"],
+      stats: { read: 178, saved: 48, cites: 120 },
+      matches: [
+        { score: 94, new: true, title: "LLM-driven agents for HVAC fault detection and diagnosis",
+          authors: "A. Okada, M. Hassan", journal: "Applied Energy", year: "2026", when: "3일 전",
+          summary: "HVAC 이상 징후를 진단하기 위해 LLM 에이전트를 제안.",
+          why: "이지텅의 FDD 연구와 정확히 동일한 도메인. LLM 확장 가능성.",
+          whyTags: ["FDD","LLM","HVAC"],
+          kw: ["FDD","LLM","HVAC"], cites: 3, saved: false, unread: true }
+      ]
+    },
+    "최세빈": {
+      group: "UBI", color: "dt", role: "석박사통합",
+      interests: "Occupant Behavior · Thermal Comfort · UBI",
+      recent: "Thermal comfort prediction model — 연구 진행 중",
+      tags: ["UBI","Thermal Comfort","Occupant"],
+      stats: { read: 76, saved: 19, cites: 8 },
+      matches: [
+        { score: 89, new: true, title: "Personalized thermal comfort prediction using wearable sensors",
+          authors: "S. Wang et al.", journal: "Building and Environment", year: "2026", when: "2일 전",
+          summary: "웨어러블 센서 데이터로 개인 맞춤형 쾌적 온도를 예측.",
+          why: "최세빈의 쾌적 제어 연구와 직접 연관되는 최신 센서 기반 접근.",
+          whyTags: ["Thermal Comfort","Wearable","UBI"],
+          kw: ["Comfort","Wearable"], cites: 0, saved: false, unread: true }
+      ]
+    },
+    "이고운": {
+      group: "UBI", color: "dt", role: "석사과정",
+      interests: "User Behavior · Indoor Environment · Data Analysis",
+      recent: "Indoor environment preference study — 연구 진행 중",
+      tags: ["UBI","Indoor Environment","Behavior"],
+      stats: { read: 52, saved: 11, cites: 2 },
+      matches: [
+        { score: 83, new: false, title: "Occupant-centric indoor environment quality assessment",
+          authors: "L. Zhang et al.", journal: "Energy and Buildings", year: "2025", when: "2주 전",
+          summary: "재실자 중심으로 실내 환경 품질을 종합적으로 평가하는 프레임워크.",
+          why: "이고운의 실내 환경 연구와 동일한 평가 기준을 사용.",
+          whyTags: ["IEQ","Occupant-centric","UBI"],
+          kw: ["IEQ","UBI"], cites: 5, saved: true, unread: false }
+      ]
+    },
+    "유재현": {
+      group: "UBI", color: "dt", role: "석사과정",
+      interests: "Ubiquitous Computing · Smart Building · IoT",
+      recent: "Smart building IoT platform — 연구 진행 중",
+      tags: ["UBI","Smart Building","IoT"],
+      stats: { read: 61, saved: 14, cites: 4 },
+      matches: [
+        { score: 86, new: true, title: "Edge-cloud collaborative IoT platform for smart buildings",
+          authors: "R. Patel et al.", journal: "IEEE IoT Journal", year: "2026", when: "4일 전",
+          summary: "엣지-클라우드 협업으로 스마트 빌딩 IoT 데이터를 실시간 처리.",
+          why: "유재현의 스마트 빌딩 플랫폼 연구와 아키텍처가 유사.",
+          whyTags: ["IoT","Edge-Cloud","Smart Building"],
+          kw: ["IoT","Edge"], cites: 0, saved: false, unread: true }
+      ]
+    },
+    "석민주": {
+      group: "UBI", color: "dt", role: "석사과정",
+      interests: "Ubiquitous Sensing · Occupancy Detection",
+      recent: "Occupancy detection with environmental sensors — 연구 진행 중",
+      tags: ["UBI","Occupancy","Sensing"],
+      stats: { read: 34, saved: 8, cites: 0 },
+      matches: [
+        { score: 81, new: false, title: "Multi-modal occupancy detection in commercial buildings",
+          authors: "T. Nguyen et al.", journal: "Sensors", year: "2025", when: "3주 전",
+          summary: "CO2·PIR·음향 센서를 융합해 상업 건물의 재실자를 탐지.",
+          why: "석민주의 센서 기반 재실 감지 연구와 방법론이 유사.",
+          whyTags: ["Occupancy","Multi-modal","Sensors"],
+          kw: ["Occupancy","Sensing"], cites: 7, saved: false, unread: false }
+      ]
+    },
+    "장세원": {
+      group: "UBI", color: "dt", role: "석박사통합",
+      interests: "Energy Data Analytics · Building Performance",
+      recent: "Building energy data analysis — 연구 진행 중",
+      tags: ["UBI","Energy Analytics","Data"],
+      stats: { read: 45, saved: 10, cites: 1 },
+      matches: [
+        { score: 84, new: true, title: "Data-driven building energy benchmarking with clustering",
+          authors: "C. Park et al.", journal: "Energy and Buildings", year: "2026", when: "6일 전",
+          summary: "클러스터링 기반으로 건물 에너지 성능을 벤치마킹하는 데이터 주도 방법론.",
+          why: "장세원의 에너지 데이터 분석 연구와 분석 기법이 유사.",
+          whyTags: ["Energy","Benchmarking","Clustering"],
+          kw: ["Energy","Clustering"], cites: 0, saved: false, unread: true }
+      ]
+    },
+    "송지환": {
+      group: "AI agent", color: "iot", role: "석사과정",
+      interests: "AI Agent · LLM · Autonomous Systems",
+      recent: "LLM-based building agent — 연구 진행 중",
+      tags: ["AI Agent","LLM","Autonomous"],
+      stats: { read: 95, saved: 28, cites: 6 },
+      matches: [
+        { score: 93, new: true, title: "A survey on LLM agents for built environments",
+          authors: "J. Cho, R. Bianchi", journal: "ACM Computing Surveys", year: "2026", when: "1주 전",
+          summary: "건물 영역에 적용된 LLM 에이전트 연구 84편을 태스크·아키텍처·평가 축으로 정리.",
+          why: "송지환의 AI agent 연구 방향에 필수적인 서베이 논문.",
+          whyTags: ["LLM Agent","Survey","Built Environment"],
+          kw: ["LLM","Agent","Survey"], cites: 22, saved: false, unread: true }
+      ]
+    },
+    "사이에드": {
+      group: "AI agent", color: "iot", role: "석사과정",
+      interests: "AI · Machine Learning · Building Systems",
+      recent: "AI-based building performance optimization — 연구 진행 중",
+      tags: ["AI","ML","Building"],
+      stats: { read: 48, saved: 13, cites: 1 },
+      matches: [
+        { score: 87, new: true, title: "Foundation models for building energy management",
+          authors: "M. Ali et al.", journal: "Nature Energy", year: "2026", when: "5일 전",
+          summary: "Foundation model을 건물 에너지 관리에 적용한 사례 연구.",
+          why: "사이에드의 AI 기반 건물 최적화 연구와 방법론이 일치.",
+          whyTags: ["Foundation Model","Energy","AI"],
+          kw: ["AI","Foundation Model"], cites: 0, saved: false, unread: true }
+      ]
+    },
+    "장병준": {
+      group: "AI agent", color: "iot", role: "학부연구생",
+      interests: "AI · Data Science · Building Automation",
+      recent: "Building automation data pipeline — 연구 진행 중",
+      tags: ["AI","Automation","Data Science"],
+      stats: { read: 18, saved: 4, cites: 0 },
+      matches: [
+        { score: 78, new: true, title: "Automated data pipeline for smart building analytics",
+          authors: "D. Kim et al.", journal: "Automation in Construction", year: "2026", when: "1주 전",
+          summary: "스마트 빌딩 데이터를 자동으로 수집·정제·분석하는 파이프라인.",
+          why: "장병준의 빌딩 자동화 데이터 연구와 파이프라인 설계가 유사.",
+          whyTags: ["Automation","Data Pipeline","Smart Building"],
+          kw: ["Automation","Pipeline"], cites: 0, saved: false, unread: true }
+      ]
+    },
+    "황재민": {
+      group: "IEI", color: "ai", role: "석사과정",
+      interests: "Indoor Environment Intelligence · Sensor Networks",
+      recent: "Intelligent indoor environment monitoring — 연구 진행 중",
+      tags: ["IEI","Sensor Network","Indoor"],
+      stats: { read: 43, saved: 9, cites: 2 },
+      matches: [
+        { score: 82, new: false, title: "Intelligent indoor air quality monitoring with federated learning",
+          authors: "W. Lee et al.", journal: "IEEE Sensors Journal", year: "2025", when: "2주 전",
+          summary: "연합학습으로 프라이버시를 보장하면서 IAQ를 지능적으로 모니터링.",
+          why: "황재민의 실내 환경 인텔리전스 연구와 센서 네트워크 관점이 유사.",
+          whyTags: ["IEI","Federated Learning","IAQ"],
+          kw: ["IEI","FL","IAQ"], cites: 4, saved: true, unread: false }
+      ]
+    },
+    "황여진": {
+      group: "IEI", color: "ai", role: "학부연구생",
+      interests: "Indoor Environment · Data Visualization",
+      recent: "Indoor environment data dashboard — 연구 진행 중",
+      tags: ["IEI","Visualization","Indoor"],
+      stats: { read: 15, saved: 3, cites: 0 },
+      matches: [
+        { score: 76, new: true, title: "Interactive dashboard for real-time indoor environment monitoring",
+          authors: "Y. Tanaka et al.", journal: "Sensors", year: "2026", when: "1주 전",
+          summary: "실시간 실내 환경 데이터를 인터랙티브 대시보드로 시각화.",
+          why: "황여진의 실내 환경 데이터 시각화 연구와 직접 연관.",
+          whyTags: ["IEI","Dashboard","Real-time"],
+          kw: ["IEI","Dashboard"], cites: 0, saved: false, unread: true }
+      ]
+    },
+    "이장원": {
+      group: "IEI", color: "ai", role: "석사과정",
+      interests: "Indoor Air Quality · Environmental Sensing",
+      recent: "IAQ prediction with ML — 연구 진행 중",
+      tags: ["IEI","IAQ","ML"],
+      stats: { read: 38, saved: 7, cites: 1 },
+      matches: [
+        { score: 80, new: true, title: "Machine learning-based indoor air quality prediction framework",
+          authors: "H. Chen et al.", journal: "Building and Environment", year: "2026", when: "4일 전",
+          summary: "ML 기반으로 실내 공기질을 예측하는 통합 프레임워크.",
+          why: "이장원의 IAQ 예측 연구와 동일한 ML 기반 접근법.",
+          whyTags: ["IAQ","ML","Prediction"],
+          kw: ["IAQ","ML"], cites: 1, saved: false, unread: true }
+      ]
+    }
+  };
+
+  const viewHome = document.getElementById('viewHome');
+  const viewResearcher = document.getElementById('viewResearcher');
+  const matchList = document.getElementById('matchList');
+  const crumb = document.getElementById('crumb');
+  const searchTop = document.getElementById('searchTop');
+  const recDateFilter = document.getElementById('recDateFilter');
+  let currentMatchFilter = 'all';
+
+  function escHTML(s) { return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  function getMatchDateKey(m) {
+    return m.recommended_date || m.when || '';
+  }
+
+  function formatRecommendationDate(value) {
+    if (!value) return '';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return String(value);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  function updateRecommendationDateFilter(r) {
+    if (!recDateFilter || !r) return;
+    const selected = recDateFilter.value || 'all';
+    const dates = [...new Set((r.matches || []).map(getMatchDateKey).filter(Boolean))].sort((a, b) => b.localeCompare(a));
+    recDateFilter.innerHTML = '<option value="all">전체 날짜</option>' +
+      dates.map(d => `<option value="${escHTML(d)}">${escHTML(d)}</option>`).join('');
+    recDateFilter.value = dates.includes(selected) ? selected : 'all';
+  }
+
+  function renderMatches(r, filter, dateFilter) {
+    currentMatchFilter = filter || currentMatchFilter || 'all';
+    const selectedDate = dateFilter || recDateFilter?.value || 'all';
+    let list = (r.matches || []).map((m, idx) => ({ ...m, _matchIndex: idx }));
+    if (filter === 'new')      list = list.filter(x => x.new);
+    if (filter === 'saved')    list = list.filter(x => x.saved);
+    if (filter === 'unread')   list = list.filter(x => x.unread);
+    if (filter === 'core')     list = list.filter(x => x.grade === 'core');
+    if (filter === 'related')  list = list.filter(x => x.grade === 'related');
+    if (filter === 'reference') list = list.filter(x => x.grade === 'reference');
+    if (selectedDate !== 'all') list = list.filter(x => getMatchDateKey(x) === selectedDate);
+    document.getElementById('displayInfo').textContent = `${list.length}건 표시 중`;
+    matchList.innerHTML = list.map(m => {
+      const g = m.grade || 'reference';
+      const ringCls = g === 'related' ? ' ring-related' : g === 'reference' ? ' ring-reference' : '';
+      const hasSummary = m.summary_core_topic || m.summary_purpose || m.summary_method || m.summary_results;
+      return `
+      <div class="match-card grade-${g}" data-match-index="${m._matchIndex}">
+        <div class="match-head">
+          <div class="score-ring${ringCls}" style="--p:${m.score}"><span>${m.score}</span></div>
+          <div>
+            <div style="margin-bottom:4px;">
+              <span class="grade-badge ${g}">${g.toUpperCase()}</span>
+              ${m.new ? '<span class="match-new">NEW</span>' : ''}
+            </div>
+            <h3 class="match-title">${escHTML(m.title)}</h3>
+            <div class="match-meta">
+              <span>${escHTML(m.authors)}</span>
+              <span class="dot-sep">·</span>
+              <em>${escHTML(m.journal)}</em>
+              <span class="dot-sep">·</span>
+              <span>${m.year}</span>
+              <span class="dot-sep">·</span>
+              <span class="when">${m.when}</span>
+            </div>
+          </div>
+          <div></div>
+        </div>
+        ${hasSummary ? `
+        <div class="summary-sections">
+          ${m.summary_core_topic ? `<div class="ss-row"><span class="ss-label">핵심주제</span><span class="ss-text">${escHTML(m.summary_core_topic)}</span></div>` : ''}
+          ${m.summary_purpose ? `<div class="ss-row"><span class="ss-label">연구목적</span><span class="ss-text">${escHTML(m.summary_purpose)}</span></div>` : ''}
+          ${m.summary_method ? `<div class="ss-row"><span class="ss-label">방법론</span><span class="ss-text">${escHTML(m.summary_method)}</span></div>` : ''}
+          ${m.summary_results ? `<div class="ss-row"><span class="ss-label">결과</span><span class="ss-text">${escHTML(m.summary_results)}</span></div>` : ''}
+        </div>
+        ` : `<p class="match-summary">${escHTML(m.summary || m.abstract || '')}</p>`}
+        ${(m.why || m.recommendation_reason) ? `
+        <div class="why-box">
+          <div class="why-head">왜 추천됐나요</div>
+          <p>${escHTML(m.why || m.recommendation_reason || '')}</p>
+          ${(m.whyTags && m.whyTags.length) ? `<div class="why-tags">${m.whyTags.map(t => '<span>'+escHTML(t)+'</span>').join('')}</div>` : ''}
+          ${m.sim_papers && m.sim_papers.length ? `<div style="margin-top:6px;font-size:11px;color:var(--text-mute);">유사 논문: ${m.sim_papers.map(s => escHTML(s.ref_title || '').substring(0,50)+'... ('+((s.similarity||0)*100).toFixed(0)+'%)').join(', ')}</div>` : ''}
+        </div>` : ''}
+        <div class="score-axes">
+          <span class="ax"><span class="ax-label">유사도:</span><span class="ax-val">${m.similarity_score != null ? (m.similarity_score*100).toFixed(1)+'%' : (m.score != null ? m.score+'%' : '-')}</span></span>
+          ${m.topic_name ? `<span class="ax"><span class="ax-label">주제:</span><span class="ax-val" style="color:var(--text-dim);font-weight:500;">${escHTML(m.topic_name)}</span></span>` : ''}
+        </div>
+        <div class="match-foot">
+          ${(m.kw||[]).map(k => `<span class="kw">${escHTML(k)}</span>`).join('')}
+          <span class="spacer"></span>
+          <button class="fb-btn${m.user_feedback==='useful'?' active-useful':''}" data-fb="useful" data-rec="${m.rec_id||''}" title="유용해요">👍 유용해요</button>
+          <button class="fb-btn${m.user_feedback==='not_relevant'?' active-not-relevant':''}" data-fb="not_relevant" data-rec="${m.rec_id||''}" title="관련없음">👎 관련없음</button>
+          <button class="ico" title="저장" data-action="save" data-rec="${m.rec_id||''}">🔖</button>
+          <button class="ico" title="공유" data-action="share" data-rec="${m.rec_id||''}">↗</button>
+        </div>
+      </div>
+    `;
+    }).join('') || `<div style="color:var(--text-mute); padding:24px; text-align:center;">조건에 맞는 논문이 없습니다.</div>`;
+  }
+
+  async function openResearcher(name) {
+    const r = RESEARCHERS[name];
+    if (!r) return;
+    viewHome.style.display = 'none';
+    viewResearcher.style.display = '';
+
+    document.getElementById('rPA').textContent = name[0];
+    const pa = document.getElementById('rPA');
+    pa.className = 'pa ' + r.color;
+    document.getElementById('rName').textContent = name;
+    document.getElementById('rRole').textContent = `${r.role} · ${r.group}`;
+    document.getElementById('rInterests').textContent = r.interests;
+    document.getElementById('rRecent').textContent = r.recent;
+    document.getElementById('rTags').innerHTML = r.tags.map(t => `<span>${escHTML(t)}</span>`).join('');
+    document.getElementById('rRead').textContent = r.stats.read;
+    document.getElementById('rSaved').textContent = r.stats.saved;
+    document.getElementById('rCites').textContent = r.stats.cites;
+
+    // 실 DB 데이터 로딩 시도 (researcher_id 매핑)
+    if (r._db_id) {
+      // "추천 상세 보기" 링크 업데이트
+      const recLink = document.getElementById('rRecLink');
+      if (recLink) recLink.href = `/litreview/recommendations?id=${r._db_id}`;
+
+      await Promise.all([
+        loadRealRecommendations(r._db_id, name),
+        loadResearcherDetail(r._db_id, name),
+      ]);
+    } else {
+      // DB id 없으면 링크 숨김
+      const recLink = document.getElementById('rRecLink');
+      if (recLink) recLink.style.display = 'none';
+    }
+
+    const counts = {
+      all: r.matches.length,
+      core: r.matches.filter(x => x.grade === 'core').length,
+      related: r.matches.filter(x => x.grade === 'related').length,
+      reference: r.matches.filter(x => x.grade === 'reference').length,
+      saved: r.matches.filter(x => x.saved).length,
+      unread: r.matches.filter(x => x.unread).length,
+    };
+    document.getElementById('tabAll').textContent = counts.all;
+    document.getElementById('tabCore').textContent = counts.core;
+    document.getElementById('tabRelated').textContent = counts.related;
+    document.getElementById('tabRef').textContent = counts.reference;
+    document.getElementById('tabSaved').textContent = counts.saved;
+    document.getElementById('tabUnread').textContent = counts.unread;
+    document.getElementById('digestLine').textContent =
+      counts.core > 0
+        ? `Core ${counts.core}편 · Related ${counts.related}편 · Reference ${counts.reference}편 추천`
+        : r.matches.length > 0
+          ? `총 ${r.matches.length}편 추천됨`
+          : `아직 추천 논문이 없어요`;
+
+    document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('.tabs .tab[data-filter="all"]').classList.add('active');
+    currentMatchFilter = 'all';
+    if (recDateFilter) recDateFilter.value = 'all';
+    updateRecommendationDateFilter(r);
+    renderMatches(r, 'all');
+
+    crumb.innerHTML = `
+      <a data-go-home>BIST Lab</a>
+      <span class="sep">/</span>
+      <a>${escHTML(r.group)}</a>
+      <span class="sep">/</span>
+      <span class="cur">${escHTML(name)}</span>
+    `;
+    searchTop.placeholder = '논문 제목 · 저자 · 키워드로 검색';
+    searchTop.value = '';
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goHome() {
+    viewResearcher.style.display = 'none';
+    viewHome.style.display = '';
+    crumb.innerHTML = `<a data-go-home>BIST Lab</a>`;
+    searchTop.placeholder = '이고운';
+    searchTop.value = '이고운';
+  }
+
+  // Tree node clicks (researchers — child nodes + Professor 윤성민)
+  // 그룹 헤더(HVAC/UBI/AI agent/IEI)와 BIST Lab은 제외
+  const _NON_RESEARCHER_NAMES = new Set(['BIST Lab', 'HVAC', 'UBI', 'AI agent', 'IEI']);
+  document.querySelectorAll('.sidebar .tree-node').forEach(node => {
+    const name = node.querySelector('.name')?.textContent?.trim();
+    if (!name || _NON_RESEARCHER_NAMES.has(name)) return;
+    node.addEventListener('click', () => {
+      if (!RESEARCHERS[name]) return;
+      document.querySelectorAll('.sidebar .tree-node').forEach(n => n.classList.remove('active'));
+      node.classList.add('active');
+      openResearcher(name);
+    });
+  });
+
+  // BIST Lab node — go home
+  document.querySelectorAll('.sidebar .tree-node').forEach(node => {
+    const n = node.querySelector('.name')?.textContent?.trim();
+    if (n === 'BIST Lab') {
+      node.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar .tree-node').forEach(x => x.classList.remove('active'));
+        node.classList.add('active');
+        goHome();
+      });
+    }
+  });
+
+  // Top Authors name click → open researcher view
+  document.querySelectorAll('[data-author]').forEach(el => {
+    el.addEventListener('click', () => {
+      const name = el.getAttribute('data-author');
+      if (!RESEARCHERS[name]) return;
+      document.querySelectorAll('.sidebar .tree-node').forEach(n => n.classList.remove('active'));
+      document.querySelectorAll('.sidebar .child .tree-node').forEach(n => {
+        if (n.querySelector('.name')?.textContent?.trim() === name) n.classList.add('active');
+      });
+      openResearcher(name);
+    });
+  });
+
+  // Breadcrumb home link
+  document.body.addEventListener('click', e => {
+    if (e.target.matches('[data-go-home]')) {
+      document.querySelectorAll('.sidebar .tree-node').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.sidebar .tree-node').forEach(x => {
+        if (x.querySelector('.name')?.textContent?.trim() === 'BIST Lab') x.classList.add('active');
+      });
+      goHome();
+    }
+  });
+
+  // Tabs (researcher view: 등급/상태 필터) — homeViewTabs는 별도 핸들러
+  document.querySelectorAll('.tabs:not(#homeViewTabs) .tab').forEach(t => {
+    t.addEventListener('click', () => {
+      const sib = t.parentElement.querySelectorAll('.tab');
+      sib.forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      const activeName = document.getElementById('rName').textContent;
+      const r = RESEARCHERS[activeName];
+      if (r) renderMatches(r, t.getAttribute('data-filter'));
+    });
+  });
+
+  recDateFilter?.addEventListener('change', () => {
+    const activeName = document.getElementById('rName').textContent;
+    const r = RESEARCHERS[activeName];
+    if (r) renderMatches(r, currentMatchFilter, recDateFilter.value);
+  });
+
+  // Home view tabs (Home / BIST paper) — view-section 토글
+  (function initHomeViewTabs() {
+    const tabbar = document.getElementById('homeViewTabs');
+    if (!tabbar) return;
+    function showView(name) {
+      tabbar.querySelectorAll('.tab').forEach(t =>
+        t.classList.toggle('active', t.dataset.view === name)
+      );
+      document.querySelectorAll('.view-section').forEach(sec => {
+        const matches = sec.classList.contains('view-' + name);
+        sec.classList.toggle('is-hidden', !matches);
+      });
+    }
+    tabbar.addEventListener('click', e => {
+      const btn = e.target.closest('.tab');
+      if (btn) showView(btn.dataset.view);
+    });
+    showView('home'); // 초기 상태
+  })();
+
+  // Match card → open paper modal (reuse existing modal)
+  matchList?.addEventListener('click', e => {
+    // 피드백 버튼 처리
+    const fbBtn = e.target.closest('.fb-btn');
+    if (fbBtn) {
+      e.stopPropagation();
+      const recId = fbBtn.getAttribute('data-rec');
+      const fb = fbBtn.getAttribute('data-fb');
+      if (recId) sendFeedback(recId, fb, fbBtn);
+      return;
+    }
+
+    // 저장 버튼 처리
+    const saveBtn = e.target.closest('[data-action="save"]');
+    if (saveBtn) {
+      e.stopPropagation();
+      const recId = saveBtn.getAttribute('data-rec');
+      if (recId) saveRecommendation(recId, saveBtn);
+      return;
+    }
+
+    const shareBtn = e.target.closest('[data-action="share"]');
+    if (shareBtn) {
+      e.stopPropagation();
+      openShareModal(shareBtn.getAttribute('data-rec'));
+      return;
+    }
+
+    const card = e.target.closest('.match-card');
+    if (!card || e.target.closest('.ico')) return;
+    const activeName = document.getElementById('rName').textContent;
+    const r = RESEARCHERS[activeName]; if (!r) return;
+    const idx = Number(card.getAttribute('data-match-index'));
+    const m = r.matches[idx]; if (!m) return;
+    const $m = sel => modal.querySelector(sel);
+    $m('[data-f="journal"]').textContent = m.journal;
+    $m('[data-f="year"]').textContent = m.year;
+    $m('[data-f="new"]').style.display = m.new ? '' : 'none';
+    $m('[data-f="title"]').textContent = m.title;
+    $m('[data-f="authors"]').textContent = m.authors;
+    // 등급 배지
+    const mGrade = $m('[data-f="m-grade"]');
+    if (mGrade) {
+      const g = m.grade || 'reference';
+      mGrade.textContent = g.toUpperCase();
+      mGrade.className = `grade-badge ${g}`;
+    }
+    // 구조화 요약 vs fallback
+    const hasSS = m.summary_core_topic || m.summary_purpose || m.summary_method || m.summary_results;
+    $m('[data-f="summary-fallback"]').style.display = hasSS ? 'none' : '';
+    $m('[data-f="summary"]').textContent = m.summary || m.abstract || '';
+    const ssFields = [
+      ['summary-structured', 's-core-topic', m.summary_core_topic],
+      ['summary-purpose-section', 's-purpose', m.summary_purpose],
+      ['summary-method-section', 's-method', m.summary_method],
+      ['summary-results-section', 's-results', m.summary_results],
+    ];
+    ssFields.forEach(([secKey, pKey, val]) => {
+      const sec = $m(`[data-f="${secKey}"]`);
+      const p = $m(`[data-f="${pKey}"]`);
+      if (sec) sec.style.display = val ? '' : 'none';
+      if (p) p.textContent = val || '';
+    });
+    $m('[data-f="reason"]').textContent = m.why || m.recommendation_reason || '';
+    $m('[data-f="keywords"]').innerHTML = (m.whyTags||m.kw||[]).map(k => `<span>${escHTML(k)}</span>`).join('');
+    $m('[data-f="tags"]').innerHTML = (m.kw||[]).map(k => `<span>${escHTML(k)}</span>`).join('');
+    $m('[data-f="score"]').textContent = m.score;
+    // 3축 점수
+    const simDisplay = $m('[data-f="similarity-display"]');
+    if (simDisplay) {
+      simDisplay.textContent = m.similarity_score != null
+        ? (m.similarity_score*100).toFixed(1) + '%'
+        : (m.score != null ? m.score + '%' : '-');
+    }
+    $m('[data-f="link"]').href = m.doi
+      ? `https://doi.org/${m.doi}`
+      : `https://scholar.google.com/scholar?q=${encodeURIComponent(m.title)}`;
+    modal.classList.add('open');
+  });
+
+  // ===== 피드백 전송 =====
+  async function sendFeedback(recId, feedback, btn) {
+    try {
+      const resp = await fetch('/api/lr/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recommendation_id: parseInt(recId), feedback }),
+      });
+      const data = await resp.json();
+      if (data.success) {
+        const foot = btn.closest('.match-foot');
+        foot.querySelectorAll('.fb-btn').forEach(b => {
+          b.classList.remove('active-useful', 'active-not-relevant');
+        });
+        btn.classList.add(feedback === 'useful' ? 'active-useful' : 'active-not-relevant');
+      } else if (resp.status === 401) {
+        alert('피드백을 남기려면 로그인이 필요합니다.');
+      }
+    } catch (e) {
+      console.warn('[feedback] error:', e);
+    }
+  }
+
+  // ===== 추천 논문 저장 =====
+  async function saveRecommendation(recId, btn) {
+    try {
+      const resp = await fetch('/api/lr/save_paper', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recommendation_id: parseInt(recId) }),
+      });
+      const data = await resp.json();
+      if (data.saved) {
+        btn.textContent = '��';
+        btn.style.color = 'var(--accent)';
+      } else if (resp.status === 401) {
+        alert('저장하려면 로그인이 필요합니다.');
+      }
+    } catch (e) {
+      console.warn('[save] error:', e);
+    }
+  }
+
+  // ===== 실 DB 추천 로딩 (있으면 하드코딩 대체) =====
+  async function loadRealRecommendations(researcherId, researcherName) {
+    if (!researcherId) return false;
+    try {
+      const resp = await fetch(`/api/lr/researchers/${researcherId}/recommendations`);
+      if (!resp.ok) return false;
+      const recs = await resp.json();
+      if (!recs || recs.length === 0) return false;
+
+      const r = RESEARCHERS[researcherName];
+      if (!r) return false;
+
+      // 같은 논문이 여러 주제에 추천되면 dedup (최고 등급/유사도 1건만)
+      const gradePriority = { core: 0, related: 1, reference: 2 };
+      const dedupMap = new Map();
+      for (const rec of recs) {
+        const ex = dedupMap.get(rec.paper_id);
+        if (!ex) { dedupMap.set(rec.paper_id, rec); continue; }
+        if ((gradePriority[rec.grade] ?? 9) < (gradePriority[ex.grade] ?? 9)) {
+          dedupMap.set(rec.paper_id, rec);
+        } else if (rec.grade === ex.grade && (rec.similarity_score || 0) > (ex.similarity_score || 0)) {
+          dedupMap.set(rec.paper_id, rec);
+        }
+      }
+      const dedupedRecs = [...dedupMap.values()]
+        .sort((a, b) => (b.similarity_score || 0) - (a.similarity_score || 0));
+
+      r.matches = dedupedRecs.map(rec => {
+        const simDetails = rec.similarity_details || {};
+        const simPapers = (simDetails.top_papers || []).slice(0, 3);
+
+        return {
+          rec_id: rec.id,
+          // 단일 유사도 점수 (0~1) → 0~100 표기
+          similarity_score: rec.similarity_score,
+          score: rec.similarity_score != null
+            ? Math.round(rec.similarity_score * 100)
+            : (rec.score || 0),
+          new: !rec.is_read,
+          title: rec.title || '',
+          authors: rec.authors || '',
+          journal: rec.journal || '',
+          year: String(rec.year || ''),
+          when: formatRecommendationDate(rec.created_at),
+          recommended_date: formatRecommendationDate(rec.created_at),
+          // 주제 (어느 클러스터/주제에서 추천됐는지)
+          topic_id: rec.topic_id,
+          topic_name: rec.topic_name || '',
+          // 구조화 요약 6필드
+          summary: rec.summary_core_topic || rec.summary_purpose || '',
+          summary_core_topic: rec.summary_core_topic || '',
+          summary_purpose: rec.summary_purpose || '',
+          summary_method: rec.summary_method || '',
+          summary_results: rec.summary_results || '',
+          summary_limitations: rec.summary_limitations || '',
+          summary_future: rec.summary_future || '',
+          // 추천 이유
+          why: rec.recommendation_reason || rec.grade_reason || '',
+          recommendation_reason: rec.recommendation_reason || '',
+          grade_reason: rec.grade_reason || '',
+          // 유사 논문
+          sim_papers: simPapers,
+          abstract: rec.abstract || '',
+          whyTags: [],
+          kw: [],
+          doi: rec.doi || '',
+          saved: rec.is_saved || false,
+          unread: !rec.is_read,
+          user_feedback: rec.user_feedback || null,
+          grade: rec.grade,
+        };
+      });
+      return true;
+    } catch (e) {
+      console.warn('[recommendations] 실데이터 로딩 실패, 데모 데이터 사용:', e);
+      return false;
+    }
+  }
+
+  document.querySelectorAll('.seg').forEach(group => {
+    group.addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      if (!btn || !group.contains(btn)) return;
+      group.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // ===== Scopus 실데이터 로딩 =====
+  let _labData = null;
+  let _paperSortMode = 'date'; // 'date' or 'cite'
+
+  async function loadLabStats() {
+    try {
+      const resp = await fetch('/api/lr/lab-stats');
+      if (!resp.ok) return;
+      _labData = await resp.json();
+      renderPubLineChart(_labData.annual_output);
+      renderMetrics(_labData.metrics);
+      _pubFilter.limit = PUB_PAGE;
+      renderPubList();
+      updateResearcherStats(_labData.researchers);
+      if (document.getElementById('tabAdmin') && document.getElementById('tabAdmin').style.display !== 'none') loadAdminList();
+    } catch (e) {
+      console.warn('[lab-stats] 로드 실패:', e);
+    }
+  }
+
+  function renderAnnualChart(annual) {
+    const el = document.getElementById('annualBars');
+    if (!el || !annual) return;
+    const entries = Object.entries(annual).sort((a,b) => a[0].localeCompare(b[0]));
+    const max = Math.max(...entries.map(e => e[1]), 1);
+    const maxBarPx = 160; // 최대 막대 높이 (px)
+    const currentYear = new Date().getFullYear();
+    el.innerHTML = entries.map(([yr, cnt]) => {
+      const h = Math.max(4, Math.round((cnt / max) * maxBarPx));
+      const isForecast = parseInt(yr) >= currentYear;
+      return `<div class="bar"><div class="val">${cnt}</div><div class="col${isForecast ? ' forecast' : ''}" style="height:${h}px"></div><div class="yr">${yr}</div></div>`;
+    }).join('');
+  }
+
+  function renderTopVenues(venues) {
+    const el = document.getElementById('venueList');
+    if (!el || !venues) return;
+    const top6 = venues.slice(0, 6);
+    const maxCount = top6.length > 0 ? top6[0].count : 1;
+    el.innerHTML = top6.map((v, i) => {
+      const pct = Math.round((v.count / maxCount) * 100);
+      return `<div class="rank-row venue-row">
+        <span class="idx">${String(i+1).padStart(2,'0')}</span>
+        <div class="main">
+          <div class="name">${escHTML(v.name)}</div>
+        </div>
+        <div class="right-grp"><div class="meter"><span style="width:${pct}%"></span></div><span class="cnt">${v.count}편</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderTopAuthors(researchers) {
+    const el = document.getElementById('authorList');
+    if (!el || !researchers) return;
+    const colorMap = { 'HVAC':'ai', 'UBI':'dt', 'AI agent':'iot', 'AI':'iot', 'IEI':'iei', 'BIST Lab':'ai' };
+    const sorted = Object.entries(researchers)
+      .filter(([,r]) => r.paper_count > 0)
+      .sort((a,b) => b[1].paper_count - a[1].paper_count)
+      .slice(0, 6);
+    const maxPapers = sorted.length > 0 ? sorted[0][1].paper_count : 1;
+    el.innerHTML = sorted.map(([name, r], i) => {
+      const c = colorMap[r.group] || 'ai';
+      const isIEI = r.group === 'IEI';
+      const avatarStyle = isIEI ? ' style="color:#5ea8ff;"' : '';
+      const avatarCls = isIEI ? 'avatar-lg' : `avatar-lg ${c}`;
+      const barPct = Math.max(8, Math.round((r.paper_count / maxPapers) * 100));
+      return `<div class="rank-row author-row">
+        <span class="idx">${String(i+1).padStart(2,'0')}</span>
+        <div class="who">
+          <span class="${avatarCls}"${avatarStyle}>${escHTML(name[0])}</span>
+          <div>
+            <div class="author-name" data-author="${escHTML(name)}">${escHTML(name)}</div>
+            <div class="sub-info">${escHTML(r.group)} · 인용 ${r.citation_count}</div>
+          </div>
+        </div>
+        <div class="author-bar-wrap">
+          <div class="author-hbar ${c}" style="width:${barPct}%;"></div>
+        </div>
+        <span class="cnt">${r.paper_count}편</span>
+      </div>`;
+    }).join('');
+
+    el.querySelectorAll('[data-author]').forEach(a => {
+      a.addEventListener('click', () => {
+        const n = a.getAttribute('data-author');
+        if (RESEARCHERS[n]) openResearcher(n);
+      });
+    });
+  }
+
+  /* ---- Author × Year with filter ---- */
+  let _ayData = null; // { sorted, years, colorMap }
+
+  function initAuthorYearData(researchers) {
+    const colorMap = { 'HVAC':'ai', 'UBI':'dt', 'AI agent':'iot', 'AI':'iot', 'IEI':'iei', 'BIST Lab':'ai' };
+    const authorYears = {};
+    const allYears = new Set();
+    for (const [name, r] of Object.entries(researchers)) {
+      if (!r.papers || r.papers.length === 0) continue;
+      authorYears[name] = { group: r.group, years: {} };
+      for (const p of r.papers) {
+        if (!p.year) continue;
+        allYears.add(p.year);
+        authorYears[name].years[p.year] = (authorYears[name].years[p.year] || 0) + 1;
+      }
+    }
+    const years = [...allYears].sort((a,b) => a - b);
+    const sorted = Object.entries(authorYears)
+      .map(([name, d]) => ({ name, group: d.group, years: d.years, total: Object.values(d.years).reduce((s,v)=>s+v,0) }))
+      .sort((a,b) => b.total - a.total);
+    _ayData = { sorted, years, colorMap };
+  }
+
+  function renderAuthorYearChart(researchers, filterYear) {
+    const el = document.getElementById('authorYearChart');
+    const filtersEl = document.getElementById('ayFilters');
+    if (!el || !researchers) return;
+
+    if (!_ayData) initAuthorYearData(researchers);
+    const { sorted, years, colorMap } = _ayData;
+    if (years.length === 0) { el.innerHTML = '<div style="color:var(--text-mute);text-align:center;padding:16px;">데이터 없음</div>'; return; }
+
+    // Render year filter buttons (only once)
+    if (filtersEl && filtersEl.children.length === 0) {
+      let btns = `<button class="active" data-yr="all">전체</button>`;
+      for (const yr of years) btns += `<button data-yr="${yr}">${yr}</button>`;
+      filtersEl.innerHTML = btns;
+      filtersEl.addEventListener('click', e => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        filtersEl.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const yr = btn.getAttribute('data-yr');
+        renderAuthorYearBars(yr === 'all' ? null : parseInt(yr));
+      });
+    }
+
+    renderAuthorYearBars(filterYear || null);
+  }
+
+  function renderAuthorYearBars(filterYear) {
+    const el = document.getElementById('authorYearChart');
+    if (!el || !_ayData) return;
+    const { sorted, colorMap } = _ayData;
+
+    // Compute counts per author for the selected year (or all)
+    let data = sorted.map(a => {
+      const cnt = filterYear ? (a.years[filterYear] || 0) : a.total;
+      const c = colorMap[a.group] || 'none';
+      return { name: a.name, cnt, c };
+    }).filter(d => d.cnt > 0).sort((a,b) => b.cnt - a.cnt);
+
+    if (data.length === 0) { el.innerHTML = '<div style="color:var(--text-mute);text-align:center;padding:16px;">해당 연도 데이터 없음</div>'; return; }
+
+    const maxCnt = data[0].cnt;
+    el.innerHTML = data.map(d => {
+      const pct = Math.max(6, Math.round((d.cnt / maxCnt) * 100));
+      return `<div class="ay-row">
+        <span class="ay-dot ${d.c}"></span>
+        <span class="ay-name">${escHTML(d.name)}</span>
+        <div class="ay-bar-bg"><div class="ay-bar-fill ${d.c}" style="width:${pct}%"></div></div>
+        <span class="ay-cnt">${d.cnt}</span>
+      </div>`;
+    }).join('');
+  }
+
+  /* ===== Yearly Publications 라인차트 (SVG) ===== */
+  function renderPubLineChart(annual) {
+    const el = document.getElementById('pubLineChart');
+    if (!el) return;
+    let entries = Object.entries(annual || {})
+      .map(([y, c]) => [parseInt(y), c])
+      .filter(([y]) => !isNaN(y))
+      .sort((a, b) => a[0] - b[0]);
+    // 2018년부터 표시 (그 이전은 접음)
+    entries = entries.filter(([y]) => y >= 2018);
+    if (entries.length === 0) {
+      el.innerHTML = '<div style="color:var(--text-mute); padding:40px; text-align:center;">데이터 없음</div>';
+      document.getElementById('pubLineRange').textContent = '';
+      return;
+    }
+    const years = entries.map(e => e[0]);
+    const minY = years[0], maxY = years[years.length - 1];
+    document.getElementById('pubLineRange').textContent = `${minY} – ${maxY}`;
+
+    const W = 640, H = 240, padL = 34, padR = 18, padT = 24, padB = 28;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const maxV = Math.max(...entries.map(e => e[1]), 1);
+    const curYear = new Date().getFullYear();
+    const n = entries.length;
+    const x = i => padL + (n === 1 ? plotW / 2 : (plotW * i) / (n - 1));
+    const y = v => padT + plotH - (v / maxV) * plotH;
+
+    // 가로 그리드 (4단)
+    let grid = '';
+    for (let g = 0; g <= 4; g++) {
+      const gy = padT + (plotH * g) / 4;
+      grid += `<line class="ln-grid" x1="${padL}" y1="${gy.toFixed(1)}" x2="${W - padR}" y2="${gy.toFixed(1)}"/>`;
+    }
+    const pts = entries.map((e, i) => [x(i), y(e[1])]);
+    const linePath = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+    const areaPath = `${linePath} L${pts[pts.length - 1][0].toFixed(1)},${(padT + plotH).toFixed(1)} L${pts[0][0].toFixed(1)},${(padT + plotH).toFixed(1)} Z`;
+
+    let dots = '', labels = '', xlabels = '';
+    entries.forEach((e, i) => {
+      const [yr, cnt] = e;
+      const isFore = yr >= curYear;
+      dots += `<circle class="ln-dot${isFore ? ' ln-dot-fore' : ''}" cx="${x(i).toFixed(1)}" cy="${y(cnt).toFixed(1)}" r="3.5"/>`;
+      labels += `<text class="ln-val" x="${x(i).toFixed(1)}" y="${(y(cnt) - 9).toFixed(1)}">${cnt}</text>`;
+      xlabels += `<text class="ln-xlabel" x="${x(i).toFixed(1)}" y="${(H - 9).toFixed(1)}">${yr}</text>`;
+    });
+
+    el.innerHTML =
+      `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="연도별 논문 게재 라인차트">
+        ${grid}
+        <path class="ln-area" d="${areaPath}"/>
+        <path class="ln-line" d="${linePath}"/>
+        ${dots}${labels}${xlabels}
+      </svg>`;
+  }
+
+  /* ===== 지표 카드 ===== */
+  function renderMetrics(m) {
+    if (!m) return;
+    const fmt = n => (n || 0).toLocaleString('en-US');
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    set('mScholarly', fmt(m.scholarly_output));
+    set('mCitations', fmt(m.citation_count));
+    set('mCitePerPub', (m.citations_per_publication ?? 0).toFixed(1));
+    set('mHindex', fmt(m.h_index));
+  }
+
+  /* ===== 결과 리스트 (Pure 스타일) — 게재 논문만, 검색·정렬·페이지네이션 ===== */
+  const PUB_PAGE = 25;
+  const _pubFilter = { q: '', scope: 'all', sort: 'date', limit: PUB_PAGE };
+  const STATUS_LABEL = { under_review: '심사중', published: '게재' };
+
+  function renderPubList() {
+    const el = document.getElementById('pubResultsList');
+    const foundEl = document.getElementById('pubFound');
+    const moreBtn = document.getElementById('pubMoreBtn');
+    if (!el || !_labData) return;
+
+    const f = _pubFilter;
+    const q = f.q.toLowerCase();
+    // 게재(published) 논문만 노출 (심사중은 관리자 페이지에서 관리)
+    let list = (_labData.all_papers || []).filter(p => {
+      if ((p.status || 'published') !== 'published') return false;
+      if (!q) return true;
+      const title = (p.title || '').toLowerCase();
+      const authors = (p.authors || []).join(' ').toLowerCase();
+      const journal = (p.journal || '').toLowerCase();
+      if (f.scope === 'title') return title.includes(q);
+      if (f.scope === 'author') return authors.includes(q);
+      if (f.scope === 'journal') return journal.includes(q);
+      return title.includes(q) || authors.includes(q) || journal.includes(q);
+    });
+
+    const curYear = new Date().getFullYear();
+    if (f.sort === 'cite') list.sort((a, b) => (b.citations || 0) - (a.citations || 0));
+    else if (f.sort === 'title') list.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+    else if (f.sort === 'date_old') list.sort((a, b) => (a.year || 0) - (b.year || 0) || (a.cover_date || '').localeCompare(b.cover_date || ''));
+    else list.sort((a, b) => (b.year || 0) - (a.year || 0) || (b.cover_date || '').localeCompare(a.cover_date || ''));
+
+    const total = list.length;
+    if (foundEl) foundEl.innerHTML = `Found <span class="q">${total.toLocaleString('en-US')}</span> results`;
+
+    const shown = list.slice(0, f.limit);
+    if (moreBtn) moreBtn.style.display = total > f.limit ? 'block' : 'none';
+
+    if (shown.length === 0) {
+      el.innerHTML = '<div class="pub-empty">조건에 맞는 논문이 없습니다.</div>';
+      return;
+    }
+
+    el.innerHTML = shown.map(p => {
+      const yr = p.year || '';
+      const isNew = yr >= curYear;
+      const authors = (p.authors || []).join(', ');
+      const titleHtml = p.doi
+        ? `<a href="https://doi.org/${encodeURIComponent(p.doi)}" target="_blank" rel="noopener">${escHTML(p.title)}</a>`
+        : escHTML(p.title);
+
+      const meta = [];
+      if (p.journal) meta.push(`<span class="k">Source</span> <span class="src">${escHTML(p.journal)}</span>`);
+      if (p.volume) meta.push(`<span class="k">Vol</span> <span class="v">${escHTML(p.volume)}</span>`);
+      if (yr) meta.push(`<span class="v">${yr}</span>`);
+      if (p.publisher) meta.push(`<span class="k">Publisher</span> <span class="v">${escHTML(p.publisher)}</span>`);
+      meta.push(`<span class="k">Citations</span> <span class="v">${p.citations || 0}</span>`);
+      // 뱃지: 분류(SCIE/KCI) 우선, 없으면 Scopus/Manual
+      const badge = p.badge || p.db_source || 'Scopus';
+      const badgeCls = badge === 'SCIE' ? 'scie' : badge === 'KCI' ? 'kci' : badge === 'Manual' ? 'manual' : 'scopus';
+      const metaHtml = meta.join('<span class="sep">|</span>')
+        + `<span class="sep">|</span><span class="db ${badgeCls}">${escHTML(badge)}</span>`;
+
+      return `<div class="pub-row">
+        <div class="pr-title">${titleHtml}${isNew ? '<span class="tag-new">NEW</span>' : ''}</div>
+        <div class="pr-authors">${escHTML(authors)}</div>
+        <div class="pr-meta">${metaHtml}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function updateResearcherStats(researchers) {
+    if (!researchers) return;
+    const colorMap = { 'HVAC':'ai', 'UBI':'dt', 'AI agent':'iot', 'AI':'iot', 'IEI':'ai', 'BIST Lab':'ai' };
+    for (const [name, r] of Object.entries(researchers)) {
+      // 기존 RESEARCHERS에 있으면 업데이트, 없으면 동적 생성
+      if (!RESEARCHERS[name]) {
+        RESEARCHERS[name] = {
+          group: r.group || '',
+          color: colorMap[r.group] || 'ai',
+          role: '',
+          interests: '',
+          recent: '',
+          tags: [],
+          stats: { read: 0, saved: 0, cites: 0 },
+          matches: [],
+        };
+      }
+      RESEARCHERS[name].stats.read = r.paper_count;
+      RESEARCHERS[name].stats.cites = r.citation_count;
+      RESEARCHERS[name].stats.saved = r.h_index || 0;
+      if (r.id) RESEARCHERS[name]._db_id = r.id;
+      if (r.group) {
+        RESEARCHERS[name].group = r.group;
+        RESEARCHERS[name].color = colorMap[r.group] || 'ai';
+      }
+    }
+  }
+
+  // ===== 연구원 상세 정보 DB 로딩 =====
+  async function loadResearcherDetail(dbId, name) {
+    if (!dbId) return;
+    try {
+      const resp = await fetch(`/api/lr/researchers/${dbId}/detail`);
+      if (!resp.ok) return;
+      const d = await resp.json();
+      const r = RESEARCHERS[name];
+      if (!r) return;
+
+      // 프로필 카드 업데이트 - 빈도 상위 키워드를 관심사로 표시 (DB 기반)
+      if (d.top_keywords && d.top_keywords.length) {
+        r.tags = d.top_keywords.slice(0, 6).map(k => k.keyword);
+        // 관심사: 키워드 빈도 상위 (×N 표기)
+        r.interests = d.top_keywords.slice(0, 5)
+          .map(k => `${k.keyword} ×${k.count}`)
+          .join(' · ');
+      } else if (d.research_description) {
+        r.interests = d.research_description;
+      } else {
+        r.interests = '키워드 데이터 없음';
+      }
+      r.stats.read = d.paper_count || 0;
+      r.stats.saved = d.saved_count || 0;
+      r.stats.cites = d.recommendation_total || 0;
+
+      const typeMap = { A: '10편+ · 클러스터 기반', B: '2~9편 · 키워드 기반', C: '신규 연구원' };
+      r.role = `${d.researcher_type || 'C'}유형 · ${typeMap[d.researcher_type] || ''}`;
+
+      // 프로필 카드 DOM 업데이트
+      document.getElementById('rRole').textContent = `${r.role} · ${r.group}`;
+      document.getElementById('rInterests').textContent = r.interests;
+      document.getElementById('rTags').innerHTML = r.tags.map(t => `<span>${escHTML(t)}</span>`).join('');
+      document.getElementById('rRead').textContent = d.paper_count || 0;
+      document.getElementById('rSaved').textContent = d.saved_count || 0;
+      document.getElementById('rCites').textContent = d.recommendation_total || 0;
+
+      // 통계 라벨 수정
+      const statLabels = document.querySelectorAll('.profile-stats .row .l');
+      if (statLabels[0]) statLabels[0].textContent = '논문';
+      if (statLabels[1]) statLabels[1].textContent = '저장';
+      if (statLabels[2]) statLabels[2].textContent = '추천';
+    } catch (e) {
+      console.warn('[researcher-detail] 로딩 실패:', e);
+    }
+  }
+
+  // ===== BIST paper 결과 리스트: 검색·정렬·더보기 =====
+  (function bindPubControls() {
+    const input = document.getElementById('pubSearchInput');
+    const scope = document.getElementById('pubScope');
+    const sortSel = document.getElementById('pubSortSelect');
+    const moreBtn = document.getElementById('pubMoreBtn');
+    const searchBtn = document.getElementById('pubSearchBtn');
+
+    function applySearch() {
+      if (!input) return;
+      _pubFilter.q = input.value.trim();
+      _pubFilter.scope = scope ? scope.value : 'all';
+      _pubFilter.limit = PUB_PAGE;
+      renderPubList();
+    }
+    if (input) {
+      let t = null;
+      input.addEventListener('input', () => { clearTimeout(t); t = setTimeout(applySearch, 200); });
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') { clearTimeout(t); applySearch(); } });
+    }
+    if (scope) scope.addEventListener('change', applySearch);
+    if (searchBtn) searchBtn.addEventListener('click', applySearch);
+    if (sortSel) sortSel.addEventListener('change', () => {
+      _pubFilter.sort = sortSel.value;
+      _pubFilter.limit = PUB_PAGE;
+      renderPubList();
+    });
+    if (moreBtn) moreBtn.addEventListener('click', () => {
+      _pubFilter.limit += PUB_PAGE;
+      renderPubList();
+    });
+  })();
+
+  // ===== 동기화 상태 표시 =====
+  async function loadPubSyncStatus() {
+    const el = document.getElementById('pubSyncStatus');
+    if (!el) return;
+    try {
+      const resp = await fetch('/api/lr/sync-status');
+      if (!resp.ok) { el.textContent = ''; return; }
+      const s = await resp.json();
+      if (!s.last_sync) {
+        el.innerHTML = '<span class="warn">자동 동기화 이력 없음</span>';
+        return;
+      }
+      const label = { completed: 'ok', running: 'warn', partial: 'warn', failed: 'err' }[s.status] || 'ok';
+      const txt = { completed: '성공', running: '진행 중', partial: '일부 실패', failed: '실패' }[s.status] || s.status;
+      el.innerHTML = `마지막 동기화 ${s.last_sync} · <span class="${label}">${txt}</span>`
+        + ` · 신규 ${s.total_new}편`
+        + (s.error_count ? ` · <span class="err">오류 ${s.error_count}</span>` : '');
+    } catch (e) { el.textContent = ''; }
+  }
+
+  // ===== 로그인 시 관리자 탭·동기화 노출 =====
+  let _myResearcherId = null;
+  async function triggerSync(btn) {
+    if (btn) { btn.disabled = true; var orig = btn.textContent; btn.textContent = '동기화 중…'; }
+    try {
+      const d = await (await fetch('/api/lr/sync-publications', { method: 'POST' })).json();
+      alert(d.message || d.error || '요청 완료');
+    } catch (e) { alert('동기화 요청에 실패했습니다.'); }
+    if (btn) { btn.disabled = false; btn.textContent = orig; }
+    loadPubSyncStatus();
+  }
+
+  (async function initPubAdminButtons() {
+    try {
+      const me = await (await fetch('/api/lr/auth/me')).json();
+      if (!me.logged_in) return;
+      _myResearcherId = me.researcher_id;
+
+      // BIST paper 툴바: 동기화만
+      const btnSync = document.getElementById('btnSyncNow');
+      if (btnSync) { btnSync.style.display = ''; btnSync.addEventListener('click', () => triggerSync(btnSync)); }
+
+      // 관리자 탭 노출
+      const tabAdmin = document.getElementById('tabAdmin');
+      if (tabAdmin) tabAdmin.style.display = '';
+
+      const addBtn = document.getElementById('adminAddBtn');
+      if (addBtn) addBtn.addEventListener('click', () => openRegModal(_myResearcherId));
+      const excelBtn = document.getElementById('adminExcelBtn');
+      if (excelBtn) excelBtn.addEventListener('click', () => { window.location.href = '/api/lr/papers/export'; });
+      const aSyncBtn = document.getElementById('adminSyncBtn');
+      if (aSyncBtn) aSyncBtn.addEventListener('click', () => triggerSync(aSyncBtn));
+
+      loadAdminList();
+    } catch (e) { /* 미로그인 */ }
+  })();
+
+  // ===== 관리자: 수동 등록 논문 관리 리스트 =====
+  async function loadAdminList() {
+    const el = document.getElementById('adminList');
+    const cntEl = document.getElementById('adminListCount');
+    const statsEl = document.getElementById('adminStats');
+    if (!el) return;
+
+    // 상단 요약 칩
+    if (statsEl && _labData && _labData.metrics) {
+      const m = _labData.metrics;
+      const manualCount = (_labData.all_papers || []).filter(p => p.source_type === 'manual').length;
+      statsEl.innerHTML =
+        `<div class="as-chip"><b>${(m.scholarly_output||0).toLocaleString()}</b>게재 논문</div>`
+        + `<div class="as-chip"><b>${m.under_review||0}</b>심사중</div>`
+        + `<div class="as-chip"><b>${manualCount}</b>수동 등록</div>`
+        + `<div class="as-chip"><b>${(m.citation_count||0).toLocaleString()}</b>총 피인용</div>`;
+    }
+    renderAdminTable();
+  }
+
+  const _adminFilter = { q: '', scope: 'all', limit: 30 };
+  const ADMIN_PAGE = 30;
+
+  function renderAdminTable() {
+    const el = document.getElementById('adminList');
+    const cntEl = document.getElementById('adminListCount');
+    const moreBtn = document.getElementById('adminMoreBtn');
+    if (!el || !_labData) return;
+
+    const f = _adminFilter;
+    const q = f.q.toLowerCase();
+    let list = (_labData.all_papers || []).filter(p => {
+      const st = p.status || 'published';
+      const src = p.source_type || 'scopus';
+      if (f.scope === 'manual' && src !== 'manual') return false;
+      if (f.scope === 'under_review' && st !== 'under_review') return false;
+      if (f.scope === 'published' && st !== 'published') return false;
+      if (!q) return true;
+      return (p.title || '').toLowerCase().includes(q)
+        || (p.authors || []).join(' ').toLowerCase().includes(q)
+        || (p.journal || '').toLowerCase().includes(q);
+    });
+
+    // 관리 대상(수동·심사중)을 위로, 그다음 연도 내림차순
+    list.sort((a, b) => {
+      const am = (a.source_type === 'manual') ? 0 : 1;
+      const bm = (b.source_type === 'manual') ? 0 : 1;
+      return am - bm || (b.year || 0) - (a.year || 0);
+    });
+
+    const total = list.length;
+    if (cntEl) cntEl.textContent = `(${total.toLocaleString()})`;
+    if (moreBtn) moreBtn.style.display = total > f.limit ? 'block' : 'none';
+
+    const shown = list.slice(0, f.limit);
+    if (!shown.length) { el.innerHTML = '<div class="reg-empty">조건에 맞는 논문이 없습니다.</div>'; return; }
+
+    const stLabel = { under_review: '심사중', published: '게재' };
+    el.innerHTML = shown.map(p => {
+      const isManual = p.source_type === 'manual';
+      const authors = (p.authors || []).join(', ') || '저자 미상';
+      const cls = p.classification;
+      const srcBadge = cls === 'SCIE' ? '<span class="ar-src scie">SCIE</span>'
+        : cls === 'KCI' ? '<span class="ar-src kci">KCI</span>'
+        : isManual ? '<span class="ar-src kci">Manual</span>'
+        : '<span class="ar-src scopus">Scopus</span>';
+      const sub = `${escHTML(authors)} · ${escHTML(p.journal || '저널 미정')}${p.year ? ' · ' + p.year : ''}`;
+
+      const control = isManual
+        ? `<select class="ar-status" data-id="${p.id}">
+             <option value="under_review"${p.status === 'under_review' ? ' selected' : ''}>심사중</option>
+             <option value="published"${(p.status || 'published') === 'published' ? ' selected' : ''}>게재</option>
+           </select>
+           <button class="ar-del" data-id="${p.id}" title="삭제">✕</button>`
+        : `<span class="ar-ro">${stLabel[p.status] || '게재'} · 자동수집</span>`;
+
+      return `<div class="admin-row" data-id="${p.id}">
+        <div class="ar-main">
+          <div class="ar-title">${escHTML(p.title)}</div>
+          <div class="ar-sub">${sub}</div>
+        </div>
+        ${srcBadge}
+        ${control}
+      </div>`;
+    }).join('');
+  }
+
+  (function bindAdminList() {
+    const el = document.getElementById('adminList');
+    if (!el) return;
+    el.addEventListener('change', async e => {
+      const sel = e.target.closest('.ar-status');
+      if (!sel) return;
+      await fetch(`/api/lr/papers/${sel.dataset.id}/status`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: sel.value }),
+      });
+      await loadLabStats();   // 지표·게재 목록·관리 테이블 갱신
+    });
+    el.addEventListener('click', async e => {
+      const del = e.target.closest('.ar-del');
+      if (!del) return;
+      if (!confirm('이 논문을 삭제할까요?')) return;
+      await fetch(`/api/lr/papers/${del.dataset.id}`, { method: 'DELETE' });
+      await loadLabStats();
+    });
+
+    const search = document.getElementById('adminSearch');
+    if (search) {
+      let t = null;
+      search.addEventListener('input', () => {
+        clearTimeout(t);
+        t = setTimeout(() => { _adminFilter.q = search.value.trim(); _adminFilter.limit = ADMIN_PAGE; renderAdminTable(); }, 200);
+      });
+    }
+    const scope = document.getElementById('adminScope');
+    if (scope) scope.addEventListener('change', () => { _adminFilter.scope = scope.value; _adminFilter.limit = ADMIN_PAGE; renderAdminTable(); });
+    const moreBtn = document.getElementById('adminMoreBtn');
+    if (moreBtn) moreBtn.addEventListener('click', () => { _adminFilter.limit += ADMIN_PAGE; renderAdminTable(); });
+  })();
+
+  // ===== 논문 수동 등록 모달 (투고 논문 / DOI 탭) =====
+  function _fillResearcherSelect(sel, myId) {
+    if (!sel) return;
+    sel.innerHTML = '';
+    if (_labData && _labData.researchers) {
+      Object.entries(_labData.researchers)
+        .sort((a, b) => a[0].localeCompare(b[0], 'ko'))
+        .forEach(([name, r]) => {
+          const s = r.id === myId ? ' selected' : '';
+          sel.insertAdjacentHTML('beforeend', `<option value="${r.id}"${s}>${escHTML(name)}</option>`);
+        });
+    }
+  }
+
+  let _progClass = 'SCIE';
+  function _setClass(cls) {
+    _progClass = cls;
+    document.querySelectorAll('#progClassSeg .cls-opt').forEach(b =>
+      b.classList.toggle('active', b.dataset.cls === cls));
+  }
+
+  function openRegModal(myResearcherId) {
+    const modal = document.getElementById('doiModal');
+    if (!modal) return;
+    _fillResearcherSelect(document.getElementById('doiResearcher'), myResearcherId);
+    document.getElementById('progTitle').value = '';
+    document.getElementById('progAuthor').value = '';
+    document.getElementById('progJournal').value = '';
+    document.getElementById('progStatus').value = 'under_review';
+    document.getElementById('progYear').value = '';
+    _setClass('SCIE');
+    document.getElementById('doiInput').value = '';
+    document.getElementById('progMsg').textContent = '';
+    document.getElementById('progMsg').className = 'pub-modal-msg';
+    document.getElementById('doiMsg').textContent = '';
+    document.getElementById('doiMsg').className = 'pub-modal-msg';
+    _switchRegTab('progress');
+    modal.classList.add('open');
+    setTimeout(() => document.getElementById('progTitle').focus(), 50);
+  }
+
+  function _switchRegTab(which) {
+    document.querySelectorAll('.reg-tab').forEach(t =>
+      t.classList.toggle('active', t.dataset.regtab === which));
+    document.getElementById('regPaneProgress').style.display = which === 'progress' ? '' : 'none';
+    document.getElementById('regPaneDoi').style.display = which === 'doi' ? '' : 'none';
+  }
+
+  (function bindRegModal() {
+    const modal = document.getElementById('doiModal');
+    if (!modal) return;
+    const close = () => modal.classList.remove('open');
+
+    modal.addEventListener('click', e => {
+      if (e.target === modal) close();
+      const tab = e.target.closest('.reg-tab');
+      if (tab) _switchRegTab(tab.dataset.regtab);
+      const cls = e.target.closest('#progClassSeg .cls-opt');
+      if (cls) _setClass(cls.dataset.cls);
+    });
+    document.getElementById('progCancel').addEventListener('click', close);
+    document.getElementById('doiCancel').addEventListener('click', close);
+
+    // 논문 수동 등록 (주저자 직접 입력)
+    document.getElementById('progSubmit').addEventListener('click', async () => {
+      const btn = document.getElementById('progSubmit');
+      const msg = document.getElementById('progMsg');
+      const title = document.getElementById('progTitle').value.trim();
+      const firstAuthor = document.getElementById('progAuthor').value.trim();
+      const journal = document.getElementById('progJournal').value.trim();
+      const status = document.getElementById('progStatus').value;
+      const year = document.getElementById('progYear').value.trim();
+      if (!title) { msg.textContent = '논문 제목을 입력하세요.'; msg.className = 'pub-modal-msg err'; return; }
+      if (!firstAuthor) { msg.textContent = '주저자를 입력하세요.'; msg.className = 'pub-modal-msg err'; return; }
+      btn.disabled = true;
+      msg.textContent = '등록 중…'; msg.className = 'pub-modal-msg';
+      try {
+        const resp = await fetch('/api/lr/papers/progress', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, first_author: firstAuthor, journal, classification: _progClass, status, year: year || null }),
+        });
+        const d = await resp.json();
+        if (resp.ok) {
+          msg.textContent = '등록 완료'; msg.className = 'pub-modal-msg ok';
+          document.getElementById('progTitle').value = '';
+          document.getElementById('progAuthor').value = '';
+          document.getElementById('progJournal').value = '';
+          document.getElementById('progYear').value = '';
+          await loadLabStats();
+          loadAdminList();
+        } else {
+          msg.textContent = d.error || '등록에 실패했습니다.'; msg.className = 'pub-modal-msg err';
+        }
+      } catch (e) {
+        msg.textContent = '요청 중 오류가 발생했습니다.'; msg.className = 'pub-modal-msg err';
+      }
+      btn.disabled = false;
+    });
+
+    // DOI 등록
+    document.getElementById('doiSubmit').addEventListener('click', async () => {
+      const btn = document.getElementById('doiSubmit');
+      const msg = document.getElementById('doiMsg');
+      const doi = document.getElementById('doiInput').value.trim();
+      const researcherId = parseInt(document.getElementById('doiResearcher').value);
+      if (!doi) { msg.textContent = 'DOI를 입력하세요.'; msg.className = 'pub-modal-msg err'; return; }
+      btn.disabled = true;
+      msg.textContent = 'Crossref에서 메타데이터를 가져오는 중…'; msg.className = 'pub-modal-msg';
+      try {
+        const resp = await fetch('/api/lr/papers/manual', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ doi, researcher_id: researcherId }),
+        });
+        const d = await resp.json();
+        if (resp.ok) {
+          msg.textContent = `등록 완료: ${(d.paper.title || '').substring(0, 60)}`;
+          msg.className = 'pub-modal-msg ok';
+          setTimeout(() => { close(); loadLabStats(); loadAdminList(); }, 1200);
+        } else {
+          msg.textContent = d.error || '등록에 실패했습니다.';
+          msg.className = 'pub-modal-msg err';
+        }
+      } catch (e) {
+        msg.textContent = '요청 중 오류가 발생했습니다.';
+        msg.className = 'pub-modal-msg err';
+      }
+      btn.disabled = false;
+    });
+  })();
+
+  loadPubSyncStatus();
+  loadLabStats();
+  loadSidebarData();
+  loadWeeklyRecs();
+  initLabAgentChat();
+
+  // ===== Lab Agent chat (BIST Lab 온톨로지 기반 룰 챗) =====
+  function initLabAgentChat() {
+    const form = document.getElementById('chatForm');
+    const input = document.getElementById('chatInput');
+    const msgs = document.getElementById('chatMsgs');
+    if (!form || !input || !msgs) return;
+
+    function addMsg(role, htmlContent) {
+      const div = document.createElement('div');
+      div.className = 'chat-msg ' + role;
+      div.innerHTML = `<div class="bubble">${htmlContent}</div>`;
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+      return div;
+    }
+
+    // 간이 마크다운 (bold, inline code, newline) → HTML
+    function renderAgentText(text) {
+      let safe = escHTML(text || '');
+      safe = safe.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      safe = safe.replace(/`([^`]+)`/g,
+        '<code style="background:rgba(63,224,176,0.1); color:var(--accent); padding:1px 4px; border-radius:3px;">$1</code>');
+      safe = safe.replace(/\n/g, '<br>');
+      return safe;
+    }
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const q = input.value.trim();
+      if (!q) return;
+      addMsg('user', escHTML(q));
+      input.value = '';
+
+      const loading = addMsg('agent',
+        '<span style="color:var(--text-mute);">생각 중…</span>');
+
+      try {
+        const resp = await fetch('/api/lr/agent/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: q }),
+        });
+        const data = await resp.json();
+        loading.querySelector('.bubble').innerHTML = renderAgentText(
+          data.answer || '응답이 비어 있습니다.'
+        );
+      } catch (err) {
+        loading.querySelector('.bubble').innerHTML =
+          '<span style="color:var(--danger);">서버 연결에 실패했습니다.</span>';
+      }
+    });
+  }
+
+  // ===== 사이드바 실데이터 로딩 =====
+  async function loadSidebarData() {
+    // 최근 추천 논문 (이번 주 신규 패널 — 챗으로 교체된 환경에선 컨테이너가 없음)
+    const railRecentList = document.getElementById('railRecentList');
+    if (railRecentList) {
+      try {
+        const resp = await fetch('/api/lr/recent-recommendations?days=30&limit=8');
+        if (resp.ok) {
+          const recs = await resp.json();
+          const railRecentNum = document.getElementById('railRecentNum');
+          if (railRecentNum) railRecentNum.textContent = recs.length;
+          if (recs.length === 0) {
+            railRecentList.innerHTML = '<div style="padding:10px 0; color:var(--text-mute); font-size:11px;">아직 추천 논문이 없습니다.</div>';
+          } else {
+            railRecentList.innerHTML = recs.map(r => {
+              const gradeColors = { core: 'var(--accent)', related: 'var(--dt)', reference: 'var(--iot)' };
+              const gc = gradeColors[r.grade] || 'var(--text-mute)';
+              return `<div class="paper-mini">
+                <div class="when" style="display:flex;align-items:center;gap:6px;">
+                  <span style="font-size:9px;font-weight:700;color:${gc};text-transform:uppercase;">${r.grade || ''}</span>
+                  <span>${r.score}%</span>
+                </div>
+                <div class="t">${escHTML((r.title||'').substring(0, 80))}${r.title && r.title.length > 80 ? '...' : ''}</div>
+                <div class="m"><em>${escHTML(r.journal || '')}</em> · ${r.year || ''}</div>
+              </div>`;
+            }).join('');
+          }
+        }
+      } catch (e) {
+        console.warn('[recent-recs] 로딩 실패:', e);
+      }
+    }
+
+  }
+
+  // ===== 이번 주 추천 논문 (홈 탭) =====
+  async function loadWeeklyRecs() {
+    const tbody = document.getElementById('weeklyRecsTbody');
+    if (!tbody) return;
+
+    let recs = [];
+    let mode = 'lab'; // 'mine' or 'lab'
+
+    try {
+      // 1) 로그인 상태 확인 → 본인 추천 우선
+      const me = await fetch('/api/lr/auth/me').then(r => r.json()).catch(() => ({}));
+      if (me?.logged_in && me?.researcher_id) {
+        const resp = await fetch(`/api/lr/researchers/${me.researcher_id}/recommendations`);
+        if (resp.ok) {
+          recs = await resp.json();
+          mode = 'mine';
+        }
+      }
+
+      // 2) 미로그인 또는 본인 추천 0건 → lab 전체 최신
+      if (recs.length === 0) {
+        const resp = await fetch('/api/lr/recent-recommendations?days=30&limit=10');
+        if (resp.ok) {
+          const lab = await resp.json();
+          recs = lab.map(r => ({
+            id: null,
+            title: r.title,
+            authors: '',
+            journal: r.journal,
+            year: r.year,
+            doi: r.doi || '',
+            grade: r.grade,
+            score: r.score,
+            topic_name: '',
+            recommendation_reason: '',
+            researcher_name: r.researcher_name || '',
+            is_read: true,
+          }));
+          mode = 'lab';
+        }
+      }
+    } catch (e) {
+      console.warn('[weekly recs] 로드 실패:', e);
+    }
+
+    if (!recs || recs.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-mute); text-align:center; padding:30px;">
+        ${mode === 'mine' ? '아직 본인 앞으로 도착한 추천이 없습니다.' : '추천 논문이 없습니다.'}
+      </td></tr>`;
+      return;
+    }
+
+    // score 내림차순 상위 10개
+    recs = recs.slice().sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 10);
+
+    tbody.innerHTML = recs.map((r, i) => {
+      const num = String(i + 1).padStart(2, '0');
+      const isNew = r.is_read === false ? '<span class="tag-new">NEW</span>' : '';
+      const reason = r.recommendation_reason || r.topic_name || '';
+      const authorFirst = (r.authors || '').split(';')[0]?.trim() || '—';
+
+      // 제목 → 논문 사이트 링크 (DOI 우선, 없으면 Google Scholar 검색)
+      const titleText = r.title || '제목 없음';
+      const linkUrl = r.doi
+        ? `https://doi.org/${encodeURIComponent(r.doi)}`
+        : `https://scholar.google.com/scholar?q=${encodeURIComponent(titleText)}`;
+      const titleHtml = `<a href="${linkUrl}" target="_blank" rel="noopener"
+                            style="color:var(--text); text-decoration:none;">${escHTML(titleText)}</a>`;
+
+      // 추천 대상자 표시 (lab 모드에서만 — 본인 모드는 자기 자신이라 생략)
+      const recipient = (mode === 'lab' && r.researcher_name)
+        ? `<div class="rec-target" style="margin-top:4px; font-size:11px; color:var(--accent); font-weight:600;">▸ ${escHTML(r.researcher_name)}에게 추천</div>`
+        : '';
+
+      return `<tr>
+        <td class="num">${num}</td>
+        <td class="title">
+          ${titleHtml} ${isNew}
+          ${recipient}
+          ${reason ? `<div class="sub" style="margin-top:2px; font-size:11px;">${escHTML(reason)}</div>` : ''}
+        </td>
+        <td>${escHTML(authorFirst)}</td>
+        <td class="journal">${escHTML(r.journal || '')}</td>
+        <td class="year">${r.year || ''}</td>
+        <td class="cite">${r.score || 0}%</td>
+      </tr>`;
+    }).join('');
+  }
+</script>
+</body>
+</html>

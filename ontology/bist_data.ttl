@@ -1,0 +1,4696 @@
+# bist_data.ttl — generated 2026-05-01 from litreview.db
+# 스키마: bist_ontology.ttl
+
+@prefix bist:    <http://example.org/bist/onto#> .
+@prefix :        <http://example.org/bist/data#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+
+# ===== ResearchLab =====
+:BISTLab a bist:ResearchLab ;
+    rdfs:label "BIST Lab"@en, "BIST 연구실"@ko .
+
+# ===== Research Groups =====
+:Group_AI_agent a bist:ResearchGroup ;
+    rdfs:label "AI agent" .
+
+:Group_BIST_Lab a bist:ResearchGroup ;
+    rdfs:label "BIST Lab" .
+
+:Group_HVAC a bist:ResearchGroup ;
+    rdfs:label "HVAC" .
+
+:Group_IEI a bist:ResearchGroup ;
+    rdfs:label "IEI" .
+
+:Group_UBI a bist:ResearchGroup ;
+    rdfs:label "UBI" .
+
+# ===== Lab → Members =====
+:BISTLab bist:hasMember :Researcher_1, :Researcher_2, :Researcher_3, :Researcher_4, :Researcher_5, :Researcher_6, :Researcher_7, :Researcher_8, :Researcher_9, :Researcher_10, :Researcher_11, :Researcher_12, :Researcher_13, :Researcher_14, :Researcher_15, :Researcher_16, :Researcher_17 .
+
+# ===== Researchers =====
+:Researcher_1 a bist:Researcher ;
+    foaf:name "윤성민 (Yoon Sungmin)" ;
+    rdfs:label "윤성민 (Yoon Sungmin)"@ko ;
+    bist:memberOf :BISTLab ;
+    bist:scopusId "56459313100" ;
+    bist:researcherType "A" ;
+    bist:inGroup :Group_BIST_Lab ;
+    bist:paperCount 108 .
+
+:Researcher_2 a bist:Researcher ;
+    foaf:name "최세빈 (Choi Sebin)" ;
+    rdfs:label "최세빈 (Choi Sebin)"@ko ;
+    bist:memberOf :BISTLab ;
+    bist:scopusId "58003374100" ;
+    bist:researcherType "A" ;
+    bist:inGroup :Group_UBI ;
+    bist:paperCount 12 .
+
+:Researcher_3 a bist:Researcher ;
+    foaf:name "구자범 (Koo Jabeom)" ;
+    rdfs:label "구자범 (Koo Jabeom)"@ko ;
+    bist:memberOf :BISTLab ;
+    bist:scopusId "57221850846" ;
+    bist:researcherType "A" ;
+    bist:inGroup :Group_HVAC ;
+    bist:paperCount 18 .
+
+:Researcher_4 a bist:Researcher ;
+    foaf:name "이제윤 (Lee Jeyoon)" ;
+    rdfs:label "이제윤 (Lee Jeyoon)"@ko ;
+    bist:memberOf :BISTLab ;
+    bist:scopusId "59374839900" ;
+    bist:researcherType "A" ;
+    bist:inGroup :Group_HVAC ;
+    bist:paperCount 11 .
+
+:Researcher_5 a bist:Researcher ;
+    foaf:name "송지환 (Song Jihwan)" ;
+    rdfs:label "송지환 (Song Jihwan)"@ko ;
+    bist:memberOf :BISTLab ;
+    bist:scopusId "59401262000" ;
+    bist:researcherType "B" ;
+    bist:inGroup :Group_AI_agent ;
+    bist:paperCount 4 .
+
+:Researcher_6 a bist:Researcher ;
+    foaf:name "Min Htet Myint" ;
+    rdfs:label "Min Htet Myint"@ko ;
+    bist:memberOf :BISTLab ;
+    bist:researcherType "C" ;
+    bist:inGroup :Group_HVAC ;
+    bist:paperCount 0 .
+
+:Researcher_7 a bist:Researcher ;
+    foaf:name "황재민 (Hwang Jaemin)" ;
+    rdfs:label "황재민 (Hwang Jaemin)"@ko ;
+    bist:memberOf :BISTLab ;
+    bist:scopusId "59713255900" ;
+    bist:researcherType "B" ;
+    bist:inGroup :Group_IEI ;
+    bist:paperCount 3 .
+
+:Researcher_8 a bist:Researcher ;
+    foaf:name "이고운 (Lee Gowoon)" ;
+    rdfs:label "이고운 (Lee Gowoon)"@ko ;
+    bist:memberOf :BISTLab ;
+    bist:scopusId "60007950800" ;
+    bist:researcherType "B" ;
+    bist:inGroup :Group_UBI ;
+    bist:paperCount 2 .
+
+:Researcher_9 a bist:Researcher ;
+    foaf:name "유재현 (Yoo Jaehyun)" ;
+    rdfs:label "유재현 (Yoo Jaehyun)"@ko ;
+    bist:memberOf :BISTLab ;
+    bist:scopusId "60008102200" ;
+    bist:researcherType "B" ;
+    bist:inGroup :Group_UBI ;
+    bist:paperCount 2 .
+
+:Researcher_10 a bist:Researcher ;
+    foaf:name "사이에드 (Saif Syed Mostasim Hasnain)" ;
+    rdfs:label "사이에드 (Saif Syed Mostasim Hasnain)"@ko ;
+    bist:memberOf :BISTLab ;
+    bist:scopusId "60423457300" ;
+    bist:researcherType "C" ;
+    bist:inGroup :Group_AI_agent ;
+    bist:paperCount 1 .
+
+:Researcher_11 a bist:Researcher ;
+    foaf:name "이우흠 (Li Yuxin)" ;
+    rdfs:label "이우흠 (Li Yuxin)"@ko ;
+    bist:memberOf :BISTLab ;
+    bist:scopusId "59535505800" ;
+    bist:researcherType "B" ;
+    bist:inGroup :Group_HVAC ;
+    bist:paperCount 4 .
+
+:Researcher_12 a bist:Researcher ;
+    foaf:name "이지텅 (Li Jiteng)" ;
+    rdfs:label "이지텅 (Li Jiteng)"@ko ;
+    bist:memberOf :BISTLab ;
+    bist:scopusId "57216550832" ;
+    bist:researcherType "A" ;
+    bist:inGroup :Group_HVAC ;
+    bist:paperCount 21 .
+
+:Researcher_13 a bist:Researcher ;
+    foaf:name "석민주 (Seok Minju)" ;
+    rdfs:label "석민주 (Seok Minju)"@ko ;
+    bist:memberOf :BISTLab ;
+    bist:scopusId "60008253700" ;
+    bist:researcherType "C" ;
+    bist:inGroup :Group_UBI ;
+    bist:paperCount 1 .
+
+:Researcher_14 a bist:Researcher ;
+    foaf:name "장세원 (Jang Sewon)" ;
+    rdfs:label "장세원 (Jang Sewon)"@ko ;
+    bist:memberOf :BISTLab ;
+    bist:researcherType "C" ;
+    bist:inGroup :Group_UBI ;
+    bist:paperCount 0 .
+
+:Researcher_15 a bist:Researcher ;
+    foaf:name "장병준 (Jang Byungjun)" ;
+    rdfs:label "장병준 (Jang Byungjun)"@ko ;
+    bist:memberOf :BISTLab ;
+    bist:researcherType "C" ;
+    bist:inGroup :Group_AI_agent ;
+    bist:paperCount 0 .
+
+:Researcher_16 a bist:Researcher ;
+    foaf:name "황여진 (Hwang Yeojin)" ;
+    rdfs:label "황여진 (Hwang Yeojin)"@ko ;
+    bist:memberOf :BISTLab ;
+    bist:researcherType "C" ;
+    bist:inGroup :Group_IEI ;
+    bist:paperCount 0 .
+
+:Researcher_17 a bist:Researcher ;
+    foaf:name "이장원 (Lee Jangwon)" ;
+    rdfs:label "이장원 (Lee Jangwon)"@ko ;
+    bist:memberOf :BISTLab ;
+    bist:researcherType "C" ;
+    bist:inGroup :Group_IEI ;
+    bist:paperCount 0 .
+
+# ===== Research Keywords (raw) =====
+:KW_AI_artificial_intelligence_agent a bist:ResearchKeyword ;
+    rdfs:label "AI (artificial intelligence) agent"@en ;
+    bist:keywordRaw "AI (artificial intelligence) agent" .
+
+:KW_AI_agent a bist:ResearchKeyword ;
+    rdfs:label "AI agent"@en ;
+    bist:keywordRaw "AI agent" .
+
+:KW_Absolute_pressure_sensors a bist:ResearchKeyword ;
+    rdfs:label "Absolute pressure sensors"@en ;
+    bist:keywordRaw "Absolute pressure sensors" .
+
+:KW_Absorption_refrigeration a bist:ResearchKeyword ;
+    rdfs:label "Absorption refrigeration"@en ;
+    bist:keywordRaw "Absorption refrigeration" .
+
+:KW_Agentic_AI a bist:ResearchKeyword ;
+    rdfs:label "Agentic AI"@en ;
+    bist:keywordRaw "Agentic AI" .
+
+:KW_Agentic_fault_detection_and_diagnosis a bist:ResearchKeyword ;
+    rdfs:label "Agentic fault detection and diagnosis"@en ;
+    bist:keywordRaw "Agentic fault detection and diagnosis" .
+
+:KW_Air_handing_unit a bist:ResearchKeyword ;
+    rdfs:label "Air handing unit"@en ;
+    bist:keywordRaw "Air handing unit" .
+
+:KW_Air_leakage a bist:ResearchKeyword ;
+    rdfs:label "Air leakage"@en ;
+    bist:keywordRaw "Air leakage" .
+
+:KW_Air_cleaning a bist:ResearchKeyword ;
+    rdfs:label "Air-cleaning"@en ;
+    bist:keywordRaw "Air-cleaning" .
+
+:KW_Air_handling_unit a bist:ResearchKeyword ;
+    rdfs:label "Air-handling unit"@en ;
+    bist:keywordRaw "Air-handling unit" .
+
+:KW_Air_handling_unit_AHU a bist:ResearchKeyword ;
+    rdfs:label "Air-handling unit (AHU)"@en ;
+    bist:keywordRaw "Air-handling unit (AHU)" .
+
+:KW_Airflow a bist:ResearchKeyword ;
+    rdfs:label "Airflow"@en ;
+    bist:keywordRaw "Airflow" .
+
+:KW_Airflow_and_thermal_network_simulation a bist:ResearchKeyword ;
+    rdfs:label "Airflow and thermal network simulation"@en ;
+    bist:keywordRaw "Airflow and thermal network simulation" .
+
+:KW_Airflow_network_simulation a bist:ResearchKeyword ;
+    rdfs:label "Airflow network simulation"@en ;
+    bist:keywordRaw "Airflow network simulation" .
+
+:KW_Airflow_noise a bist:ResearchKeyword ;
+    rdfs:label "Airflow noise"@en ;
+    bist:keywordRaw "Airflow noise" .
+
+:KW_Airtightness_prediction a bist:ResearchKeyword ;
+    rdfs:label "Airtightness prediction"@en ;
+    bist:keywordRaw "Airtightness prediction" .
+
+:KW_Anomaly_detection a bist:ResearchKeyword ;
+    rdfs:label "Anomaly detection"@en ;
+    bist:keywordRaw "Anomaly detection" .
+
+:KW_Artificial_intelligence a bist:ResearchKeyword ;
+    rdfs:label "Artificial intelligence"@en ;
+    bist:keywordRaw "Artificial intelligence" .
+
+:KW_AutoEncoder a bist:ResearchKeyword ;
+    rdfs:label "AutoEncoder"@en ;
+    bist:keywordRaw "AutoEncoder" .
+
+:KW_Autoencoder a bist:ResearchKeyword ;
+    rdfs:label "Autoencoder"@en ;
+    bist:keywordRaw "Autoencoder" .
+
+:KW_Autoencoder_AE a bist:ResearchKeyword ;
+    rdfs:label "Autoencoder (AE)"@en ;
+    bist:keywordRaw "Autoencoder (AE)" .
+
+:KW_Automated_design a bist:ResearchKeyword ;
+    rdfs:label "Automated design"@en ;
+    bist:keywordRaw "Automated design" .
+
+:KW_Autonomous_modeling a bist:ResearchKeyword ;
+    rdfs:label "Autonomous modeling"@en ;
+    bist:keywordRaw "Autonomous modeling" .
+
+:KW_Availability_analysis a bist:ResearchKeyword ;
+    rdfs:label "Availability analysis"@en ;
+    bist:keywordRaw "Availability analysis" .
+
+:KW_BIM a bist:ResearchKeyword ;
+    rdfs:label "BIM"@en ;
+    bist:keywordRaw "BIM" .
+
+:KW_Bayesian_Inference a bist:ResearchKeyword ;
+    rdfs:label "Bayesian Inference"@en ;
+    bist:keywordRaw "Bayesian Inference" .
+
+:KW_Bayesian_MCMC a bist:ResearchKeyword ;
+    rdfs:label "Bayesian MCMC"@en ;
+    bist:keywordRaw "Bayesian MCMC" .
+
+:KW_Bayesian_inference a bist:ResearchKeyword ;
+    rdfs:label "Bayesian inference"@en ;
+    bist:keywordRaw "Bayesian inference" .
+
+:KW_Bayesian_inference_BI a bist:ResearchKeyword ;
+    rdfs:label "Bayesian inference (BI)"@en ;
+    bist:keywordRaw "Bayesian inference (BI)" .
+
+:KW_Bayesian_mcmc a bist:ResearchKeyword ;
+    rdfs:label "Bayesian mcmc"@en ;
+    bist:keywordRaw "Bayesian mcmc" .
+
+:KW_Bias_correction a bist:ResearchKeyword ;
+    rdfs:label "Bias correction"@en ;
+    bist:keywordRaw "Bias correction" .
+
+:KW_Brick_schema a bist:ResearchKeyword ;
+    rdfs:label "Brick schema"@en ;
+    bist:keywordRaw "Brick schema" .
+
+:KW_Building_airflow a bist:ResearchKeyword ;
+    rdfs:label "Building airflow"@en ;
+    bist:keywordRaw "Building airflow" .
+
+:KW_Building_automation_system a bist:ResearchKeyword ;
+    rdfs:label "Building automation system"@en ;
+    bist:keywordRaw "Building automation system" .
+
+:KW_Building_automation_systems a bist:ResearchKeyword ;
+    rdfs:label "Building automation systems"@en ;
+    bist:keywordRaw "Building automation systems" .
+
+:KW_Building_automation_systems_BAS a bist:ResearchKeyword ;
+    rdfs:label "Building automation systems (BAS)"@en ;
+    bist:keywordRaw "Building automation systems (BAS)" .
+
+:KW_Building_data_mining a bist:ResearchKeyword ;
+    rdfs:label "Building data mining"@en ;
+    bist:keywordRaw "Building data mining" .
+
+:KW_Building_digital_twinning a bist:ResearchKeyword ;
+    rdfs:label "Building digital twinning"@en ;
+    bist:keywordRaw "Building digital twinning" .
+
+:KW_Building_digital_twins a bist:ResearchKeyword ;
+    rdfs:label "Building digital twins"@en ;
+    bist:keywordRaw "Building digital twins" .
+
+:KW_Building_digitalization a bist:ResearchKeyword ;
+    rdfs:label "Building digitalization"@en ;
+    bist:keywordRaw "Building digitalization" .
+
+:KW_Building_energy_data_analysis a bist:ResearchKeyword ;
+    rdfs:label "Building energy data analysis"@en ;
+    bist:keywordRaw "Building energy data analysis" .
+
+:KW_Building_energy_diagnosis a bist:ResearchKeyword ;
+    rdfs:label "Building energy diagnosis"@en ;
+    bist:keywordRaw "Building energy diagnosis" .
+
+:KW_Building_energy_efficiency a bist:ResearchKeyword ;
+    rdfs:label "Building energy efficiency"@en ;
+    bist:keywordRaw "Building energy efficiency" .
+
+:KW_Building_energy_management_system a bist:ResearchKeyword ;
+    rdfs:label "Building energy management system"@en ;
+    bist:keywordRaw "Building energy management system" .
+
+:KW_Building_energy_modeling a bist:ResearchKeyword ;
+    rdfs:label "Building energy modeling"@en ;
+    bist:keywordRaw "Building energy modeling" .
+
+:KW_Building_energy_performance a bist:ResearchKeyword ;
+    rdfs:label "Building energy performance"@en ;
+    bist:keywordRaw "Building energy performance" .
+
+:KW_Building_energy_system a bist:ResearchKeyword ;
+    rdfs:label "Building energy system"@en ;
+    bist:keywordRaw "Building energy system" .
+
+:KW_Building_energy_systems a bist:ResearchKeyword ;
+    rdfs:label "Building energy systems"@en ;
+    bist:keywordRaw "Building energy systems" .
+
+:KW_Building_heating_and_cooling_load_prediction a bist:ResearchKeyword ;
+    rdfs:label "Building heating and cooling load prediction"@en ;
+    bist:keywordRaw "Building heating and cooling load prediction" .
+
+:KW_Building_informatics a bist:ResearchKeyword ;
+    rdfs:label "Building informatics"@en ;
+    bist:keywordRaw "Building informatics" .
+
+:KW_Building_information_modeling a bist:ResearchKeyword ;
+    rdfs:label "Building information modeling"@en ;
+    bist:keywordRaw "Building information modeling" .
+
+:KW_Building_information_modeling_BIM a bist:ResearchKeyword ;
+    rdfs:label "Building information modeling (BIM)"@en ;
+    bist:keywordRaw "Building information modeling (BIM)" .
+
+:KW_Building_life_cycle a bist:ResearchKeyword ;
+    rdfs:label "Building life cycle"@en ;
+    bist:keywordRaw "Building life cycle" .
+
+:KW_Building_lifecycle a bist:ResearchKeyword ;
+    rdfs:label "Building lifecycle"@en ;
+    bist:keywordRaw "Building lifecycle" .
+
+:KW_Building_operation a bist:ResearchKeyword ;
+    rdfs:label "Building operation"@en ;
+    bist:keywordRaw "Building operation" .
+
+:KW_Building_operation_and_maintenance a bist:ResearchKeyword ;
+    rdfs:label "Building operation and maintenance"@en ;
+    bist:keywordRaw "Building operation and maintenance" .
+
+:KW_Building_operations a bist:ResearchKeyword ;
+    rdfs:label "Building operations"@en ;
+    bist:keywordRaw "Building operations" .
+
+:KW_Building_performance a bist:ResearchKeyword ;
+    rdfs:label "Building performance"@en ;
+    bist:keywordRaw "Building performance" .
+
+:KW_Building_performance_simulation_BPS a bist:ResearchKeyword ;
+    rdfs:label "Building performance simulation (BPS)"@en ;
+    bist:keywordRaw "Building performance simulation (BPS)" .
+
+:KW_Building_retrofit a bist:ResearchKeyword ;
+    rdfs:label "Building retrofit"@en ;
+    bist:keywordRaw "Building retrofit" .
+
+:KW_Building_sensors a bist:ResearchKeyword ;
+    rdfs:label "Building sensors"@en ;
+    bist:keywordRaw "Building sensors" .
+
+:KW_Building_systems a bist:ResearchKeyword ;
+    rdfs:label "Building systems"@en ;
+    bist:keywordRaw "Building systems" .
+
+:KW_Building_energy_prediction_BEP a bist:ResearchKeyword ;
+    rdfs:label "Building-energy prediction (BEP)"@en ;
+    bist:keywordRaw "Building-energy prediction (BEP)" .
+
+:KW_Built_environment a bist:ResearchKeyword ;
+    rdfs:label "Built environment"@en ;
+    bist:keywordRaw "Built environment" .
+
+:KW_Built_environments a bist:ResearchKeyword ;
+    rdfs:label "Built environments"@en ;
+    bist:keywordRaw "Built environments" .
+
+:KW_CONTAM a bist:ResearchKeyword ;
+    rdfs:label "CONTAM"@en ;
+    bist:keywordRaw "CONTAM" .
+
+:KW_COVID_19 a bist:ResearchKeyword ;
+    rdfs:label "COVID-19"@en ;
+    bist:keywordRaw "COVID-19" .
+
+:KW_Calibrated_simulation a bist:ResearchKeyword ;
+    rdfs:label "Calibrated simulation"@en ;
+    bist:keywordRaw "Calibrated simulation" .
+
+:KW_Calibration_domain a bist:ResearchKeyword ;
+    rdfs:label "Calibration domain"@en ;
+    bist:keywordRaw "Calibration domain" .
+
+:KW_Calibration_strategies a bist:ResearchKeyword ;
+    rdfs:label "Calibration strategies"@en ;
+    bist:keywordRaw "Calibration strategies" .
+
+:KW_Carbon_neutrality a bist:ResearchKeyword ;
+    rdfs:label "Carbon neutrality"@en ;
+    bist:keywordRaw "Carbon neutrality" .
+
+:KW_Change_point_model a bist:ResearchKeyword ;
+    rdfs:label "Change point model"@en ;
+    bist:keywordRaw "Change point model" .
+
+:KW_ChatGPT a bist:ResearchKeyword ;
+    rdfs:label "ChatGPT"@en ;
+    bist:keywordRaw "ChatGPT" .
+
+:KW_Chilled_water_cooling_system a bist:ResearchKeyword ;
+    rdfs:label "Chilled water cooling system"@en ;
+    bist:keywordRaw "Chilled water cooling system" .
+
+:KW_Chiller a bist:ResearchKeyword ;
+    rdfs:label "Chiller"@en ;
+    bist:keywordRaw "Chiller" .
+
+:KW_Chiller_sensors a bist:ResearchKeyword ;
+    rdfs:label "Chiller sensors"@en ;
+    bist:keywordRaw "Chiller sensors" .
+
+:KW_Clustering a bist:ResearchKeyword ;
+    rdfs:label "Clustering"@en ;
+    bist:keywordRaw "Clustering" .
+
+:KW_Computer_room_air_handler a bist:ResearchKeyword ;
+    rdfs:label "Computer room air handler"@en ;
+    bist:keywordRaw "Computer room air handler" .
+
+:KW_Computer_room_air_handler_CRAH a bist:ResearchKeyword ;
+    rdfs:label "Computer room air handler (CRAH)"@en ;
+    bist:keywordRaw "Computer room air handler (CRAH)" .
+
+:KW_Concurrent_failure a bist:ResearchKeyword ;
+    rdfs:label "Concurrent failure"@en ;
+    bist:keywordRaw "Concurrent failure" .
+
+:KW_Contaminant_diffusion a bist:ResearchKeyword ;
+    rdfs:label "Contaminant diffusion"@en ;
+    bist:keywordRaw "Contaminant diffusion" .
+
+:KW_Control_characteristic a bist:ResearchKeyword ;
+    rdfs:label "Control characteristic"@en ;
+    bist:keywordRaw "Control characteristic" .
+
+:KW_Control_loop_model a bist:ResearchKeyword ;
+    rdfs:label "Control loop model"@en ;
+    bist:keywordRaw "Control loop model" .
+
+:KW_Convolutional_autoencoder a bist:ResearchKeyword ;
+    rdfs:label "Convolutional autoencoder"@en ;
+    bist:keywordRaw "Convolutional autoencoder" .
+
+:KW_Cooling_system a bist:ResearchKeyword ;
+    rdfs:label "Cooling system"@en ;
+    bist:keywordRaw "Cooling system" .
+
+:KW_Countermeasure a bist:ResearchKeyword ;
+    rdfs:label "Countermeasure"@en ;
+    bist:keywordRaw "Countermeasure" .
+
+:KW_Cyber_physical_buildings a bist:ResearchKeyword ;
+    rdfs:label "Cyber-physical buildings"@en ;
+    bist:keywordRaw "Cyber-physical buildings" .
+
+:KW_Cyber_physical_systems a bist:ResearchKeyword ;
+    rdfs:label "Cyber-physical systems"@en ;
+    bist:keywordRaw "Cyber-physical systems" .
+
+:KW_DS_evidence_theory a bist:ResearchKeyword ;
+    rdfs:label "DS evidence theory"@en ;
+    bist:keywordRaw "DS evidence theory" .
+
+:KW_Data_augmentation a bist:ResearchKeyword ;
+    rdfs:label "Data augmentation"@en ;
+    bist:keywordRaw "Data augmentation" .
+
+:KW_Data_center a bist:ResearchKeyword ;
+    rdfs:label "Data center"@en ;
+    bist:keywordRaw "Data center" .
+
+:KW_Data_fusion a bist:ResearchKeyword ;
+    rdfs:label "Data fusion"@en ;
+    bist:keywordRaw "Data fusion" .
+
+:KW_Data_imputation a bist:ResearchKeyword ;
+    rdfs:label "Data imputation"@en ;
+    bist:keywordRaw "Data imputation" .
+
+:KW_Data_mining a bist:ResearchKeyword ;
+    rdfs:label "Data mining"@en ;
+    bist:keywordRaw "Data mining" .
+
+:KW_Data_similarity a bist:ResearchKeyword ;
+    rdfs:label "Data similarity"@en ;
+    bist:keywordRaw "Data similarity" .
+
+:KW_Data_driven_based_methods a bist:ResearchKeyword ;
+    rdfs:label "Data-driven based methods"@en ;
+    bist:keywordRaw "Data-driven based methods" .
+
+:KW_Data_driven_modeling a bist:ResearchKeyword ;
+    rdfs:label "Data-driven modeling"@en ;
+    bist:keywordRaw "Data-driven modeling" .
+
+:KW_Delta_T_signature a bist:ResearchKeyword ;
+    rdfs:label "Delta-T signature"@en ;
+    bist:keywordRaw "Delta-T signature" .
+
+:KW_Design_of_experiment_DOE a bist:ResearchKeyword ;
+    rdfs:label "Design of experiment (DOE)"@en ;
+    bist:keywordRaw "Design of experiment (DOE)" .
+
+:KW_Digital_twin a bist:ResearchKeyword ;
+    rdfs:label "Digital twin"@en ;
+    bist:keywordRaw "Digital twin" .
+
+:KW_Digital_twin_DT a bist:ResearchKeyword ;
+    rdfs:label "Digital twin (DT)"@en ;
+    bist:keywordRaw "Digital twin (DT)" .
+
+:KW_Digital_twin_model a bist:ResearchKeyword ;
+    rdfs:label "Digital twin model"@en ;
+    bist:keywordRaw "Digital twin model" .
+
+:KW_Digital_twin_synchronization a bist:ResearchKeyword ;
+    rdfs:label "Digital twin synchronization"@en ;
+    bist:keywordRaw "Digital twin synchronization" .
+
+:KW_Digital_twinning a bist:ResearchKeyword ;
+    rdfs:label "Digital twinning"@en ;
+    bist:keywordRaw "Digital twinning" .
+
+:KW_Digital_twins a bist:ResearchKeyword ;
+    rdfs:label "Digital twins"@en ;
+    bist:keywordRaw "Digital twins" .
+
+:KW_District_heating a bist:ResearchKeyword ;
+    rdfs:label "District heating"@en ;
+    bist:keywordRaw "District heating" .
+
+:KW_District_heating_substation a bist:ResearchKeyword ;
+    rdfs:label "District heating substation"@en ;
+    bist:keywordRaw "District heating substation" .
+
+:KW_District_heating_substations a bist:ResearchKeyword ;
+    rdfs:label "District heating substations"@en ;
+    bist:keywordRaw "District heating substations" .
+
+:KW_District_heating_system a bist:ResearchKeyword ;
+    rdfs:label "District heating system"@en ;
+    bist:keywordRaw "District heating system" .
+
+:KW_District_heating_systems a bist:ResearchKeyword ;
+    rdfs:label "District heating systems"@en ;
+    bist:keywordRaw "District heating systems" .
+
+:KW_Domain_adversarial_neural_network_DANN a bist:ResearchKeyword ;
+    rdfs:label "Domain adversarial neural network (DANN)"@en ;
+    bist:keywordRaw "Domain adversarial neural network (DANN)" .
+
+:KW_Draft a bist:ResearchKeyword ;
+    rdfs:label "Draft"@en ;
+    bist:keywordRaw "Draft" .
+
+:KW_Drifting_bias_correction a bist:ResearchKeyword ;
+    rdfs:label "Drifting bias correction"@en ;
+    bist:keywordRaw "Drifting bias correction" .
+
+:KW_Dwelling_infiltration a bist:ResearchKeyword ;
+    rdfs:label "Dwelling infiltration"@en ;
+    bist:keywordRaw "Dwelling infiltration" .
+
+:KW_Energy_balance a bist:ResearchKeyword ;
+    rdfs:label "Energy balance"@en ;
+    bist:keywordRaw "Energy balance" .
+
+:KW_Energy_consumption_pattern a bist:ResearchKeyword ;
+    rdfs:label "Energy consumption pattern"@en ;
+    bist:keywordRaw "Energy consumption pattern" .
+
+:KW_Energy_demand a bist:ResearchKeyword ;
+    rdfs:label "Energy demand"@en ;
+    bist:keywordRaw "Energy demand" .
+
+:KW_Energy_efficiency a bist:ResearchKeyword ;
+    rdfs:label "Energy efficiency"@en ;
+    bist:keywordRaw "Energy efficiency" .
+
+:KW_Energy_performance_evaluating a bist:ResearchKeyword ;
+    rdfs:label "Energy performance evaluating"@en ;
+    bist:keywordRaw "Energy performance evaluating" .
+
+:KW_Energy_performance_signature a bist:ResearchKeyword ;
+    rdfs:label "Energy performance signature"@en ;
+    bist:keywordRaw "Energy performance signature" .
+
+:KW_Energy_saving a bist:ResearchKeyword ;
+    rdfs:label "Energy saving"@en ;
+    bist:keywordRaw "Energy saving" .
+
+:KW_Energy_signature a bist:ResearchKeyword ;
+    rdfs:label "Energy signature"@en ;
+    bist:keywordRaw "Energy signature" .
+
+:KW_Energy_signature_Public_building_data a bist:ResearchKeyword ;
+    rdfs:label "Energy signature, Public building data"@en ;
+    bist:keywordRaw "Energy signature, Public building data" .
+
+:KW_EnergyPlus a bist:ResearchKeyword ;
+    rdfs:label "EnergyPlus"@en ;
+    bist:keywordRaw "EnergyPlus" .
+
+:KW_Eulerian_multiphase_model a bist:ResearchKeyword ;
+    rdfs:label "Eulerian multiphase model"@en ;
+    bist:keywordRaw "Eulerian multiphase model" .
+
+:KW_Factorial_design a bist:ResearchKeyword ;
+    rdfs:label "Factorial design"@en ;
+    bist:keywordRaw "Factorial design" .
+
+:KW_Fault_Detection_and_Diagnosis_FDD a bist:ResearchKeyword ;
+    rdfs:label "Fault Detection and Diagnosis (FDD)"@en ;
+    bist:keywordRaw "Fault Detection and Diagnosis (FDD)" .
+
+:KW_Fault_detection a bist:ResearchKeyword ;
+    rdfs:label "Fault detection"@en ;
+    bist:keywordRaw "Fault detection" .
+
+:KW_Fault_detection_and_diagnosis_FDD a bist:ResearchKeyword ;
+    rdfs:label "Fault detection and diagnosis (FDD)"@en ;
+    bist:keywordRaw "Fault detection and diagnosis (FDD)" .
+
+:KW_Fault_diagnosis a bist:ResearchKeyword ;
+    rdfs:label "Fault diagnosis"@en ;
+    bist:keywordRaw "Fault diagnosis" .
+
+:KW_Fault_diagnosis_and_calibration a bist:ResearchKeyword ;
+    rdfs:label "Fault diagnosis and calibration"@en ;
+    bist:keywordRaw "Fault diagnosis and calibration" .
+
+:KW_Fault_prediction a bist:ResearchKeyword ;
+    rdfs:label "Fault prediction"@en ;
+    bist:keywordRaw "Fault prediction" .
+
+:KW_Fault_self_calibration a bist:ResearchKeyword ;
+    rdfs:label "Fault self-calibration"@en ;
+    bist:keywordRaw "Fault self-calibration" .
+
+:KW_Feature_engineering a bist:ResearchKeyword ;
+    rdfs:label "Feature engineering"@en ;
+    bist:keywordRaw "Feature engineering" .
+
+:KW_Framework_of_sensor_offset_definition a bist:ResearchKeyword ;
+    rdfs:label "Framework of sensor offset definition"@en ;
+    bist:keywordRaw "Framework of sensor offset definition" .
+
+:KW_Free_cooling a bist:ResearchKeyword ;
+    rdfs:label "Free cooling"@en ;
+    bist:keywordRaw "Free cooling" .
+
+:KW_GAN a bist:ResearchKeyword ;
+    rdfs:label "GAN"@en ;
+    bist:keywordRaw "GAN" .
+
+:KW_GPT a bist:ResearchKeyword ;
+    rdfs:label "GPT"@en ;
+    bist:keywordRaw "GPT" .
+
+:KW_Gas_liquid_two_phase_flow a bist:ResearchKeyword ;
+    rdfs:label "Gas-liquid two-phase flow"@en ;
+    bist:keywordRaw "Gas-liquid two-phase flow" .
+
+:KW_Gaussian_mixture_model a bist:ResearchKeyword ;
+    rdfs:label "Gaussian mixture model"@en ;
+    bist:keywordRaw "Gaussian mixture model" .
+
+:KW_Generalized_diagnosis_rules a bist:ResearchKeyword ;
+    rdfs:label "Generalized diagnosis rules"@en ;
+    bist:keywordRaw "Generalized diagnosis rules" .
+
+:KW_Generative_AI a bist:ResearchKeyword ;
+    rdfs:label "Generative AI"@en ;
+    bist:keywordRaw "Generative AI" .
+
+:KW_Genetic_algorithm a bist:ResearchKeyword ;
+    rdfs:label "Genetic algorithm"@en ;
+    bist:keywordRaw "Genetic algorithm" .
+
+:KW_Genetic_algorithm_GA a bist:ResearchKeyword ;
+    rdfs:label "Genetic algorithm (GA)"@en ;
+    bist:keywordRaw "Genetic algorithm (GA)" .
+
+:KW_Global_optimization a bist:ResearchKeyword ;
+    rdfs:label "Global optimization"@en ;
+    bist:keywordRaw "Global optimization" .
+
+:KW_Global_sensitivity_analysis a bist:ResearchKeyword ;
+    rdfs:label "Global sensitivity analysis"@en ;
+    bist:keywordRaw "Global sensitivity analysis" .
+
+:KW_Google_street_view a bist:ResearchKeyword ;
+    rdfs:label "Google street view"@en ;
+    bist:keywordRaw "Google street view" .
+
+:KW_HVAC a bist:ResearchKeyword ;
+    rdfs:label "HVAC"@en ;
+    bist:keywordRaw "HVAC" .
+
+:KW_HVACR a bist:ResearchKeyword ;
+    rdfs:label "HVACR"@en ;
+    bist:keywordRaw "HVACR" .
+
+:KW_Heat_and_vapor_diffusion a bist:ResearchKeyword ;
+    rdfs:label "Heat and vapor diffusion"@en ;
+    bist:keywordRaw "Heat and vapor diffusion" .
+
+:KW_Heat_exchanger_fouling a bist:ResearchKeyword ;
+    rdfs:label "Heat exchanger fouling"@en ;
+    bist:keywordRaw "Heat exchanger fouling" .
+
+:KW_Heating_energy_demand a bist:ResearchKeyword ;
+    rdfs:label "Heating energy demand"@en ;
+    bist:keywordRaw "Heating energy demand" .
+
+:KW_Heating_energy_estimation a bist:ResearchKeyword ;
+    rdfs:label "Heating energy estimation"@en ;
+    bist:keywordRaw "Heating energy estimation" .
+
+:KW_Heating_load a bist:ResearchKeyword ;
+    rdfs:label "Heating load"@en ;
+    bist:keywordRaw "Heating load" .
+
+:KW_High_rise_building a bist:ResearchKeyword ;
+    rdfs:label "High-rise building"@en ;
+    bist:keywordRaw "High-rise building" .
+
+:KW_High_rise_office_building a bist:ResearchKeyword ;
+    rdfs:label "High-rise office building"@en ;
+    bist:keywordRaw "High-rise office building" .
+
+:KW_High_rise_residential_building a bist:ResearchKeyword ;
+    rdfs:label "High-rise residential building"@en ;
+    bist:keywordRaw "High-rise residential building" .
+
+:KW_Holistic_operational_signature a bist:ResearchKeyword ;
+    rdfs:label "Holistic operational signature"@en ;
+    bist:keywordRaw "Holistic operational signature" .
+
+:KW_Horizontal_and_vertical_direction a bist:ResearchKeyword ;
+    rdfs:label "Horizontal and vertical direction"@en ;
+    bist:keywordRaw "Horizontal and vertical direction" .
+
+:KW_Horizontal_leakage_areas a bist:ResearchKeyword ;
+    rdfs:label "Horizontal leakage areas"@en ;
+    bist:keywordRaw "Horizontal leakage areas" .
+
+:KW_Hybrid_free_cooling_system a bist:ResearchKeyword ;
+    rdfs:label "Hybrid free cooling system"@en ;
+    bist:keywordRaw "Hybrid free cooling system" .
+
+:KW_Imbalanced_data a bist:ResearchKeyword ;
+    rdfs:label "Imbalanced data"@en ;
+    bist:keywordRaw "Imbalanced data" .
+
+:KW_In_situ_calibration a bist:ResearchKeyword ;
+    rdfs:label "In situ calibration"@en ;
+    bist:keywordRaw "In situ calibration" .
+
+:KW_In_situ_model_fusion a bist:ResearchKeyword ;
+    rdfs:label "In situ model fusion"@en ;
+    bist:keywordRaw "In situ model fusion" .
+
+:KW_In_situ_modeling a bist:ResearchKeyword ;
+    rdfs:label "In situ modeling"@en ;
+    bist:keywordRaw "In situ modeling" .
+
+:KW_In_situ_calibration_2 a bist:ResearchKeyword ;
+    rdfs:label "In-situ calibration"@en ;
+    bist:keywordRaw "In-situ calibration" .
+
+:KW_In_situ_model_calibration a bist:ResearchKeyword ;
+    rdfs:label "In-situ model calibration"@en ;
+    bist:keywordRaw "In-situ model calibration" .
+
+:KW_In_situ_model_fusion_2 a bist:ResearchKeyword ;
+    rdfs:label "In-situ model fusion"@en ;
+    bist:keywordRaw "In-situ model fusion" .
+
+:KW_In_situ_modeling_2 a bist:ResearchKeyword ;
+    rdfs:label "In-situ modeling"@en ;
+    bist:keywordRaw "In-situ modeling" .
+
+:KW_In_situ_sensor_correction a bist:ResearchKeyword ;
+    rdfs:label "In-situ sensor correction"@en ;
+    bist:keywordRaw "In-situ sensor correction" .
+
+:KW_In_situ_virtual_sensor a bist:ResearchKeyword ;
+    rdfs:label "In-situ virtual sensor"@en ;
+    bist:keywordRaw "In-situ virtual sensor" .
+
+:KW_In_situ_virtual_sensors a bist:ResearchKeyword ;
+    rdfs:label "In-situ virtual sensors"@en ;
+    bist:keywordRaw "In-situ virtual sensors" .
+
+:KW_Indirect_calibration a bist:ResearchKeyword ;
+    rdfs:label "Indirect calibration"@en ;
+    bist:keywordRaw "Indirect calibration" .
+
+:KW_Indirect_validation a bist:ResearchKeyword ;
+    rdfs:label "Indirect validation"@en ;
+    bist:keywordRaw "Indirect validation" .
+
+:KW_Indoor_air_quality_IAQ a bist:ResearchKeyword ;
+    rdfs:label "Indoor air quality (IAQ)"@en ;
+    bist:keywordRaw "Indoor air quality (IAQ)" .
+
+:KW_Indoor_environmental_quality a bist:ResearchKeyword ;
+    rdfs:label "Indoor environmental quality"@en ;
+    bist:keywordRaw "Indoor environmental quality" .
+
+:KW_Indoor_environments a bist:ResearchKeyword ;
+    rdfs:label "Indoor environments"@en ;
+    bist:keywordRaw "Indoor environments" .
+
+:KW_Indoor_thermal_comfort a bist:ResearchKeyword ;
+    rdfs:label "Indoor thermal comfort"@en ;
+    bist:keywordRaw "Indoor thermal comfort" .
+
+:KW_Infiltration a bist:ResearchKeyword ;
+    rdfs:label "Infiltration"@en ;
+    bist:keywordRaw "Infiltration" .
+
+:KW_Intelligent_building_energy_systems a bist:ResearchKeyword ;
+    rdfs:label "Intelligent building energy systems"@en ;
+    bist:keywordRaw "Intelligent building energy systems" .
+
+:KW_Intelligent_building_systems a bist:ResearchKeyword ;
+    rdfs:label "Intelligent building systems"@en ;
+    bist:keywordRaw "Intelligent building systems" .
+
+:KW_Intelligent_buildings a bist:ResearchKeyword ;
+    rdfs:label "Intelligent buildings"@en ;
+    bist:keywordRaw "Intelligent buildings" .
+
+:KW_Intelligent_digital_twin_IDT a bist:ResearchKeyword ;
+    rdfs:label "Intelligent digital twin (IDT)"@en ;
+    bist:keywordRaw "Intelligent digital twin (IDT)" .
+
+:KW_Interaction_analysis a bist:ResearchKeyword ;
+    rdfs:label "Interaction analysis"@en ;
+    bist:keywordRaw "Interaction analysis" .
+
+:KW_Interface_motion a bist:ResearchKeyword ;
+    rdfs:label "Interface motion"@en ;
+    bist:keywordRaw "Interface motion" .
+
+:KW_Interzonal_airflow a bist:ResearchKeyword ;
+    rdfs:label "Interzonal airflow"@en ;
+    bist:keywordRaw "Interzonal airflow" .
+
+:KW_Intrusive_calibration a bist:ResearchKeyword ;
+    rdfs:label "Intrusive calibration"@en ;
+    bist:keywordRaw "Intrusive calibration" .
+
+:KW_Intrusive_data a bist:ResearchKeyword ;
+    rdfs:label "Intrusive data"@en ;
+    bist:keywordRaw "Intrusive data" .
+
+:KW_Key_measurement_points a bist:ResearchKeyword ;
+    rdfs:label "Key measurement points"@en ;
+    bist:keywordRaw "Key measurement points" .
+
+:KW_Knowledge_engineering a bist:ResearchKeyword ;
+    rdfs:label "Knowledge engineering"@en ;
+    bist:keywordRaw "Knowledge engineering" .
+
+:KW_LLM a bist:ResearchKeyword ;
+    rdfs:label "LLM"@en ;
+    bist:keywordRaw "LLM" .
+
+:KW_LLMs a bist:ResearchKeyword ;
+    rdfs:label "LLMs"@en ;
+    bist:keywordRaw "LLMs" .
+
+:KW_Large_language_model a bist:ResearchKeyword ;
+    rdfs:label "Large language model"@en ;
+    bist:keywordRaw "Large language model" .
+
+:KW_Large_language_model_LLM a bist:ResearchKeyword ;
+    rdfs:label "Large language model (LLM)"@en ;
+    bist:keywordRaw "Large language model (LLM)" .
+
+:KW_Large_language_models a bist:ResearchKeyword ;
+    rdfs:label "Large language models"@en ;
+    bist:keywordRaw "Large language models" .
+
+:KW_Latent_heat_thermal_energy_storage a bist:ResearchKeyword ;
+    rdfs:label "Latent heat thermal energy storage"@en ;
+    bist:keywordRaw "Latent heat thermal energy storage" .
+
+:KW_Latent_space_based a bist:ResearchKeyword ;
+    rdfs:label "Latent space-based"@en ;
+    bist:keywordRaw "Latent space-based" .
+
+:KW_Latin_hypercube_sampling a bist:ResearchKeyword ;
+    rdfs:label "Latin hypercube sampling"@en ;
+    bist:keywordRaw "Latin hypercube sampling" .
+
+:KW_Leakage_area a bist:ResearchKeyword ;
+    rdfs:label "Leakage area"@en ;
+    bist:keywordRaw "Leakage area" .
+
+:KW_Level_of_detail_LOD a bist:ResearchKeyword ;
+    rdfs:label "Level of detail (LOD)"@en ;
+    bist:keywordRaw "Level of detail (LOD)" .
+
+:KW_LiBr_H2O_refrigeration a bist:ResearchKeyword ;
+    rdfs:label "LiBr-H2O refrigeration"@en ;
+    bist:keywordRaw "LiBr-H2O refrigeration" .
+
+:KW_LiBr_H2O_refrigeration_2 a bist:ResearchKeyword ;
+    rdfs:label "LiBr–H2O refrigeration"@en ;
+    bist:keywordRaw "LiBr–H2O refrigeration" .
+
+:KW_Living_lab a bist:ResearchKeyword ;
+    rdfs:label "Living lab"@en ;
+    bist:keywordRaw "Living lab" .
+
+:KW_Machine_learning a bist:ResearchKeyword ;
+    rdfs:label "Machine learning"@en ;
+    bist:keywordRaw "Machine learning" .
+
+:KW_Markov_Chain_Monte_Carlo a bist:ResearchKeyword ;
+    rdfs:label "Markov Chain Monte Carlo"@en ;
+    bist:keywordRaw "Markov Chain Monte Carlo" .
+
+:KW_Markov_model a bist:ResearchKeyword ;
+    rdfs:label "Markov model"@en ;
+    bist:keywordRaw "Markov model" .
+
+:KW_Measurement_fault a bist:ResearchKeyword ;
+    rdfs:label "Measurement fault"@en ;
+    bist:keywordRaw "Measurement fault" .
+
+:KW_Missing_data a bist:ResearchKeyword ;
+    rdfs:label "Missing data"@en ;
+    bist:keywordRaw "Missing data" .
+
+:KW_Model_fusion a bist:ResearchKeyword ;
+    rdfs:label "Model fusion"@en ;
+    bist:keywordRaw "Model fusion" .
+
+:KW_Model_metadata a bist:ResearchKeyword ;
+    rdfs:label "Model metadata"@en ;
+    bist:keywordRaw "Model metadata" .
+
+:KW_Model_predictive_control a bist:ResearchKeyword ;
+    rdfs:label "Model predictive control"@en ;
+    bist:keywordRaw "Model predictive control" .
+
+:KW_Model_based_control a bist:ResearchKeyword ;
+    rdfs:label "Model-based control"@en ;
+    bist:keywordRaw "Model-based control" .
+
+:KW_Multi_family_residential_buildings a bist:ResearchKeyword ;
+    rdfs:label "Multi-family residential buildings"@en ;
+    bist:keywordRaw "Multi-family residential buildings" .
+
+:KW_Multi_label_random_forest a bist:ResearchKeyword ;
+    rdfs:label "Multi-label random forest"@en ;
+    bist:keywordRaw "Multi-label random forest" .
+
+:KW_Multi_source_data a bist:ResearchKeyword ;
+    rdfs:label "Multi-source data"@en ;
+    bist:keywordRaw "Multi-source data" .
+
+:KW_Multi_swarm_particle_swarm_optimization a bist:ResearchKeyword ;
+    rdfs:label "Multi-swarm particle swarm optimization"@en ;
+    bist:keywordRaw "Multi-swarm particle swarm optimization" .
+
+:KW_Multi_unit_residential_buildings_MURB a bist:ResearchKeyword ;
+    rdfs:label "Multi-unit residential buildings (MURB)"@en ;
+    bist:keywordRaw "Multi-unit residential buildings (MURB)" .
+
+:KW_Multifamily_high_rise_building a bist:ResearchKeyword ;
+    rdfs:label "Multifamily high-rise building"@en ;
+    bist:keywordRaw "Multifamily high-rise building" .
+
+:KW_Multifamily_high_rise_buildings a bist:ResearchKeyword ;
+    rdfs:label "Multifamily high-rise buildings"@en ;
+    bist:keywordRaw "Multifamily high-rise buildings" .
+
+:KW_Multiple_source_fault_MSF a bist:ResearchKeyword ;
+    rdfs:label "Multiple source fault (MSF)"@en ;
+    bist:keywordRaw "Multiple source fault (MSF)" .
+
+:KW_Neural_network a bist:ResearchKeyword ;
+    rdfs:label "Neural network"@en ;
+    bist:keywordRaw "Neural network" .
+
+:KW_Nonintrusive_calibration a bist:ResearchKeyword ;
+    rdfs:label "Nonintrusive calibration"@en ;
+    bist:keywordRaw "Nonintrusive calibration" .
+
+:KW_Nonintrusive_in_situ_modeling a bist:ResearchKeyword ;
+    rdfs:label "Nonintrusive in-situ modeling"@en ;
+    bist:keywordRaw "Nonintrusive in-situ modeling" .
+
+:KW_Nonintrusive_modeling a bist:ResearchKeyword ;
+    rdfs:label "Nonintrusive modeling"@en ;
+    bist:keywordRaw "Nonintrusive modeling" .
+
+:KW_Nonlinear_effect a bist:ResearchKeyword ;
+    rdfs:label "Nonlinear effect"@en ;
+    bist:keywordRaw "Nonlinear effect" .
+
+:KW_Observation a bist:ResearchKeyword ;
+    rdfs:label "Observation"@en ;
+    bist:keywordRaw "Observation" .
+
+:KW_Occupant_behavior a bist:ResearchKeyword ;
+    rdfs:label "Occupant behavior"@en ;
+    bist:keywordRaw "Occupant behavior" .
+
+:KW_Online_application a bist:ResearchKeyword ;
+    rdfs:label "Online application"@en ;
+    bist:keywordRaw "Online application" .
+
+:KW_Ontology a bist:ResearchKeyword ;
+    rdfs:label "Ontology"@en ;
+    bist:keywordRaw "Ontology" .
+
+:KW_Open_data a bist:ResearchKeyword ;
+    rdfs:label "Open data"@en ;
+    bist:keywordRaw "Open data" .
+
+:KW_OpenAI a bist:ResearchKeyword ;
+    rdfs:label "OpenAI"@en ;
+    bist:keywordRaw "OpenAI" .
+
+:KW_Operation_analysis a bist:ResearchKeyword ;
+    rdfs:label "Operation analysis"@en ;
+    bist:keywordRaw "Operation analysis" .
+
+:KW_Operation_and_Maintenance_O_M a bist:ResearchKeyword ;
+    rdfs:label "Operation and Maintenance (O&M)"@en ;
+    bist:keywordRaw "Operation and Maintenance (O&M)" .
+
+:KW_Operation_and_maintenance a bist:ResearchKeyword ;
+    rdfs:label "Operation and maintenance"@en ;
+    bist:keywordRaw "Operation and maintenance" .
+
+:KW_Operation_and_maintenance_O_M a bist:ResearchKeyword ;
+    rdfs:label "Operation and maintenance (O&M)"@en ;
+    bist:keywordRaw "Operation and maintenance (O&M)" .
+
+:KW_Operation_and_management_O_M a bist:ResearchKeyword ;
+    rdfs:label "Operation and management (O&M)"@en ;
+    bist:keywordRaw "Operation and management (O&M)" .
+
+:KW_Operation_pattern a bist:ResearchKeyword ;
+    rdfs:label "Operation pattern"@en ;
+    bist:keywordRaw "Operation pattern" .
+
+:KW_Operational_data a bist:ResearchKeyword ;
+    rdfs:label "Operational data"@en ;
+    bist:keywordRaw "Operational data" .
+
+:KW_Operational_signature a bist:ResearchKeyword ;
+    rdfs:label "Operational signature"@en ;
+    bist:keywordRaw "Operational signature" .
+
+:KW_PMV a bist:ResearchKeyword ;
+    rdfs:label "PMV"@en ;
+    bist:keywordRaw "PMV" .
+
+:KW_PRD a bist:ResearchKeyword ;
+    rdfs:label "PRD"@en ;
+    bist:keywordRaw "PRD" .
+
+:KW_PV_T_HP_system a bist:ResearchKeyword ;
+    rdfs:label "PV/T-HP system"@en ;
+    bist:keywordRaw "PV/T-HP system" .
+
+:KW_PVT_HP_system a bist:ResearchKeyword ;
+    rdfs:label "PVT-HP system"@en ;
+    bist:keywordRaw "PVT-HP system" .
+
+:KW_Passive_house a bist:ResearchKeyword ;
+    rdfs:label "Passive house"@en ;
+    bist:keywordRaw "Passive house" .
+
+:KW_Photovoltaic_thermal_heat_pump_system a bist:ResearchKeyword ;
+    rdfs:label "Photovoltaic thermal heat pump system"@en ;
+    bist:keywordRaw "Photovoltaic thermal heat pump system" .
+
+:KW_Piston_cooling_gallery a bist:ResearchKeyword ;
+    rdfs:label "Piston cooling gallery"@en ;
+    bist:keywordRaw "Piston cooling gallery" .
+
+:KW_Prediction_models a bist:ResearchKeyword ;
+    rdfs:label "Prediction models"@en ;
+    bist:keywordRaw "Prediction models" .
+
+:KW_Predictive_optimization_control a bist:ResearchKeyword ;
+    rdfs:label "Predictive optimization control"@en ;
+    bist:keywordRaw "Predictive optimization control" .
+
+:KW_Pressure_difference a bist:ResearchKeyword ;
+    rdfs:label "Pressure difference"@en ;
+    bist:keywordRaw "Pressure difference" .
+
+:KW_Pressure_differences a bist:ResearchKeyword ;
+    rdfs:label "Pressure differences"@en ;
+    bist:keywordRaw "Pressure differences" .
+
+:KW_Real_time_measurements a bist:ResearchKeyword ;
+    rdfs:label "Real-time measurements"@en ;
+    bist:keywordRaw "Real-time measurements" .
+
+:KW_Reciprocating_motion a bist:ResearchKeyword ;
+    rdfs:label "Reciprocating motion"@en ;
+    bist:keywordRaw "Reciprocating motion" .
+
+:KW_Redundant_and_original_sensor a bist:ResearchKeyword ;
+    rdfs:label "Redundant and original sensor"@en ;
+    bist:keywordRaw "Redundant and original sensor" .
+
+:KW_Reliability_block_diagram_method a bist:ResearchKeyword ;
+    rdfs:label "Reliability block diagram method"@en ;
+    bist:keywordRaw "Reliability block diagram method" .
+
+:KW_Repeatability a bist:ResearchKeyword ;
+    rdfs:label "Repeatability"@en ;
+    bist:keywordRaw "Repeatability" .
+
+:KW_Resident_complaints a bist:ResearchKeyword ;
+    rdfs:label "Resident complaints"@en ;
+    bist:keywordRaw "Resident complaints" .
+
+:KW_Residual_based a bist:ResearchKeyword ;
+    rdfs:label "Residual-based"@en ;
+    bist:keywordRaw "Residual-based" .
+
+:KW_Retrofit a bist:ResearchKeyword ;
+    rdfs:label "Retrofit"@en ;
+    bist:keywordRaw "Retrofit" .
+
+:KW_Reverse_traceability a bist:ResearchKeyword ;
+    rdfs:label "Reverse traceability"@en ;
+    bist:keywordRaw "Reverse traceability" .
+
+:KW_Reviving_calibration a bist:ResearchKeyword ;
+    rdfs:label "Reviving calibration"@en ;
+    bist:keywordRaw "Reviving calibration" .
+
+:KW_Rule_based_algorithm a bist:ResearchKeyword ;
+    rdfs:label "Rule-based algorithm"@en ;
+    bist:keywordRaw "Rule-based algorithm" .
+
+:KW_Senor_fault_detection_and_diagnosis a bist:ResearchKeyword ;
+    rdfs:label "Senor fault detection and diagnosis"@en ;
+    bist:keywordRaw "Senor fault detection and diagnosis" .
+
+:KW_Sensitivity a bist:ResearchKeyword ;
+    rdfs:label "Sensitivity"@en ;
+    bist:keywordRaw "Sensitivity" .
+
+:KW_Sensitivity_coefficient_optimization a bist:ResearchKeyword ;
+    rdfs:label "Sensitivity coefficient optimization"@en ;
+    bist:keywordRaw "Sensitivity coefficient optimization" .
+
+:KW_Sensitivity_effect a bist:ResearchKeyword ;
+    rdfs:label "Sensitivity effect"@en ;
+    bist:keywordRaw "Sensitivity effect" .
+
+:KW_Sensor a bist:ResearchKeyword ;
+    rdfs:label "Sensor"@en ;
+    bist:keywordRaw "Sensor" .
+
+:KW_Sensor_absence a bist:ResearchKeyword ;
+    rdfs:label "Sensor absence"@en ;
+    bist:keywordRaw "Sensor absence" .
+
+:KW_Sensor_calibration a bist:ResearchKeyword ;
+    rdfs:label "Sensor calibration"@en ;
+    bist:keywordRaw "Sensor calibration" .
+
+:KW_Sensor_correction a bist:ResearchKeyword ;
+    rdfs:label "Sensor correction"@en ;
+    bist:keywordRaw "Sensor correction" .
+
+:KW_Sensor_error a bist:ResearchKeyword ;
+    rdfs:label "Sensor error"@en ;
+    bist:keywordRaw "Sensor error" .
+
+:KW_Sensor_errors a bist:ResearchKeyword ;
+    rdfs:label "Sensor errors"@en ;
+    bist:keywordRaw "Sensor errors" .
+
+:KW_Sensor_evaluation a bist:ResearchKeyword ;
+    rdfs:label "Sensor evaluation"@en ;
+    bist:keywordRaw "Sensor evaluation" .
+
+:KW_Sensor_fault_detection_and_calibration a bist:ResearchKeyword ;
+    rdfs:label "Sensor fault detection and calibration"@en ;
+    bist:keywordRaw "Sensor fault detection and calibration" .
+
+:KW_Sensor_fusion a bist:ResearchKeyword ;
+    rdfs:label "Sensor fusion"@en ;
+    bist:keywordRaw "Sensor fusion" .
+
+:KW_Sensor_network a bist:ResearchKeyword ;
+    rdfs:label "Sensor network"@en ;
+    bist:keywordRaw "Sensor network" .
+
+:KW_Sensor_networks a bist:ResearchKeyword ;
+    rdfs:label "Sensor networks"@en ;
+    bist:keywordRaw "Sensor networks" .
+
+:KW_Sensor_offset a bist:ResearchKeyword ;
+    rdfs:label "Sensor offset"@en ;
+    bist:keywordRaw "Sensor offset" .
+
+:KW_Sensor_virtual_in_situ_calibration a bist:ResearchKeyword ;
+    rdfs:label "Sensor virtual in-situ calibration"@en ;
+    bist:keywordRaw "Sensor virtual in-situ calibration" .
+
+:KW_Sensor_virtualization a bist:ResearchKeyword ;
+    rdfs:label "Sensor virtualization"@en ;
+    bist:keywordRaw "Sensor virtualization" .
+
+:KW_Sensors a bist:ResearchKeyword ;
+    rdfs:label "Sensors"@en ;
+    bist:keywordRaw "Sensors" .
+
+:KW_Set_point_reset_strategy a bist:ResearchKeyword ;
+    rdfs:label "Set-point reset strategy"@en ;
+    bist:keywordRaw "Set-point reset strategy" .
+
+:KW_Shading_effect a bist:ResearchKeyword ;
+    rdfs:label "Shading effect"@en ;
+    bist:keywordRaw "Shading effect" .
+
+:KW_Simultaneous_in_situ_calibration a bist:ResearchKeyword ;
+    rdfs:label "Simultaneous in-situ calibration"@en ;
+    bist:keywordRaw "Simultaneous in-situ calibration" .
+
+:KW_Single_source_fault_SSF a bist:ResearchKeyword ;
+    rdfs:label "Single-source fault (SSF)"@en ;
+    bist:keywordRaw "Single-source fault (SSF)" .
+
+:KW_Smart_energy_systems a bist:ResearchKeyword ;
+    rdfs:label "Smart energy systems"@en ;
+    bist:keywordRaw "Smart energy systems" .
+
+:KW_Smart_thermostat a bist:ResearchKeyword ;
+    rdfs:label "Smart thermostat"@en ;
+    bist:keywordRaw "Smart thermostat" .
+
+:KW_Soft_sensor a bist:ResearchKeyword ;
+    rdfs:label "Soft sensor"@en ;
+    bist:keywordRaw "Soft sensor" .
+
+:KW_Soft_sensors a bist:ResearchKeyword ;
+    rdfs:label "Soft sensors"@en ;
+    bist:keywordRaw "Soft sensors" .
+
+:KW_Source_domain_selection a bist:ResearchKeyword ;
+    rdfs:label "Source domain selection"@en ;
+    bist:keywordRaw "Source domain selection" .
+
+:KW_Sparse_autoencoder a bist:ResearchKeyword ;
+    rdfs:label "Sparse autoencoder"@en ;
+    bist:keywordRaw "Sparse autoencoder" .
+
+:KW_Stack_and_wind_effects a bist:ResearchKeyword ;
+    rdfs:label "Stack and wind effects"@en ;
+    bist:keywordRaw "Stack and wind effects" .
+
+:KW_Stack_effect a bist:ResearchKeyword ;
+    rdfs:label "Stack effect"@en ;
+    bist:keywordRaw "Stack effect" .
+
+:KW_Stack_pressure a bist:ResearchKeyword ;
+    rdfs:label "Stack pressure"@en ;
+    bist:keywordRaw "Stack pressure" .
+
+:KW_Surrogate_model a bist:ResearchKeyword ;
+    rdfs:label "Surrogate model"@en ;
+    bist:keywordRaw "Surrogate model" .
+
+:KW_Sustainable_cities a bist:ResearchKeyword ;
+    rdfs:label "Sustainable cities"@en ;
+    bist:keywordRaw "Sustainable cities" .
+
+:KW_Symbolic_aggregate_approximation_SAX a bist:ResearchKeyword ;
+    rdfs:label "Symbolic aggregate approximation (SAX)"@en ;
+    bist:keywordRaw "Symbolic aggregate approximation (SAX)" .
+
+:KW_Symbolic_hierarchical_clustering a bist:ResearchKeyword ;
+    rdfs:label "Symbolic hierarchical clustering"@en ;
+    bist:keywordRaw "Symbolic hierarchical clustering" .
+
+:KW_Synthetic_data a bist:ResearchKeyword ;
+    rdfs:label "Synthetic data"@en ;
+    bist:keywordRaw "Synthetic data" .
+
+:KW_System_energy_performance a bist:ResearchKeyword ;
+    rdfs:label "System energy performance"@en ;
+    bist:keywordRaw "System energy performance" .
+
+:KW_System_level_virtual_sensing a bist:ResearchKeyword ;
+    rdfs:label "System-level virtual sensing"@en ;
+    bist:keywordRaw "System-level virtual sensing" .
+
+:KW_TRNSYS a bist:ResearchKeyword ;
+    rdfs:label "TRNSYS"@en ;
+    bist:keywordRaw "TRNSYS" .
+
+:KW_Technical_exploration a bist:ResearchKeyword ;
+    rdfs:label "Technical exploration"@en ;
+    bist:keywordRaw "Technical exploration" .
+
+:KW_Telecommunication_base_stations_TBSs a bist:ResearchKeyword ;
+    rdfs:label "Telecommunication base stations (TBSs)"@en ;
+    bist:keywordRaw "Telecommunication base stations (TBSs)" .
+
+:KW_Thermal_draft_coefficient_TDC a bist:ResearchKeyword ;
+    rdfs:label "Thermal draft coefficient (TDC)"@en ;
+    bist:keywordRaw "Thermal draft coefficient (TDC)" .
+
+:KW_Thermal_draft_load_coefficient a bist:ResearchKeyword ;
+    rdfs:label "Thermal draft load coefficient"@en ;
+    bist:keywordRaw "Thermal draft load coefficient" .
+
+:KW_Thermal_environment a bist:ResearchKeyword ;
+    rdfs:label "Thermal environment"@en ;
+    bist:keywordRaw "Thermal environment" .
+
+:KW_Time_delay_characteristics a bist:ResearchKeyword ;
+    rdfs:label "Time-delay characteristics"@en ;
+    bist:keywordRaw "Time-delay characteristics" .
+
+:KW_Top_down a bist:ResearchKeyword ;
+    rdfs:label "Top-down"@en ;
+    bist:keywordRaw "Top-down" .
+
+:KW_Top_down_approach a bist:ResearchKeyword ;
+    rdfs:label "Top–down approach"@en ;
+    bist:keywordRaw "Top–down approach" .
+
+:KW_Transfer_learning_TL a bist:ResearchKeyword ;
+    rdfs:label "Transfer learning (TL)"@en ;
+    bist:keywordRaw "Transfer learning (TL)" .
+
+:KW_Transferability_assessment a bist:ResearchKeyword ;
+    rdfs:label "Transferability assessment"@en ;
+    bist:keywordRaw "Transferability assessment" .
+
+:KW_Uncertainty_impact a bist:ResearchKeyword ;
+    rdfs:label "Uncertainty impact"@en ;
+    bist:keywordRaw "Uncertainty impact" .
+
+:KW_Unitary_air_conditioners a bist:ResearchKeyword ;
+    rdfs:label "Unitary air conditioners"@en ;
+    bist:keywordRaw "Unitary air conditioners" .
+
+:KW_Unsupervised_data_mining a bist:ResearchKeyword ;
+    rdfs:label "Unsupervised data mining"@en ;
+    bist:keywordRaw "Unsupervised data mining" .
+
+:KW_Unsupervised_learning a bist:ResearchKeyword ;
+    rdfs:label "Unsupervised learning"@en ;
+    bist:keywordRaw "Unsupervised learning" .
+
+:KW_Upcycling a bist:ResearchKeyword ;
+    rdfs:label "Upcycling"@en ;
+    bist:keywordRaw "Upcycling" .
+
+:KW_Urban_building_energy a bist:ResearchKeyword ;
+    rdfs:label "Urban building energy"@en ;
+    bist:keywordRaw "Urban building energy" .
+
+:KW_Urban_building_energy_modeling a bist:ResearchKeyword ;
+    rdfs:label "Urban building energy modeling"@en ;
+    bist:keywordRaw "Urban building energy modeling" .
+
+:KW_Urban_building_energy_modeling_UBEM a bist:ResearchKeyword ;
+    rdfs:label "Urban building energy modeling (UBEM)"@en ;
+    bist:keywordRaw "Urban building energy modeling (UBEM)" .
+
+:KW_Urban_building_energy_prediction a bist:ResearchKeyword ;
+    rdfs:label "Urban building energy prediction"@en ;
+    bist:keywordRaw "Urban building energy prediction" .
+
+:KW_Urban_buildings a bist:ResearchKeyword ;
+    rdfs:label "Urban buildings"@en ;
+    bist:keywordRaw "Urban buildings" .
+
+:KW_Urban_context_information a bist:ResearchKeyword ;
+    rdfs:label "Urban context information"@en ;
+    bist:keywordRaw "Urban context information" .
+
+:KW_Urban_digital_twin a bist:ResearchKeyword ;
+    rdfs:label "Urban digital twin"@en ;
+    bist:keywordRaw "Urban digital twin" .
+
+:KW_Urban_informatics a bist:ResearchKeyword ;
+    rdfs:label "Urban informatics"@en ;
+    bist:keywordRaw "Urban informatics" .
+
+:KW_VIC a bist:ResearchKeyword ;
+    rdfs:label "VIC"@en ;
+    bist:keywordRaw "VIC" .
+
+:KW_VIC_TSP a bist:ResearchKeyword ;
+    rdfs:label "VIC-TSP"@en ;
+    bist:keywordRaw "VIC-TSP" .
+
+:KW_Variable_air_volume_system a bist:ResearchKeyword ;
+    rdfs:label "Variable air volume system"@en ;
+    bist:keywordRaw "Variable air volume system" .
+
+:KW_Ventilation_system a bist:ResearchKeyword ;
+    rdfs:label "Ventilation system"@en ;
+    bist:keywordRaw "Ventilation system" .
+
+:KW_Virtual_building_models a bist:ResearchKeyword ;
+    rdfs:label "Virtual building models"@en ;
+    bist:keywordRaw "Virtual building models" .
+
+:KW_Virtual_buildings a bist:ResearchKeyword ;
+    rdfs:label "Virtual buildings"@en ;
+    bist:keywordRaw "Virtual buildings" .
+
+:KW_Virtual_in_situ_calibration a bist:ResearchKeyword ;
+    rdfs:label "Virtual in situ calibration"@en ;
+    bist:keywordRaw "Virtual in situ calibration" .
+
+:KW_Virtual_in_situ_calibration_2 a bist:ResearchKeyword ;
+    rdfs:label "Virtual in-situ calibration"@en ;
+    bist:keywordRaw "Virtual in-situ calibration" .
+
+:KW_Virtual_in_situ_calibration_VIC a bist:ResearchKeyword ;
+    rdfs:label "Virtual in-situ calibration (VIC)"@en ;
+    bist:keywordRaw "Virtual in-situ calibration (VIC)" .
+
+:KW_Virtual_in_situ_modeling a bist:ResearchKeyword ;
+    rdfs:label "Virtual in-situ modeling"@en ;
+    bist:keywordRaw "Virtual in-situ modeling" .
+
+:KW_Virtual_in_situ_sensor_calibration a bist:ResearchKeyword ;
+    rdfs:label "Virtual in-situ sensor calibration"@en ;
+    bist:keywordRaw "Virtual in-situ sensor calibration" .
+
+:KW_Virtual_leakage_measurement a bist:ResearchKeyword ;
+    rdfs:label "Virtual leakage measurement"@en ;
+    bist:keywordRaw "Virtual leakage measurement" .
+
+:KW_Virtual_model a bist:ResearchKeyword ;
+    rdfs:label "Virtual model"@en ;
+    bist:keywordRaw "Virtual model" .
+
+:KW_Virtual_model_development a bist:ResearchKeyword ;
+    rdfs:label "Virtual model development"@en ;
+    bist:keywordRaw "Virtual model development" .
+
+:KW_Virtual_modeling a bist:ResearchKeyword ;
+    rdfs:label "Virtual modeling"@en ;
+    bist:keywordRaw "Virtual modeling" .
+
+:KW_Virtual_models a bist:ResearchKeyword ;
+    rdfs:label "Virtual models"@en ;
+    bist:keywordRaw "Virtual models" .
+
+:KW_Virtual_sensing a bist:ResearchKeyword ;
+    rdfs:label "Virtual sensing"@en ;
+    bist:keywordRaw "Virtual sensing" .
+
+:KW_Virtual_sensing_applications a bist:ResearchKeyword ;
+    rdfs:label "Virtual sensing applications"@en ;
+    bist:keywordRaw "Virtual sensing applications" .
+
+:KW_Virtual_sensing_technology a bist:ResearchKeyword ;
+    rdfs:label "Virtual sensing technology"@en ;
+    bist:keywordRaw "Virtual sensing technology" .
+
+:KW_Virtual_sensor a bist:ResearchKeyword ;
+    rdfs:label "Virtual sensor"@en ;
+    bist:keywordRaw "Virtual sensor" .
+
+:KW_Virtual_sensor_calibration a bist:ResearchKeyword ;
+    rdfs:label "Virtual sensor calibration"@en ;
+    bist:keywordRaw "Virtual sensor calibration" .
+
+:KW_Virtual_sensors a bist:ResearchKeyword ;
+    rdfs:label "Virtual sensors"@en ;
+    bist:keywordRaw "Virtual sensors" .
+
+:KW_Virtualization_or_model_retraining a bist:ResearchKeyword ;
+    rdfs:label "Virtualization or model retraining"@en ;
+    bist:keywordRaw "Virtualization or model retraining" .
+
+:KW_Voting_mechanism a bist:ResearchKeyword ;
+    rdfs:label "Voting mechanism"@en ;
+    bist:keywordRaw "Voting mechanism" .
+
+:KW_Waste_management a bist:ResearchKeyword ;
+    rdfs:label "Waste management"@en ;
+    bist:keywordRaw "Waste management" .
+
+:KW_Waste_recycling a bist:ResearchKeyword ;
+    rdfs:label "Waste recycling"@en ;
+    bist:keywordRaw "Waste recycling" .
+
+:KW_Water_side_free_cooling a bist:ResearchKeyword ;
+    rdfs:label "Water-side free cooling"@en ;
+    bist:keywordRaw "Water-side free cooling" .
+
+:KW_Weak_supervision a bist:ResearchKeyword ;
+    rdfs:label "Weak supervision"@en ;
+    bist:keywordRaw "Weak supervision" .
+
+:KW_Whole_building_airflow_simulation a bist:ResearchKeyword ;
+    rdfs:label "Whole-building airflow simulation"@en ;
+    bist:keywordRaw "Whole-building airflow simulation" .
+
+:KW_Window_to_wall_ratio a bist:ResearchKeyword ;
+    rdfs:label "Window to wall ratio"@en ;
+    bist:keywordRaw "Window to wall ratio" .
+
+:KW_Zero_energy_building a bist:ResearchKeyword ;
+    rdfs:label "Zero energy building"@en ;
+    bist:keywordRaw "Zero energy building" .
+
+:KW_actual_living_conditions a bist:ResearchKeyword ;
+    rdfs:label "actual living conditions"@en ;
+    bist:keywordRaw "actual living conditions" .
+
+:KW_building_energy_simulation a bist:ResearchKeyword ;
+    rdfs:label "building energy simulation"@en ;
+    bist:keywordRaw "building energy simulation" .
+
+:KW_data_incremental_learning_DIL a bist:ResearchKeyword ;
+    rdfs:label "data incremental learning (DIL)"@en ;
+    bist:keywordRaw "data incremental learning (DIL)" .
+
+:KW_digital_twins_DTs a bist:ResearchKeyword ;
+    rdfs:label "digital twins (DTs)"@en ;
+    bist:keywordRaw "digital twins (DTs)" .
+
+:KW_envelope a bist:ResearchKeyword ;
+    rdfs:label "envelope"@en ;
+    bist:keywordRaw "envelope" .
+
+:KW_field_measurements a bist:ResearchKeyword ;
+    rdfs:label "field measurements"@en ;
+    bist:keywordRaw "field measurements" .
+
+:KW_forgetting_mechanism a bist:ResearchKeyword ;
+    rdfs:label "forgetting mechanism"@en ;
+    bist:keywordRaw "forgetting mechanism" .
+
+:KW_generative_pre_trained_transformers_GPTs a bist:ResearchKeyword ;
+    rdfs:label "generative pre-trained transformers (GPTs)"@en ;
+    bist:keywordRaw "generative pre-trained transformers (GPTs)" .
+
+:KW_in_situ_sensor_calibration a bist:ResearchKeyword ;
+    rdfs:label "in-situ sensor calibration"@en ;
+    bist:keywordRaw "in-situ sensor calibration" .
+
+:KW_multiunit_residential_buildings a bist:ResearchKeyword ;
+    rdfs:label "multiunit residential buildings"@en ;
+    bist:keywordRaw "multiunit residential buildings" .
+
+:KW_pressure_difference a bist:ResearchKeyword ;
+    rdfs:label "pressure difference"@en ;
+    bist:keywordRaw "pressure difference" .
+
+:KW_sensor a bist:ResearchKeyword ;
+    rdfs:label "sensor"@en ;
+    bist:keywordRaw "sensor" .
+
+:KW_temperature_offset a bist:ResearchKeyword ;
+    rdfs:label "temperature offset"@en ;
+    bist:keywordRaw "temperature offset" .
+
+:KW_thermal_comfort a bist:ResearchKeyword ;
+    rdfs:label "thermal comfort"@en ;
+    bist:keywordRaw "thermal comfort" .
+
+:KW_urban_building_energy_modeling_UBEM a bist:ResearchKeyword ;
+    rdfs:label "urban building energy modeling (UBEM)"@en ;
+    bist:keywordRaw "urban building energy modeling (UBEM)" .
+
+:KW_urban_building_informatics a bist:ResearchKeyword ;
+    rdfs:label "urban building informatics"@en ;
+    bist:keywordRaw "urban building informatics" .
+
+:KW_urban_digital_twins_UDTs a bist:ResearchKeyword ;
+    rdfs:label "urban digital twins (UDTs)"@en ;
+    bist:keywordRaw "urban digital twins (UDTs)" .
+
+# ===== Researcher → hasKeyword (direct edges) =====
+:Researcher_1 bist:hasKeyword
+    :KW_Digital_twins, :KW_Bayesian_inference, :KW_Virtual_sensors, :KW_Virtual_in_situ_calibration_2, :KW_Digital_twin,
+    :KW_Stack_effect, :KW_HVAC, :KW_Virtual_sensing, :KW_Ontology, :KW_Intelligent_buildings,
+    :KW_Data_center, :KW_Virtual_in_situ_calibration_VIC, :KW_Sensor_calibration, :KW_In_situ_modeling_2, :KW_GPT,
+    :KW_Building_systems, :KW_Bayesian_MCMC, :KW_Autoencoder, :KW_AI_agent, :KW_Operation_and_maintenance_O_M,
+    :KW_Open_data, :KW_Infiltration, :KW_High_rise_building, :KW_Fault_detection_and_diagnosis_FDD, :KW_Virtual_sensor,
+    :KW_Virtual_models, :KW_Virtual_in_situ_sensor_calibration, :KW_Virtual_buildings, :KW_Variable_air_volume_system, :KW_Urban_building_energy_modeling,
+    :KW_Sensors, :KW_Sensor_network, :KW_Photovoltaic_thermal_heat_pump_system, :KW_Model_fusion, :KW_Large_language_model_LLM,
+    :KW_Interzonal_airflow, :KW_In_situ_modeling, :KW_Heating_load, :KW_Genetic_algorithm, :KW_Fault_diagnosis,
+    :KW_Fault_detection, :KW_Energy_signature, :KW_Energy_saving, :KW_Built_environments, :KW_Built_environment,
+    :KW_Building_sensors, :KW_Building_operations, :KW_Building_operation, :KW_Building_lifecycle, :KW_Building_information_modeling,
+    :KW_Building_energy_systems, :KW_Building_energy_system, :KW_Building_digitalization, :KW_Building_digital_twins, :KW_Thermal_draft_coefficient_TDC,
+    :KW_Symbolic_hierarchical_clustering, :KW_Soft_sensors, :KW_Sensor_fault_detection_and_calibration, :KW_Sensor, :KW_Sensitivity_coefficient_optimization,
+    :KW_Pressure_difference, :KW_PMV, :KW_Operational_signature, :KW_Nonintrusive_calibration, :KW_Multifamily_high_rise_buildings,
+    :KW_Multi_unit_residential_buildings_MURB, :KW_Machine_learning, :KW_LiBr_H2O_refrigeration, :KW_LLM, :KW_Indoor_air_quality_IAQ,
+    :KW_In_situ_calibration_2, :KW_High_rise_residential_building, :KW_Gaussian_mixture_model, :KW_Feature_engineering, :KW_EnergyPlus,
+    :KW_District_heating_system, :KW_District_heating_substation, :KW_District_heating, :KW_Design_of_experiment_DOE, :KW_Data_fusion,
+    :KW_Data_augmentation, :KW_Cyber_physical_systems, :KW_Computer_room_air_handler, :KW_Clustering, :KW_Carbon_neutrality,
+    :KW_Building_operation_and_maintenance, :KW_Building_energy_performance, :KW_Building_energy_efficiency, :KW_Building_automation_systems, :KW_Brick_schema,
+    :KW_Absorption_refrigeration, :KW_urban_digital_twins_UDTs, :KW_urban_building_informatics, :KW_urban_building_energy_modeling_UBEM, :KW_thermal_comfort,
+    :KW_temperature_offset, :KW_sensor, :KW_pressure_difference, :KW_multiunit_residential_buildings, :KW_in_situ_sensor_calibration,
+    :KW_generative_pre_trained_transformers_GPTs, :KW_forgetting_mechanism, :KW_field_measurements, :KW_envelope, :KW_digital_twins_DTs,
+    :KW_data_incremental_learning_DIL, :KW_building_energy_simulation, :KW_actual_living_conditions, :KW_Zero_energy_building, :KW_Window_to_wall_ratio,
+    :KW_Whole_building_airflow_simulation, :KW_Weak_supervision, :KW_Water_side_free_cooling, :KW_Waste_recycling, :KW_Waste_management,
+    :KW_Voting_mechanism, :KW_Virtualization_or_model_retraining, :KW_Virtual_sensor_calibration, :KW_Virtual_sensing_technology, :KW_Virtual_sensing_applications,
+    :KW_Virtual_modeling, :KW_Virtual_model_development, :KW_Virtual_model, :KW_Virtual_leakage_measurement, :KW_Virtual_in_situ_modeling,
+    :KW_Virtual_in_situ_calibration, :KW_Virtual_building_models, :KW_Ventilation_system, :KW_VIC_TSP, :KW_VIC,
+    :KW_Urban_informatics, :KW_Urban_digital_twin, :KW_Urban_context_information, :KW_Urban_buildings, :KW_Urban_building_energy_prediction,
+    :KW_Urban_building_energy_modeling_UBEM, :KW_Urban_building_energy, :KW_Upcycling, :KW_Unsupervised_learning, :KW_Unsupervised_data_mining,
+    :KW_Unitary_air_conditioners, :KW_Uncertainty_impact, :KW_Transferability_assessment, :KW_Transfer_learning_TL, :KW_Top_down_approach,
+    :KW_Top_down, :KW_Thermal_environment, :KW_Thermal_draft_load_coefficient, :KW_Telecommunication_base_stations_TBSs, :KW_Technical_exploration,
+    :KW_TRNSYS, :KW_System_level_virtual_sensing, :KW_System_energy_performance, :KW_Synthetic_data, :KW_Symbolic_aggregate_approximation_SAX,
+    :KW_Sustainable_cities, :KW_Surrogate_model, :KW_Stack_pressure, :KW_Stack_and_wind_effects, :KW_Sparse_autoencoder,
+    :KW_Source_domain_selection, :KW_Soft_sensor, :KW_Smart_thermostat, :KW_Simultaneous_in_situ_calibration, :KW_Shading_effect,
+    :KW_Set_point_reset_strategy, :KW_Sensor_virtualization, :KW_Sensor_virtual_in_situ_calibration, :KW_Sensor_offset, :KW_Sensor_fusion,
+    :KW_Sensor_evaluation, :KW_Sensor_errors, :KW_Sensor_error, :KW_Sensor_correction, :KW_Sensor_absence,
+    :KW_Sensitivity_effect, :KW_Sensitivity, :KW_Senor_fault_detection_and_diagnosis, :KW_Rule_based_algorithm, :KW_Reviving_calibration,
+    :KW_Retrofit, :KW_Residual_based, :KW_Resident_complaints, :KW_Repeatability, :KW_Reliability_block_diagram_method,
+    :KW_Redundant_and_original_sensor, :KW_Reciprocating_motion, :KW_Real_time_measurements, :KW_Pressure_differences, :KW_Predictive_optimization_control,
+    :KW_Prediction_models, :KW_Piston_cooling_gallery, :KW_Passive_house, :KW_PVT_HP_system, :KW_PV_T_HP_system,
+    :KW_PRD, :KW_Operational_data, :KW_Operation_pattern, :KW_Operation_and_management_O_M, :KW_Operation_and_maintenance,
+    :KW_Operation_and_Maintenance_O_M, :KW_Operation_analysis, :KW_OpenAI, :KW_Online_application, :KW_Occupant_behavior,
+    :KW_Observation, :KW_Nonlinear_effect, :KW_Nonintrusive_modeling, :KW_Nonintrusive_in_situ_modeling, :KW_Neural_network,
+    :KW_Multifamily_high_rise_building, :KW_Multi_swarm_particle_swarm_optimization, :KW_Multi_source_data, :KW_Multi_label_random_forest, :KW_Multi_family_residential_buildings,
+    :KW_Model_based_control, :KW_Model_predictive_control, :KW_Model_metadata, :KW_Missing_data, :KW_Measurement_fault,
+    :KW_Markov_model, :KW_Markov_Chain_Monte_Carlo, :KW_Living_lab, :KW_LiBr_H2O_refrigeration_2, :KW_Level_of_detail_LOD,
+    :KW_Leakage_area, :KW_Latin_hypercube_sampling, :KW_Latent_space_based, :KW_Latent_heat_thermal_energy_storage, :KW_Large_language_models,
+    :KW_Large_language_model, :KW_LLMs, :KW_Knowledge_engineering, :KW_Key_measurement_points, :KW_Intrusive_data,
+    :KW_Intrusive_calibration, :KW_Interface_motion, :KW_Interaction_analysis, :KW_Intelligent_digital_twin_IDT, :KW_Intelligent_building_systems,
+    :KW_Intelligent_building_energy_systems, :KW_Indoor_thermal_comfort, :KW_Indoor_environments, :KW_Indoor_environmental_quality, :KW_Indirect_validation,
+    :KW_Indirect_calibration, :KW_In_situ_virtual_sensors, :KW_In_situ_virtual_sensor, :KW_In_situ_sensor_correction, :KW_In_situ_model_fusion_2,
+    :KW_In_situ_model_calibration, :KW_In_situ_model_fusion, :KW_In_situ_calibration, :KW_Imbalanced_data, :KW_Hybrid_free_cooling_system,
+    :KW_Horizontal_leakage_areas, :KW_Horizontal_and_vertical_direction, :KW_Holistic_operational_signature, :KW_High_rise_office_building, :KW_Heating_energy_estimation,
+    :KW_Heating_energy_demand, :KW_Heat_exchanger_fouling, :KW_Heat_and_vapor_diffusion, :KW_HVACR, :KW_Google_street_view,
+    :KW_Global_sensitivity_analysis, :KW_Global_optimization, :KW_Genetic_algorithm_GA, :KW_Generative_AI, :KW_Generalized_diagnosis_rules,
+    :KW_Gas_liquid_two_phase_flow, :KW_GAN, :KW_Free_cooling, :KW_Framework_of_sensor_offset_definition, :KW_Fault_self_calibration,
+    :KW_Fault_diagnosis_and_calibration, :KW_Fault_Detection_and_Diagnosis_FDD, :KW_Factorial_design, :KW_Eulerian_multiphase_model, :KW_Energy_signature_Public_building_data,
+    :KW_Energy_performance_signature, :KW_Energy_performance_evaluating, :KW_Energy_efficiency, :KW_Energy_demand, :KW_Energy_consumption_pattern,
+    :KW_Energy_balance, :KW_Dwelling_infiltration, :KW_Drifting_bias_correction, :KW_Draft, :KW_Domain_adversarial_neural_network_DANN,
+    :KW_District_heating_systems, :KW_District_heating_substations, :KW_Digital_twinning, :KW_Digital_twin_synchronization, :KW_Digital_twin_model,
+    :KW_Digital_twin_DT, :KW_Delta_T_signature, :KW_Data_driven_modeling, :KW_Data_driven_based_methods, :KW_Data_similarity,
+    :KW_Data_mining, :KW_Data_imputation, :KW_DS_evidence_theory, :KW_Cyber_physical_buildings, :KW_Countermeasure,
+    :KW_Cooling_system, :KW_Convolutional_autoencoder, :KW_Control_loop_model, :KW_Control_characteristic, :KW_Contaminant_diffusion,
+    :KW_Concurrent_failure, :KW_Computer_room_air_handler_CRAH, :KW_Chiller, :KW_Chilled_water_cooling_system, :KW_ChatGPT,
+    :KW_Change_point_model, :KW_Calibration_strategies, :KW_Calibration_domain, :KW_Calibrated_simulation, :KW_COVID_19,
+    :KW_CONTAM, :KW_Building_energy_prediction_BEP, :KW_Building_retrofit, :KW_Building_performance_simulation_BPS, :KW_Building_performance,
+    :KW_Building_life_cycle, :KW_Building_information_modeling_BIM, :KW_Building_informatics, :KW_Building_heating_and_cooling_load_prediction, :KW_Building_energy_modeling,
+    :KW_Building_energy_management_system, :KW_Building_energy_diagnosis, :KW_Building_energy_data_analysis, :KW_Building_digital_twinning, :KW_Building_data_mining,
+    :KW_Building_automation_systems_BAS, :KW_Building_automation_system, :KW_Building_airflow, :KW_Bias_correction, :KW_Bayesian_mcmc,
+    :KW_Bayesian_inference_BI, :KW_Bayesian_Inference, :KW_BIM, :KW_Availability_analysis, :KW_Autonomous_modeling,
+    :KW_Automated_design, :KW_Autoencoder_AE, :KW_AutoEncoder, :KW_Artificial_intelligence, :KW_Anomaly_detection,
+    :KW_Airtightness_prediction, :KW_Airflow_noise, :KW_Airflow_network_simulation, :KW_Airflow_and_thermal_network_simulation, :KW_Airflow,
+    :KW_Air_handling_unit_AHU, :KW_Air_handling_unit, :KW_Air_cleaning, :KW_Air_leakage, :KW_Air_handing_unit,
+    :KW_Agentic_fault_detection_and_diagnosis, :KW_Agentic_AI, :KW_Absolute_pressure_sensors, :KW_AI_artificial_intelligence_agent .
+
+:Researcher_2 bist:hasKeyword
+    :KW_Open_data, :KW_Urban_building_energy_modeling, :KW_Energy_signature, :KW_Symbolic_hierarchical_clustering, :KW_Feature_engineering,
+    :KW_urban_digital_twins_UDTs, :KW_urban_building_informatics, :KW_urban_building_energy_modeling_UBEM, :KW_generative_pre_trained_transformers_GPTs, :KW_digital_twins_DTs,
+    :KW_Window_to_wall_ratio, :KW_Urban_informatics, :KW_Urban_digital_twin, :KW_Urban_context_information, :KW_Urban_buildings,
+    :KW_Urban_building_energy_prediction, :KW_Urban_building_energy_modeling_UBEM, :KW_Urban_building_energy, :KW_Top_down_approach, :KW_Top_down,
+    :KW_Technical_exploration, :KW_Symbolic_aggregate_approximation_SAX, :KW_Sustainable_cities, :KW_Shading_effect, :KW_Retrofit,
+    :KW_OpenAI, :KW_Multi_source_data, :KW_Missing_data, :KW_Machine_learning, :KW_Large_language_models,
+    :KW_Large_language_model_LLM, :KW_Knowledge_engineering, :KW_Indirect_validation, :KW_Holistic_operational_signature, :KW_Google_street_view,
+    :KW_GPT, :KW_Energy_performance_signature, :KW_Energy_performance_evaluating, :KW_District_heating, :KW_Data_imputation,
+    :KW_Data_fusion, :KW_Data_augmentation, :KW_Clustering, :KW_Change_point_model, :KW_Carbon_neutrality,
+    :KW_COVID_19, :KW_Built_environments, :KW_Building_energy_performance, :KW_Building_energy_efficiency, :KW_Building_data_mining,
+    :KW_Bayesian_inference, :KW_Agentic_AI, :KW_AI_artificial_intelligence_agent .
+
+:Researcher_3 bist:hasKeyword
+    :KW_Digital_twins, :KW_Virtual_sensors, :KW_Intelligent_buildings, :KW_Virtual_sensing, :KW_Virtual_in_situ_calibration_VIC,
+    :KW_Stack_effect, :KW_Sensor_calibration, :KW_Multi_unit_residential_buildings_MURB, :KW_Interzonal_airflow, :KW_Infiltration,
+    :KW_Heating_load, :KW_GPT, :KW_Digital_twin, :KW_Cyber_physical_systems, :KW_Built_environment,
+    :KW_Building_operations, :KW_Building_lifecycle, :KW_Building_energy_system, :KW_Bayesian_inference, :KW_AI_agent,
+    :KW_Virtual_models, :KW_Virtual_model_development, :KW_Virtual_model, :KW_Virtual_leakage_measurement, :KW_VIC,
+    :KW_Urban_digital_twin, :KW_Urban_building_energy_modeling, :KW_Thermal_draft_load_coefficient, :KW_Thermal_draft_coefficient_TDC, :KW_Soft_sensors,
+    :KW_Soft_sensor, :KW_Simultaneous_in_situ_calibration, :KW_Sensor_virtualization, :KW_Sensor_fusion, :KW_Sensor_absence,
+    :KW_Sensor, :KW_Operation_and_maintenance, :KW_Ontology, :KW_Nonintrusive_modeling, :KW_Nonintrusive_calibration,
+    :KW_Neural_network, :KW_Multifamily_high_rise_buildings, :KW_Model_fusion, :KW_Missing_data, :KW_Machine_learning,
+    :KW_Large_language_models, :KW_LLMs, :KW_LLM, :KW_Knowledge_engineering, :KW_Indoor_air_quality_IAQ,
+    :KW_In_situ_model_fusion_2, :KW_In_situ_model_calibration, :KW_In_situ_calibration_2, :KW_In_situ_modeling, :KW_Horizontal_leakage_areas,
+    :KW_Heating_energy_estimation, :KW_Generative_AI, :KW_Generalized_diagnosis_rules, :KW_Fault_diagnosis, :KW_Fault_Detection_and_Diagnosis_FDD,
+    :KW_District_heating_systems, :KW_Digital_twinning, :KW_Digital_twin_synchronization, :KW_Digital_twin_model, :KW_Data_driven_modeling,
+    :KW_Data_imputation, :KW_Control_loop_model, :KW_Clustering, :KW_Built_environments, :KW_Building_operation_and_maintenance,
+    :KW_Building_operation, :KW_Building_information_modeling, :KW_Building_energy_systems, :KW_Building_energy_modeling, :KW_Building_digitalization,
+    :KW_Building_digital_twins, :KW_Agentic_fault_detection_and_diagnosis, :KW_Agentic_AI .
+
+:Researcher_4 bist:hasKeyword
+    :KW_Digital_twin, :KW_Ontology, :KW_HVAC, :KW_Operation_and_maintenance_O_M, :KW_GPT,
+    :KW_AI_agent, :KW_Virtual_buildings, :KW_In_situ_modeling_2, :KW_Built_environments, :KW_Building_digital_twins,
+    :KW_Virtual_sensor, :KW_Virtual_models, :KW_Virtual_modeling, :KW_Virtual_model_development, :KW_Virtual_model,
+    :KW_Virtual_in_situ_modeling, :KW_Virtual_building_models, :KW_VIC, :KW_Sensor, :KW_Operation_and_management_O_M,
+    :KW_Operation_and_Maintenance_O_M, :KW_Nonintrusive_in_situ_modeling, :KW_Model_metadata, :KW_Model_fusion, :KW_Living_lab,
+    :KW_Large_language_models, :KW_Large_language_model, :KW_LLM, :KW_Knowledge_engineering, :KW_In_situ_model_calibration,
+    :KW_In_situ_modeling, :KW_Generalized_diagnosis_rules, :KW_Fault_diagnosis, :KW_Digital_twins, :KW_Building_systems,
+    :KW_Building_information_modeling_BIM, :KW_Building_information_modeling, :KW_Building_energy_system, :KW_Brick_schema, :KW_Autonomous_modeling,
+    :KW_Agentic_fault_detection_and_diagnosis, :KW_Agentic_AI .
+
+:Researcher_5 bist:hasKeyword
+    :KW_Large_language_model_LLM, :KW_Built_environments, :KW_Stack_effect, :KW_Real_time_measurements, :KW_Pressure_difference,
+    :KW_Operation_and_maintenance_O_M, :KW_Ontology, :KW_Occupant_behavior, :KW_Multi_family_residential_buildings, :KW_Large_language_models,
+    :KW_Knowledge_engineering, :KW_Intelligent_digital_twin_IDT, :KW_GPT, :KW_Digital_twins, :KW_Digital_twin_DT,
+    :KW_ChatGPT, :KW_CONTAM, :KW_Building_performance_simulation_BPS, :KW_Building_performance, :KW_Building_informatics,
+    :KW_Building_airflow, :KW_Artificial_intelligence, :KW_Agentic_AI, :KW_AI_agent .
+
+:Researcher_7 bist:hasKeyword
+    :KW_Virtual_sensor, :KW_Thermal_environment, :KW_PMV, :KW_Ontology, :KW_Large_language_models,
+    :KW_LLM, :KW_Knowledge_engineering, :KW_Indoor_environments, :KW_Digital_twin, :KW_Built_environments,
+    :KW_Building_energy_management_system, :KW_Building_energy_efficiency, :KW_Building_energy_diagnosis, :KW_Brick_schema, :KW_Agentic_AI,
+    :KW_AI_agent .
+
+:Researcher_8 bist:hasKeyword
+    :KW_Urban_digital_twin, :KW_Urban_building_energy_modeling, :KW_Missing_data, :KW_Machine_learning, :KW_Large_language_models,
+    :KW_Knowledge_engineering, :KW_Data_imputation, :KW_Built_environments, :KW_Bayesian_inference, :KW_Agentic_AI .
+
+:Researcher_9 bist:hasKeyword
+    :KW_Window_to_wall_ratio, :KW_Urban_building_energy_modeling, :KW_Large_language_models, :KW_Knowledge_engineering, :KW_Indirect_validation,
+    :KW_Google_street_view, :KW_Built_environments, :KW_Agentic_AI .
+
+:Researcher_10 bist:hasKeyword
+    :KW_Virtual_sensor, :KW_Operation_and_management_O_M, :KW_Ontology, :KW_HVAC, :KW_Digital_twin,
+    :KW_Brick_schema .
+
+:Researcher_11 bist:hasKeyword
+    :KW_Voting_mechanism, :KW_Virtualization_or_model_retraining, :KW_Virtual_modeling, :KW_Virtual_model_development, :KW_VIC_TSP,
+    :KW_Online_application, :KW_Nonintrusive_in_situ_modeling, :KW_Living_lab, :KW_Large_language_models, :KW_LLM,
+    :KW_Knowledge_engineering, :KW_In_situ_model_calibration, :KW_HVAC, :KW_GPT, :KW_Fault_diagnosis_and_calibration,
+    :KW_Fault_diagnosis, :KW_Digital_twin, :KW_Built_environments, :KW_Building_digital_twins, :KW_Agentic_AI .
+
+:Researcher_12 bist:hasKeyword
+    :KW_Digital_twin, :KW_AI_agent, :KW_Variable_air_volume_system, :KW_Ontology, :KW_Bayesian_inference,
+    :KW_Virtual_in_situ_calibration_2, :KW_Sensor, :KW_Operation_and_maintenance_O_M, :KW_In_situ_modeling_2, :KW_Gaussian_mixture_model,
+    :KW_GPT, :KW_Fault_diagnosis, :KW_Fault_detection, :KW_Built_environments, :KW_Building_energy_system,
+    :KW_Building_digital_twins, :KW_Weak_supervision, :KW_Voting_mechanism, :KW_Virtualization_or_model_retraining, :KW_Virtual_sensing_technology,
+    :KW_Virtual_modeling, :KW_Virtual_model_development, :KW_Virtual_model, :KW_Virtual_in_situ_modeling, :KW_Virtual_in_situ_calibration_VIC,
+    :KW_Virtual_buildings, :KW_Virtual_building_models, :KW_VIC_TSP, :KW_VIC, :KW_Unsupervised_learning,
+    :KW_Time_delay_characteristics, :KW_Smart_energy_systems, :KW_Single_source_fault_SSF, :KW_Sensor_virtual_in_situ_calibration, :KW_Sensor_offset,
+    :KW_Sensor_networks, :KW_Sensor_network, :KW_Sensor_evaluation, :KW_Sensor_error, :KW_Sensor_correction,
+    :KW_Sensor_calibration, :KW_Reverse_traceability, :KW_Redundant_and_original_sensor, :KW_Photovoltaic_thermal_heat_pump_system, :KW_PVT_HP_system,
+    :KW_PV_T_HP_system, :KW_Operation_and_Maintenance_O_M, :KW_Online_application, :KW_Nonintrusive_in_situ_modeling, :KW_Multiple_source_fault_MSF,
+    :KW_Measurement_fault, :KW_Machine_learning, :KW_Living_lab, :KW_Large_language_models, :KW_Large_language_model_LLM,
+    :KW_Large_language_model, :KW_LLM, :KW_Knowledge_engineering, :KW_Intelligent_digital_twin_IDT, :KW_In_situ_model_calibration,
+    :KW_Imbalanced_data, :KW_HVAC, :KW_Generalized_diagnosis_rules, :KW_GAN, :KW_Framework_of_sensor_offset_definition,
+    :KW_Fault_prediction, :KW_Fault_diagnosis_and_calibration, :KW_Fault_detection_and_diagnosis_FDD, :KW_Energy_efficiency, :KW_Digital_twin_DT,
+    :KW_Data_driven_based_methods, :KW_DS_evidence_theory, :KW_Convolutional_autoencoder, :KW_Control_characteristic, :KW_Concurrent_failure,
+    :KW_Chiller_sensors, :KW_Chiller, :KW_Calibration_domain, :KW_Building_systems, :KW_Building_information_modeling_BIM,
+    :KW_Building_information_modeling, :KW_Building_informatics, :KW_Autonomous_modeling, :KW_Autoencoder, :KW_Anomaly_detection,
+    :KW_Air_handing_unit, :KW_Agentic_fault_detection_and_diagnosis, :KW_Agentic_AI .
+
+:Researcher_13 bist:hasKeyword
+    :KW_Large_language_models, :KW_Knowledge_engineering, :KW_Built_environments, :KW_Agentic_AI .
+
+# ===== KeywordUsage (frequency) =====
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Digital_twins ;
+    bist:frequency 14 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Bayesian_inference ;
+    bist:frequency 13 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Virtual_sensors ;
+    bist:frequency 10 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Virtual_in_situ_calibration_2 ;
+    bist:frequency 8 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Digital_twin ;
+    bist:frequency 8 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Stack_effect ;
+    bist:frequency 7 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_HVAC ;
+    bist:frequency 7 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Virtual_sensing ;
+    bist:frequency 6 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Ontology ;
+    bist:frequency 6 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Intelligent_buildings ;
+    bist:frequency 6 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Data_center ;
+    bist:frequency 6 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Virtual_in_situ_calibration_VIC ;
+    bist:frequency 5 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Sensor_calibration ;
+    bist:frequency 5 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_In_situ_modeling_2 ;
+    bist:frequency 5 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_GPT ;
+    bist:frequency 5 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_systems ;
+    bist:frequency 5 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Bayesian_MCMC ;
+    bist:frequency 5 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Autoencoder ;
+    bist:frequency 5 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_AI_agent ;
+    bist:frequency 5 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Operation_and_maintenance_O_M ;
+    bist:frequency 4 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Open_data ;
+    bist:frequency 4 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Infiltration ;
+    bist:frequency 4 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_High_rise_building ;
+    bist:frequency 4 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Fault_detection_and_diagnosis_FDD ;
+    bist:frequency 4 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Virtual_sensor ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Virtual_models ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Virtual_in_situ_sensor_calibration ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Virtual_buildings ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Variable_air_volume_system ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Urban_building_energy_modeling ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Sensors ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Sensor_network ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Photovoltaic_thermal_heat_pump_system ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Model_fusion ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Large_language_model_LLM ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Interzonal_airflow ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_In_situ_modeling ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Heating_load ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Genetic_algorithm ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Fault_diagnosis ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Fault_detection ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Energy_signature ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Energy_saving ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Built_environments ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Built_environment ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_sensors ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_operations ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_operation ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_lifecycle ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_information_modeling ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_energy_systems ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_energy_system ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_digitalization ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_digital_twins ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Thermal_draft_coefficient_TDC ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Symbolic_hierarchical_clustering ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Soft_sensors ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Sensor_fault_detection_and_calibration ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Sensor ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Sensitivity_coefficient_optimization ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Pressure_difference ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_PMV ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Operational_signature ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Nonintrusive_calibration ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Multifamily_high_rise_buildings ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Multi_unit_residential_buildings_MURB ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Machine_learning ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_LiBr_H2O_refrigeration ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_LLM ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Indoor_air_quality_IAQ ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_In_situ_calibration_2 ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_High_rise_residential_building ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Gaussian_mixture_model ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Feature_engineering ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_EnergyPlus ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_District_heating_system ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_District_heating_substation ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_District_heating ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Design_of_experiment_DOE ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Data_fusion ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Data_augmentation ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Cyber_physical_systems ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Computer_room_air_handler ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Clustering ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Carbon_neutrality ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_operation_and_maintenance ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_energy_performance ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_energy_efficiency ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_automation_systems ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Brick_schema ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Absorption_refrigeration ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_urban_digital_twins_UDTs ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_urban_building_informatics ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_urban_building_energy_modeling_UBEM ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_thermal_comfort ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_temperature_offset ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_sensor ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_pressure_difference ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_multiunit_residential_buildings ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_in_situ_sensor_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_generative_pre_trained_transformers_GPTs ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_forgetting_mechanism ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_field_measurements ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_envelope ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_digital_twins_DTs ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_data_incremental_learning_DIL ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_building_energy_simulation ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_actual_living_conditions ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Zero_energy_building ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Window_to_wall_ratio ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Whole_building_airflow_simulation ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Weak_supervision ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Water_side_free_cooling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Waste_recycling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Waste_management ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Voting_mechanism ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Virtualization_or_model_retraining ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Virtual_sensor_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Virtual_sensing_technology ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Virtual_sensing_applications ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Virtual_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Virtual_model_development ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Virtual_model ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Virtual_leakage_measurement ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Virtual_in_situ_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Virtual_in_situ_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Virtual_building_models ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Ventilation_system ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_VIC_TSP ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_VIC ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Urban_informatics ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Urban_digital_twin ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Urban_context_information ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Urban_buildings ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Urban_building_energy_prediction ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Urban_building_energy_modeling_UBEM ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Urban_building_energy ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Upcycling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Unsupervised_learning ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Unsupervised_data_mining ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Unitary_air_conditioners ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Uncertainty_impact ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Transferability_assessment ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Transfer_learning_TL ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Top_down_approach ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Top_down ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Thermal_environment ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Thermal_draft_load_coefficient ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Telecommunication_base_stations_TBSs ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Technical_exploration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_TRNSYS ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_System_level_virtual_sensing ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_System_energy_performance ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Synthetic_data ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Symbolic_aggregate_approximation_SAX ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Sustainable_cities ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Surrogate_model ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Stack_pressure ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Stack_and_wind_effects ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Sparse_autoencoder ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Source_domain_selection ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Soft_sensor ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Smart_thermostat ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Simultaneous_in_situ_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Shading_effect ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Set_point_reset_strategy ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Sensor_virtualization ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Sensor_virtual_in_situ_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Sensor_offset ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Sensor_fusion ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Sensor_evaluation ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Sensor_errors ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Sensor_error ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Sensor_correction ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Sensor_absence ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Sensitivity_effect ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Sensitivity ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Senor_fault_detection_and_diagnosis ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Rule_based_algorithm ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Reviving_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Retrofit ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Residual_based ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Resident_complaints ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Repeatability ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Reliability_block_diagram_method ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Redundant_and_original_sensor ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Reciprocating_motion ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Real_time_measurements ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Pressure_differences ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Predictive_optimization_control ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Prediction_models ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Piston_cooling_gallery ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Passive_house ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_PVT_HP_system ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_PV_T_HP_system ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_PRD ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Operational_data ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Operation_pattern ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Operation_and_management_O_M ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Operation_and_maintenance ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Operation_and_Maintenance_O_M ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Operation_analysis ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_OpenAI ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Online_application ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Occupant_behavior ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Observation ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Nonlinear_effect ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Nonintrusive_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Nonintrusive_in_situ_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Neural_network ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Multifamily_high_rise_building ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Multi_swarm_particle_swarm_optimization ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Multi_source_data ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Multi_label_random_forest ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Multi_family_residential_buildings ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Model_based_control ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Model_predictive_control ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Model_metadata ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Missing_data ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Measurement_fault ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Markov_model ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Markov_Chain_Monte_Carlo ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Living_lab ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_LiBr_H2O_refrigeration_2 ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Level_of_detail_LOD ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Leakage_area ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Latin_hypercube_sampling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Latent_space_based ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Latent_heat_thermal_energy_storage ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Large_language_models ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Large_language_model ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_LLMs ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Knowledge_engineering ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Key_measurement_points ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Intrusive_data ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Intrusive_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Interface_motion ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Interaction_analysis ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Intelligent_digital_twin_IDT ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Intelligent_building_systems ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Intelligent_building_energy_systems ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Indoor_thermal_comfort ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Indoor_environments ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Indoor_environmental_quality ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Indirect_validation ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Indirect_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_In_situ_virtual_sensors ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_In_situ_virtual_sensor ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_In_situ_sensor_correction ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_In_situ_model_fusion_2 ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_In_situ_model_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_In_situ_model_fusion ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_In_situ_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Imbalanced_data ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Hybrid_free_cooling_system ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Horizontal_leakage_areas ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Horizontal_and_vertical_direction ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Holistic_operational_signature ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_High_rise_office_building ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Heating_energy_estimation ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Heating_energy_demand ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Heat_exchanger_fouling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Heat_and_vapor_diffusion ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_HVACR ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Google_street_view ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Global_sensitivity_analysis ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Global_optimization ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Genetic_algorithm_GA ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Generative_AI ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Generalized_diagnosis_rules ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Gas_liquid_two_phase_flow ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_GAN ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Free_cooling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Framework_of_sensor_offset_definition ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Fault_self_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Fault_diagnosis_and_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Fault_Detection_and_Diagnosis_FDD ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Factorial_design ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Eulerian_multiphase_model ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Energy_signature_Public_building_data ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Energy_performance_signature ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Energy_performance_evaluating ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Energy_efficiency ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Energy_demand ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Energy_consumption_pattern ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Energy_balance ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Dwelling_infiltration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Drifting_bias_correction ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Draft ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Domain_adversarial_neural_network_DANN ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_District_heating_systems ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_District_heating_substations ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Digital_twinning ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Digital_twin_synchronization ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Digital_twin_model ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Digital_twin_DT ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Delta_T_signature ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Data_driven_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Data_driven_based_methods ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Data_similarity ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Data_mining ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Data_imputation ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_DS_evidence_theory ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Cyber_physical_buildings ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Countermeasure ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Cooling_system ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Convolutional_autoencoder ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Control_loop_model ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Control_characteristic ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Contaminant_diffusion ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Concurrent_failure ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Computer_room_air_handler_CRAH ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Chiller ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Chilled_water_cooling_system ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_ChatGPT ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Change_point_model ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Calibration_strategies ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Calibration_domain ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Calibrated_simulation ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_COVID_19 ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_CONTAM ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_energy_prediction_BEP ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_retrofit ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_performance_simulation_BPS ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_performance ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_life_cycle ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_information_modeling_BIM ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_informatics ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_heating_and_cooling_load_prediction ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_energy_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_energy_management_system ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_energy_diagnosis ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_energy_data_analysis ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_digital_twinning ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_data_mining ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_automation_systems_BAS ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_automation_system ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Building_airflow ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Bias_correction ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Bayesian_mcmc ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Bayesian_inference_BI ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Bayesian_Inference ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_BIM ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Availability_analysis ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Autonomous_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Automated_design ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Autoencoder_AE ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_AutoEncoder ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Artificial_intelligence ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Anomaly_detection ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Airtightness_prediction ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Airflow_noise ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Airflow_network_simulation ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Airflow_and_thermal_network_simulation ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Airflow ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Air_handling_unit_AHU ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Air_handling_unit ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Air_cleaning ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Air_leakage ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Air_handing_unit ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Agentic_fault_detection_and_diagnosis ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Agentic_AI ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_Absolute_pressure_sensors ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_1 ;
+    bist:usageOf :KW_AI_artificial_intelligence_agent ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Open_data ;
+    bist:frequency 4 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Urban_building_energy_modeling ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Energy_signature ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Symbolic_hierarchical_clustering ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Feature_engineering ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_urban_digital_twins_UDTs ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_urban_building_informatics ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_urban_building_energy_modeling_UBEM ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_generative_pre_trained_transformers_GPTs ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_digital_twins_DTs ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Window_to_wall_ratio ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Urban_informatics ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Urban_digital_twin ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Urban_context_information ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Urban_buildings ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Urban_building_energy_prediction ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Urban_building_energy_modeling_UBEM ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Urban_building_energy ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Top_down_approach ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Top_down ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Technical_exploration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Symbolic_aggregate_approximation_SAX ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Sustainable_cities ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Shading_effect ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Retrofit ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_OpenAI ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Multi_source_data ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Missing_data ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Machine_learning ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Large_language_models ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Large_language_model_LLM ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Knowledge_engineering ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Indirect_validation ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Holistic_operational_signature ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Google_street_view ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_GPT ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Energy_performance_signature ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Energy_performance_evaluating ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_District_heating ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Data_imputation ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Data_fusion ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Data_augmentation ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Clustering ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Change_point_model ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Carbon_neutrality ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_COVID_19 ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Built_environments ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Building_energy_performance ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Building_energy_efficiency ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Building_data_mining ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Bayesian_inference ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_Agentic_AI ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_2 ;
+    bist:usageOf :KW_AI_artificial_intelligence_agent ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Digital_twins ;
+    bist:frequency 6 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Virtual_sensors ;
+    bist:frequency 5 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Intelligent_buildings ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Virtual_sensing ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Virtual_in_situ_calibration_VIC ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Stack_effect ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Sensor_calibration ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Multi_unit_residential_buildings_MURB ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Interzonal_airflow ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Infiltration ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Heating_load ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_GPT ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Digital_twin ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Cyber_physical_systems ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Built_environment ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Building_operations ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Building_lifecycle ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Building_energy_system ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Bayesian_inference ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_AI_agent ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Virtual_models ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Virtual_model_development ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Virtual_model ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Virtual_leakage_measurement ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_VIC ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Urban_digital_twin ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Urban_building_energy_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Thermal_draft_load_coefficient ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Thermal_draft_coefficient_TDC ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Soft_sensors ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Soft_sensor ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Simultaneous_in_situ_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Sensor_virtualization ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Sensor_fusion ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Sensor_absence ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Sensor ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Operation_and_maintenance ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Ontology ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Nonintrusive_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Nonintrusive_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Neural_network ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Multifamily_high_rise_buildings ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Model_fusion ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Missing_data ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Machine_learning ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Large_language_models ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_LLMs ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_LLM ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Knowledge_engineering ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Indoor_air_quality_IAQ ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_In_situ_model_fusion_2 ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_In_situ_model_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_In_situ_calibration_2 ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_In_situ_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Horizontal_leakage_areas ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Heating_energy_estimation ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Generative_AI ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Generalized_diagnosis_rules ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Fault_diagnosis ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Fault_Detection_and_Diagnosis_FDD ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_District_heating_systems ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Digital_twinning ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Digital_twin_synchronization ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Digital_twin_model ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Data_driven_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Data_imputation ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Control_loop_model ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Clustering ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Built_environments ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Building_operation_and_maintenance ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Building_operation ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Building_information_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Building_energy_systems ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Building_energy_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Building_digitalization ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Building_digital_twins ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Agentic_fault_detection_and_diagnosis ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_3 ;
+    bist:usageOf :KW_Agentic_AI ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Digital_twin ;
+    bist:frequency 6 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Ontology ;
+    bist:frequency 4 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_HVAC ;
+    bist:frequency 4 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Operation_and_maintenance_O_M ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_GPT ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_AI_agent ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Virtual_buildings ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_In_situ_modeling_2 ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Built_environments ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Building_digital_twins ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Virtual_sensor ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Virtual_models ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Virtual_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Virtual_model_development ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Virtual_model ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Virtual_in_situ_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Virtual_building_models ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_VIC ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Sensor ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Operation_and_management_O_M ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Operation_and_Maintenance_O_M ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Nonintrusive_in_situ_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Model_metadata ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Model_fusion ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Living_lab ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Large_language_models ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Large_language_model ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_LLM ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Knowledge_engineering ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_In_situ_model_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_In_situ_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Generalized_diagnosis_rules ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Fault_diagnosis ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Digital_twins ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Building_systems ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Building_information_modeling_BIM ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Building_information_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Building_energy_system ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Brick_schema ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Autonomous_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Agentic_fault_detection_and_diagnosis ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_4 ;
+    bist:usageOf :KW_Agentic_AI ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Large_language_model_LLM ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Built_environments ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Stack_effect ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Real_time_measurements ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Pressure_difference ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Operation_and_maintenance_O_M ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Ontology ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Occupant_behavior ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Multi_family_residential_buildings ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Large_language_models ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Knowledge_engineering ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Intelligent_digital_twin_IDT ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_GPT ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Digital_twins ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Digital_twin_DT ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_ChatGPT ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_CONTAM ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Building_performance_simulation_BPS ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Building_performance ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Building_informatics ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Building_airflow ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Artificial_intelligence ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_Agentic_AI ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_5 ;
+    bist:usageOf :KW_AI_agent ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_7 ;
+    bist:usageOf :KW_Virtual_sensor ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_7 ;
+    bist:usageOf :KW_Thermal_environment ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_7 ;
+    bist:usageOf :KW_PMV ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_7 ;
+    bist:usageOf :KW_Ontology ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_7 ;
+    bist:usageOf :KW_Large_language_models ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_7 ;
+    bist:usageOf :KW_LLM ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_7 ;
+    bist:usageOf :KW_Knowledge_engineering ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_7 ;
+    bist:usageOf :KW_Indoor_environments ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_7 ;
+    bist:usageOf :KW_Digital_twin ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_7 ;
+    bist:usageOf :KW_Built_environments ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_7 ;
+    bist:usageOf :KW_Building_energy_management_system ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_7 ;
+    bist:usageOf :KW_Building_energy_efficiency ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_7 ;
+    bist:usageOf :KW_Building_energy_diagnosis ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_7 ;
+    bist:usageOf :KW_Brick_schema ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_7 ;
+    bist:usageOf :KW_Agentic_AI ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_7 ;
+    bist:usageOf :KW_AI_agent ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_8 ;
+    bist:usageOf :KW_Urban_digital_twin ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_8 ;
+    bist:usageOf :KW_Urban_building_energy_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_8 ;
+    bist:usageOf :KW_Missing_data ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_8 ;
+    bist:usageOf :KW_Machine_learning ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_8 ;
+    bist:usageOf :KW_Large_language_models ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_8 ;
+    bist:usageOf :KW_Knowledge_engineering ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_8 ;
+    bist:usageOf :KW_Data_imputation ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_8 ;
+    bist:usageOf :KW_Built_environments ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_8 ;
+    bist:usageOf :KW_Bayesian_inference ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_8 ;
+    bist:usageOf :KW_Agentic_AI ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_9 ;
+    bist:usageOf :KW_Window_to_wall_ratio ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_9 ;
+    bist:usageOf :KW_Urban_building_energy_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_9 ;
+    bist:usageOf :KW_Large_language_models ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_9 ;
+    bist:usageOf :KW_Knowledge_engineering ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_9 ;
+    bist:usageOf :KW_Indirect_validation ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_9 ;
+    bist:usageOf :KW_Google_street_view ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_9 ;
+    bist:usageOf :KW_Built_environments ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_9 ;
+    bist:usageOf :KW_Agentic_AI ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_10 ;
+    bist:usageOf :KW_Virtual_sensor ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_10 ;
+    bist:usageOf :KW_Operation_and_management_O_M ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_10 ;
+    bist:usageOf :KW_Ontology ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_10 ;
+    bist:usageOf :KW_HVAC ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_10 ;
+    bist:usageOf :KW_Digital_twin ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_10 ;
+    bist:usageOf :KW_Brick_schema ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_Voting_mechanism ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_Virtualization_or_model_retraining ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_Virtual_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_Virtual_model_development ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_VIC_TSP ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_Online_application ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_Nonintrusive_in_situ_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_Living_lab ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_Large_language_models ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_LLM ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_Knowledge_engineering ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_In_situ_model_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_HVAC ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_GPT ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_Fault_diagnosis_and_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_Fault_diagnosis ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_Digital_twin ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_Built_environments ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_Building_digital_twins ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_11 ;
+    bist:usageOf :KW_Agentic_AI ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Digital_twin ;
+    bist:frequency 4 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_AI_agent ;
+    bist:frequency 4 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Variable_air_volume_system ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Ontology ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Bayesian_inference ;
+    bist:frequency 3 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Virtual_in_situ_calibration_2 ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Sensor ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Operation_and_maintenance_O_M ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_In_situ_modeling_2 ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Gaussian_mixture_model ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_GPT ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Fault_diagnosis ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Fault_detection ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Built_environments ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Building_energy_system ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Building_digital_twins ;
+    bist:frequency 2 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Weak_supervision ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Voting_mechanism ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Virtualization_or_model_retraining ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Virtual_sensing_technology ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Virtual_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Virtual_model_development ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Virtual_model ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Virtual_in_situ_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Virtual_in_situ_calibration_VIC ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Virtual_buildings ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Virtual_building_models ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_VIC_TSP ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_VIC ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Unsupervised_learning ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Time_delay_characteristics ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Smart_energy_systems ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Single_source_fault_SSF ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Sensor_virtual_in_situ_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Sensor_offset ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Sensor_networks ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Sensor_network ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Sensor_evaluation ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Sensor_error ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Sensor_correction ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Sensor_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Reverse_traceability ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Redundant_and_original_sensor ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Photovoltaic_thermal_heat_pump_system ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_PVT_HP_system ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_PV_T_HP_system ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Operation_and_Maintenance_O_M ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Online_application ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Nonintrusive_in_situ_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Multiple_source_fault_MSF ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Measurement_fault ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Machine_learning ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Living_lab ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Large_language_models ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Large_language_model_LLM ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Large_language_model ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_LLM ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Knowledge_engineering ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Intelligent_digital_twin_IDT ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_In_situ_model_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Imbalanced_data ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_HVAC ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Generalized_diagnosis_rules ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_GAN ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Framework_of_sensor_offset_definition ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Fault_prediction ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Fault_diagnosis_and_calibration ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Fault_detection_and_diagnosis_FDD ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Energy_efficiency ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Digital_twin_DT ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Data_driven_based_methods ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_DS_evidence_theory ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Convolutional_autoencoder ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Control_characteristic ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Concurrent_failure ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Chiller_sensors ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Chiller ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Calibration_domain ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Building_systems ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Building_information_modeling_BIM ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Building_information_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Building_informatics ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Autonomous_modeling ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Autoencoder ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Anomaly_detection ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Air_handing_unit ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Agentic_fault_detection_and_diagnosis ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_12 ;
+    bist:usageOf :KW_Agentic_AI ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_13 ;
+    bist:usageOf :KW_Large_language_models ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_13 ;
+    bist:usageOf :KW_Knowledge_engineering ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_13 ;
+    bist:usageOf :KW_Built_environments ;
+    bist:frequency 1 .
+[] a bist:KeywordUsage ;
+    bist:usageBy :Researcher_13 ;
+    bist:usageOf :KW_Agentic_AI ;
+    bist:frequency 1 .

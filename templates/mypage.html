@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마이페이지 · BIST Paper Recommendation Service</title>
+{% include "_theme_css.html" %}
+<style>
+  /* ===== 마이페이지 전용 ===== */
+  .mp-wrap { max-width: 900px; margin: 0 auto; padding: 22px 24px 80px; }
+
+  .mp-head { margin-bottom: 18px; }
+  .mp-head h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; }
+  .mp-who {
+    margin-top: 6px; font-size: 13px; color: var(--text-sub);
+    display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center;
+  }
+  .mp-who .type-chip {
+    background: var(--primary); color: #fff; font-weight: 700;
+    padding: 2px 10px; border-radius: 11px; font-size: 11.5px;
+  }
+
+  .mp-nav {
+    position: sticky; top: 68px; z-index: 20;
+    display: flex; gap: 6px; flex-wrap: wrap;
+    padding: 10px 0 12px; margin-bottom: 4px;
+    background: linear-gradient(var(--page-bg) 72%, transparent);
+  }
+  .mp-nav a {
+    font-size: 12.5px; font-weight: 600; padding: 6px 13px; border-radius: 16px;
+    border: 1px solid var(--border); background: #fff; color: var(--text-sub);
+    text-decoration: none;
+  }
+  .mp-nav a:hover { border-color: var(--primary); color: var(--primary); text-decoration: none; }
+
+  .mp-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px 22px; margin-bottom: 16px;
+    box-shadow: var(--shadow); scroll-margin-top: 130px;
+  }
+  .mp-card > .my-section:last-child { margin-bottom: 0; }
+
+  .mp-textarea {
+    width: 100%; min-height: 116px; resize: vertical;
+    padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: 13px; line-height: 1.6; color: var(--text);
+    background: #fff;
+  }
+  .mp-textarea:focus { outline: 2px solid var(--primary-light); border-color: var(--primary); }
+  .desc-row { margin-top: 10px; }
+  .desc-row summary {
+    cursor: pointer; font-size: 12.5px; font-weight: 700; color: var(--primary);
+    list-style: none;
+  }
+  .desc-row summary::-webkit-details-marker { display: none; }
+  .desc-row summary::before { content: "▸ "; }
+  .desc-row[open] summary::before { content: "▾ "; }
+  .desc-actions {
+    display: flex; align-items: center; gap: 8px; margin-top: 7px; flex-wrap: wrap;
+  }
+  .char-count { font-size: 11px; color: var(--text-faint); }
+
+  .vec-chip {
+    font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 9px;
+    background: var(--primary-light); color: var(--primary-dark);
+  }
+  .vec-chip.none { background: #f3e6e4; color: var(--danger); }
+
+  .gate {
+    max-width: 400px; margin: 70px auto; background: #fff;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 28px; box-shadow: var(--shadow);
+  }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 13px; font-weight: 600; color: var(--text-sub); text-decoration: none;
+  }
+  .back-link:hover { color: var(--primary); text-decoration: none; }
+
+  /* ===== 관심 저자 ===== */
+  .au-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+  .au-tab {
+    padding: 6px 14px; border-radius: 16px; font-size: 12.5px; font-weight: 600;
+    border: 1px solid var(--border); background: #fff; color: var(--text-sub);
+  }
+  .au-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+  .au-card {
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 13px 15px; margin-bottom: 9px; background: #fff;
+  }
+  .au-card.is-following { border-color: var(--primary); background: var(--primary-light); }
+  .au-top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+  .au-name { font-size: 14px; font-weight: 800; color: var(--text); }
+  .au-affil { font-size: 12.5px; color: var(--text-sub); margin-top: 2px; }
+  .au-ids { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .id-chip {
+    font-size: 10.5px; font-family: ui-monospace, Menlo, Consolas, monospace;
+    background: var(--panel-bg); color: var(--text-sub);
+    padding: 2px 7px; border-radius: 7px; border: 1px solid var(--border);
+  }
+  .id-chip.orcid { color: #9a6a00; background: #fdf6e6; border-color: #f0e0bb; }
+  .au-metrics { font-size: 11.5px; color: var(--text-faint); margin-top: 5px; }
+  .au-topics { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+  .au-topic {
+    font-size: 11.5px; background: var(--panel-bg); color: var(--text);
+    padding: 2px 9px; border-radius: 10px;
+  }
+  .au-papers { margin-top: 9px; font-size: 12px; color: var(--text-sub); }
+  .au-papers .lbl {
+    font-size: 10.5px; font-weight: 800; color: var(--primary-dark);
+    text-transform: uppercase; letter-spacing: .3px;
+  }
+  .au-papers li { margin: 3px 0 0 14px; line-height: 1.45; }
+  .au-alts { font-size: 11px; color: var(--text-faint); margin-top: 7px; }
+  .follow-btn { white-space: nowrap; }
+  .follow-btn.on {
+    background: #fff; color: var(--primary); border: 1px solid var(--primary);
+  }
+  .au-search-row { display: flex; gap: 6px; margin-bottom: 10px; }
+  .au-search-row input {
+    flex: 1; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: 13.5px;
+  }
+  .au-searching { font-size: 12.5px; color: var(--text-faint); padding: 12px 0; }
+
+  /* 등록된 관심 저자 — 접었을 때는 이름만 */
+  .fa-item {
+    border: 1px solid var(--border); border-radius: 10px;
+    margin-bottom: 7px; background: #fff;
+  }
+  .fa-item[open] { border-color: var(--primary); }
+  .fa-summary {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 13px; cursor: pointer; list-style: none;
+  }
+  .fa-summary::-webkit-details-marker { display: none; }
+  .fa-summary::before {
+    content: "▸"; color: var(--text-faint); font-size: 11px; flex-shrink: 0;
+    transition: transform .12s;
+  }
+  .fa-item[open] .fa-summary::before { content: "▾"; color: var(--primary); }
+  .fa-summary:hover { background: var(--primary-light); border-radius: 9px; }
+  .fa-name {
+    flex: 1; min-width: 0; font-size: 13.5px; font-weight: 700; color: var(--text);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .fa-unfollow { flex-shrink: 0; font-size: 11.5px; padding: 4px 12px; }
+  .fa-unfollow:hover { border-color: var(--danger); color: var(--danger); }
+  .fa-detail {
+    padding: 0 13px 12px 30px;
+    border-top: 1px dashed var(--border); margin-top: -2px; padding-top: 10px;
+  }
+
+  /* ===== 연구 소개 노트 ===== */
+  .note-card {
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; margin-bottom: 9px; background: #fff;
+  }
+  .note-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  }
+  .note-title { font-size: 13.5px; font-weight: 800; color: var(--text); }
+  .note-title.untitled { color: var(--text-faint); font-weight: 600; }
+  .note-actions { display: flex; gap: 5px; flex-shrink: 0; }
+  .note-actions button {
+    font-size: 11.5px; padding: 3px 10px; border-radius: 14px;
+    border: 1px solid var(--border); background: #fff; color: var(--text-sub);
+  }
+  .note-actions button:hover { border-color: var(--primary); color: var(--primary); }
+  .note-actions button.danger:hover { border-color: var(--danger); color: var(--danger); }
+  .note-body {
+    font-size: 12.5px; color: var(--text); line-height: 1.6; margin-top: 6px;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  .note-meta { font-size: 11px; color: var(--text-faint); margin-top: 7px; }
+  .note-edit { display: none; margin-top: 8px; }
+  .note-card.editing .note-edit { display: block; }
+  .note-card.editing .note-body,
+  .note-card.editing .note-meta { display: none; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="back-link" href="/home">&#8592; BIST <b style="color:var(--primary)">Paper Recommendation</b> Service</a>
+  <div class="topbar-right">
+    <button class="login-link" id="authBtn">로그인</button>
+  </div>
+</header>
+
+<!-- 비로그인 상태 -->
+<div class="gate" id="gate" style="display:none;">
+  <h3 style="font-size:17px; font-weight:800; color:var(--primary-dark); margin-bottom:4px;">로그인이 필요합니다</h3>
+  <div style="font-size:12.5px; color:var(--text-sub); margin-bottom:16px;">
+    마이페이지는 본인 계정으로 로그인한 뒤 이용할 수 있습니다.
+  </div>
+  <div class="form-row"><label>이름</label>
+    <input type="text" id="loginName" name="username" autocomplete="username"
+           placeholder="예: 홍길동"></div>
+  <div class="form-row"><label>비밀번호</label>
+    <input type="password" id="loginPw" name="password"
+           autocomplete="current-password"></div>
+  <div style="display:flex; gap:8px; justify-content:flex-end;">
+    <a class="btn-ghost" href="/litreview/login" style="text-decoration:none;">회원가입</a>
+    <button class="btn-primary" id="loginSubmit">로그인</button>
+  </div>
+</div>
+
+<!-- 로그인 상태 -->
+<div class="mp-wrap" id="mpWrap" style="display:none;">
+  <div class="mp-head">
+    <h2>마이페이지</h2>
+    <div class="mp-who" id="myWho"></div>
+  </div>
+
+  <nav class="mp-nav">
+    <a href="#secIntro">내 연구 소개</a>
+    <a href="#secCycle">추천 주기</a>
+    <a href="#secSearch">논문 검색 키워드</a>
+    <a href="#secPaperKw">내 논문 키워드</a>
+    <a href="#secInterest">관심 키워드</a>
+    <a href="#secAuthor">관심 저자</a>
+  </nav>
+
+  <!-- 내 연구 소개 -->
+  <section class="mp-card" id="secIntro">
+    <div class="my-section">
+      <h4>&#127891; 내 연구 소개 <span class="count-badge" id="noteCount">0건</span></h4>
+      <div class="hint" style="margin:-4px 0 12px;">
+        관심 주제가 여러 개면 <b>여러 건으로 나눠 작성</b>하세요. 이 글들은
+        <b>LLM이 core 등급 논문의 추천 이유를 쓸 때</b> 참고합니다 — 내 연구 소개 글 작성을 통해
+        <b>"왜 해당 논문이 나에게 추천되었는지"</b>를 구체적으로 알 수 있습니다.
+      </div>
+
+      <div id="noteList"></div>
+
+      <details id="newNoteBox" style="margin-top:12px;">
+        <summary style="cursor:pointer; font-size:13px; font-weight:700; color:var(--primary);">
+          + 연구 소개 추가
+        </summary>
+        <div style="margin-top:11px;">
+          <div class="form-row">
+            <label>제목 <span style="font-weight:400; color:var(--text-faint);">(선택)</span></label>
+            <input type="text" id="newNoteTitle" maxlength="200"
+                   autocomplete="off" placeholder="예: 도시 녹지와 폭염 관련 연구">
+          </div>
+          <div class="form-row">
+            <label>내용</label>
+            <textarea class="mp-textarea" id="newNoteContent" maxlength="4000"
+              placeholder="예: 도시 내 수목과 공원 등 녹지공간이 도시 열환경에 미치는 영향을 정량적으로 분석하고, 녹지의 열환경 조절 효과를 규명하는 연구에 관심이 있습니다."></textarea>
+          </div>
+          <div class="desc-actions">
+            <button class="btn-primary" id="newNoteBtn">추가</button>
+            <span class="char-count" id="newNoteCount">0자</span>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- 추천 주기 -->
+  <section class="mp-card" id="secCycle">
+    <div class="my-section">
+      <h4>&#128231; 논문 추천 주기</h4>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <select id="cycleSelect" style="flex:1; padding:9px 12px; border:1px solid var(--border); border-radius:8px; font-family:inherit; font-size:13.5px;">
+          <option value="1">매주 (기본)</option>
+          <option value="2">격주 (2주마다)</option>
+          <option value="4">월 1회 (4주마다)</option>
+        </select>
+        <button class="btn-primary" id="cycleSaveBtn">저장</button>
+      </div>
+      <div class="hint">추천 파이프라인은 매주 실행되며, 이메일 발송만 설정한 주기로 받습니다.</div>
+    </div>
+  </section>
+
+  <!-- 논문 검색 키워드 -->
+  <section class="mp-card" id="secSearch">
+    <div class="my-section">
+      <h4>&#128269; 논문 검색 키워드 <span class="count-badge" id="searchKwCount">0개</span></h4>
+      <div class="hint" style="margin:-4px 0 12px;">
+        매주 일요일 해당 키워드로 Scopus를 검색합니다. <b>추천에 실제로 반영되는 키워드이므로 구체적으로 작성할수록 좋습니다!</b>
+      </div>
+      <div id="topicKwList"></div>
+
+      <details id="newTopicBox" style="margin-top:14px;">
+        <summary style="cursor:pointer; font-size:13px; font-weight:700; color:var(--primary);">
+          + 새 주제 추가 (작성 중인 논문 초록 / 관심 연구 설명)
+        </summary>
+        <div style="margin-top:11px;">
+          <div class="form-row">
+            <label>주제 이름</label>
+            <input type="text" id="newTopicName" autocomplete="off"
+                   placeholder="예: LLM 기반 건물 에너지 시뮬레이션">
+          </div>
+          <div class="form-row">
+            <label>검색 키워드 <span style="font-weight:400; color:var(--text-faint);">(세미콜론 ; 으로 구분)</span></label>
+            <input type="text" id="newTopicKw" list="paperKwOptions" autocomplete="off"
+                   placeholder="Large language models; Building energy simulation">
+          </div>
+          <div class="form-row">
+            <label>연구 설명 / 초록 <span style="font-weight:400; color:var(--text-faint);">(선택)</span></label>
+            <textarea class="mp-textarea" id="newTopicDesc"
+                      placeholder="작성 중인 논문의 초록이나 관심 연구 설명을 붙여넣으세요. 이 글을 임베딩해 수집된 논문과의 유사도를 계산합니다."></textarea>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <button class="btn-primary" id="newTopicBtn">주제 만들기</button>
+            <span class="hint" style="margin:0;">직접 만든 주제는 자동 갱신·재클러스터링에 지워지지 않습니다.</span>
+          </div>
+          <div class="hint" style="color:var(--danger);">
+            설명만 넣고 키워드를 비우면 Scopus 검색 쿼리가 만들어지지 않아
+            <b>새 논문을 수집하지 못합니다.</b> 키워드를 함께 넣어 주세요.
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- 내 논문 키워드 -->
+  <section class="mp-card" id="secPaperKw">
+    <div class="my-section">
+      <h4>&#128196; 내 논문에서 추출된 키워드</h4>
+      <div class="hint" style="margin:-4px 0 10px;">
+        본인 논문으로부터 수집된 키워드입니다. 해당 키워드로 추천 논문을 검색합니다. 관련 없는 키워드는 흐림처리 하세요.
+      </div>
+      <div class="kw-chips" id="paperKwChips"></div>
+      <datalist id="paperKwOptions"></datalist>
+    </div>
+  </section>
+
+  <!-- 관심 키워드 -->
+  <section class="mp-card" id="secInterest">
+    <div class="my-section">
+      <h4>&#128278; 관심 키워드</h4>
+      <div class="tag-list" id="kwTagList"></div>
+      <div class="inline-add">
+        <input type="text" id="kwInput" autocomplete="off"
+               placeholder="키워드 입력 후 Enter 또는 추가">
+        <button class="btn-primary" id="kwAddBtn">추가</button>
+      </div>
+      <div class="hint">
+        <b>월간 신규 저널 탐색에만</b> 사용됩니다. 주간 논문 검색에는 반영되지 않으니,
+        검색에 넣으려면 위 <b>논문 검색 키워드</b>에 추가하세요.
+      </div>
+    </div>
+  </section>
+
+  <!-- 관심 저자 -->
+  <section class="mp-card" id="secAuthor">
+    <div class="my-section">
+      <h4>&#9997;&#65039; 관심 저자 <span class="count-badge" id="followCount">0명</span></h4>
+      <div class="hint" style="margin:-4px 0 12px;">
+        등록된 저자의 신규 논문은 매주 OpenAlex Author ID 기준으로 확인해 추천에 반영됩니다.
+      </div>
+
+      <div class="au-tabs">
+        <button class="au-tab active" data-autab="name">이름으로 검색</button>
+        <button class="au-tab" data-autab="orcid">ORCID로 등록</button>
+      </div>
+
+      <div id="auPanelName">
+        <div class="au-search-row">
+          <input type="search" id="auQuery" autocomplete="off"
+                 spellcheck="false" placeholder="저자 이름 (예: Sungmin Yoon)">
+          <button class="btn-primary" id="auSearchBtn">검색</button>
+        </div>
+      </div>
+
+      <div id="auPanelOrcid" style="display:none;">
+        <div class="au-search-row">
+          <input type="text" id="auOrcid" autocomplete="off"
+                 placeholder="0000-0000-0000-0000">
+          <button class="btn-primary" id="auOrcidBtn">조회</button>
+        </div>
+        <div class="hint" style="margin-top:-4px;">
+          ORCID를 알고 있으면 동명이인 확인 없이 정확히 등록할 수 있습니다.
+        </div>
+      </div>
+
+      <div id="auResults"></div>
+
+      <h4 style="margin-top:22px;">등록된 관심 저자</h4>
+      <div id="followedList"></div>
+      <div style="display:flex; align-items:center; gap:10px; margin-top:10px;">
+        <button class="btn-ghost" id="auTrackBtn">지금 신규 논문 확인</button>
+        <span class="hint" style="margin:0;">주간 배치에서도 자동으로 확인합니다.</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+
+const state = { me: null, topics: [], paperKws: [], type: "C", followed: [], notes: [] };
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g,
+  (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(t._tm);
+  t._tm = setTimeout(() => t.classList.remove("show"), 2600);
+}
+
+async function api(url, opts = {}) {
+  const resp = await fetch(url, {
+    headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
+    ...opts,
+  });
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+  return data;
+}
+
+// =====================================================================
+// 진입 / 인증
+// =====================================================================
+async function init() {
+  let me = { logged_in: false };
+  try { me = await api("/api/lr/auth/me"); } catch { /* 무시 */ }
+
+  if (!me.logged_in) {
+    state.me = null;
+    $("gate").style.display = "block";
+    $("mpWrap").style.display = "none";
+    $("authBtn").textContent = "로그인";
+    return;
+  }
+  state.me = me;
+  $("gate").style.display = "none";
+  $("mpWrap").style.display = "block";
+  $("authBtn").textContent = `${me.name.split("(")[0].trim()} · 로그아웃`;
+  await loadMypage();
+}
+
+$("authBtn").addEventListener("click", async () => {
+  if (state.me) {
+    await api("/api/lr/auth/logout", { method: "POST" });
+    location.href = "/home";
+  } else {
+    $("loginName").focus();
+  }
+});
+
+$("loginSubmit").addEventListener("click", doLogin);
+$("loginPw").addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); });
+
+async function doLogin() {
+  try {
+    await api("/api/lr/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ name: $("loginName").value, password: $("loginPw").value }),
+    });
+    await init();
+    toast("로그인되었습니다.");
+  } catch (e) { toast(e.message); }
+}
+
+// =====================================================================
+// 데이터 로드
+// =====================================================================
+async function loadMypage() {
+  const s = await api(`/api/lr/researchers/${state.me.researcher_id}/my-settings`);
+
+  $("myWho").innerHTML = `
+    <span class="type-chip">${esc(s.researcher_type)}유형</span>
+    <span><b>${esc(s.name)}</b></span>
+    <span>${esc(s.email || "이메일 미등록")}</span>
+    <span>${esc(s.group || "그룹 미지정")}</span>`;
+
+  $("cycleSelect").value = String([1, 2, 4].includes(s.email_cycle_weeks) ? s.email_cycle_weeks : 1);
+
+  renderNotes(s.research_notes || []);
+
+  state.topics = s.topics || [];
+  state.paperKws = s.paper_keywords || [];
+  state.type = s.researcher_type || "C";
+
+  renderTopics();
+  renderPaperKeywords();
+  renderKwTags(s.custom_keywords);
+  renderFollowedAuthors(s.followed_authors);
+}
+
+// =====================================================================
+// 주제별 검색 키워드 + 연구 설명
+// =====================================================================
+
+/** 이 주제가 실제 추천 파이프라인에 쓰이는지 (scheduler/jobs.py 필터와 동일 규칙) */
+function topicIsActive(t) {
+  return state.type === "B"
+    ? (t.source_type === "auto" || t.has_vector)
+    : t.has_vector;
+}
+
+function renderTopics() {
+  const topics = state.topics || [];
+  $("searchKwCount").textContent =
+    `${topics.reduce((n, t) => n + (t.keywords || []).length, 0)}개`;
+
+  if (!topics.length) {
+    $("topicKwList").innerHTML = `
+      <div style="padding:15px; border:1px dashed var(--border); border-radius:10px;
+                  font-size:12.5px; color:var(--text-sub);">
+        등록된 연구 주제가 없어 <b style="color:var(--danger)">현재 추천 논문을 전혀 받지 못하는 상태</b>입니다.<br>
+        아래 <b>새 주제 추가</b>에서 주제 이름과 키워드(또는 초록)를 등록하면 다음 주부터 추천이 시작됩니다.
+      </div>`;
+    return;
+  }
+
+  $("topicKwList").innerHTML = topics.map((t) => {
+    const kws = t.keywords || [];
+    const chips = kws.length
+      ? kws.map((k, i) => `<span class="tag">${esc(k)}<button data-tkwdel="${t.id}" data-idx="${i}" title="삭제">&#10005;</button></span>`).join("")
+      : '<span style="color:var(--danger); font-size:12px;">키워드가 없어 이 주제는 Scopus 검색에서 제외됩니다.</span>';
+
+    const notes = [];
+    if (t.keywords_locked) notes.push('<span class="mini-note lock" title="자동 갱신이 덮어쓰지 않습니다">&#128274; 직접 편집함</span>');
+    if (!topicIsActive(t)) notes.push('<span class="mini-note warn" title="대표 벡터가 없어 유사도를 계산할 수 없습니다">&#9888; 추천 미사용</span>');
+
+    // 주제 종류에 따라 유사도 기준(벡터)이 만들어지는 방식이 다르고,
+    // 설명을 쓸 수 있는지도 달라진다.
+    const kind = t.source_type === "auto" ? "auto"
+      : t.source_type === "keyword_seeded" ? "seeded" : "manual";
+    const kindLabel = { auto: "자동", seeded: "키워드 연동", manual: "수동" }[kind];
+    const desc = kind === "seeded"
+      ? (t.description || "").replace(/^\[KEYWORD_SEEDED\]\s*/, "")
+      : (t.description || "");
+
+    const descBlock = kind === "auto"
+      ? `<div class="hint" style="margin-top:9px;">
+           자동 주제는 <b>대표 논문 초록</b>에서 유사도 기준이 만들어져 설명을 따로 쓸 수 없습니다.
+           초록 기반 추천을 원하면 아래에서 새 주제를 만드세요.
+         </div>`
+      : kind === "seeded"
+      ? `<div class="hint" style="margin-top:9px;">
+           이 주제는 위 키워드와 <b>일치하는 본인 논문들의 평균</b>을 유사도 기준으로 씁니다.
+           키워드를 바꾸면 기준도 자동으로 다시 계산됩니다.
+         </div>`
+      : `<details class="desc-row"${desc ? " open" : ""}>
+           <summary>연구 설명 / 초록 ${desc ? `(${desc.length}자 저장됨)` : "(비어 있음)"}</summary>
+           <textarea class="mp-textarea" data-tdesc="${t.id}"
+             placeholder="작성 중인 논문의 초록이나 관심 연구 설명을 붙여넣으세요. 저장하면 이 글을 임베딩해 유사도 기준으로 씁니다.">${esc(desc)}</textarea>
+           <div class="desc-actions">
+             <button class="btn-primary" data-tdescsave="${t.id}">설명 저장 + 재임베딩</button>
+             <span class="char-count" data-tdesccount="${t.id}">${desc.length}자</span>
+             <span class="vec-chip${t.has_vector ? "" : " none"}">${t.has_vector ? "유사도 기준 있음" : "유사도 기준 없음"}</span>
+           </div>
+         </details>`;
+
+    return `
+      <div class="topic-block">
+        <div class="topic-head">
+          <span class="src-badge ${kind === 'auto' ? 'auto' : 'manual'}">${kindLabel}</span>
+          <span class="tname">${esc(t.name)}</span>
+          ${notes.join("")}
+        </div>
+        <div class="tag-list">${chips}</div>
+        <div class="inline-add">
+          <input type="text" list="paperKwOptions" data-tkwinput="${t.id}"
+                 autocomplete="off" placeholder="키워드 추가 후 Enter">
+          <button class="btn-primary" data-tkwadd="${t.id}">추가</button>
+        </div>
+        ${descBlock}
+      </div>`;
+  }).join("");
+}
+
+function renderPaperKeywords() {
+  const used = new Set();
+  for (const t of state.topics || []) {
+    for (const k of t.keywords || []) used.add(k.toLowerCase());
+  }
+  const kws = state.paperKws || [];
+
+  $("paperKwChips").innerHTML = kws.length
+    ? kws.map((k) => `<span class="kw-chip pick${used.has(k.keyword.toLowerCase()) ? " used" : ""}"
+        title="${used.has(k.keyword.toLowerCase()) ? "이미 검색 키워드에 포함됨" : "아직 검색에 쓰이지 않음"}"
+        >${esc(k.keyword)}<span class="ct">${k.count}</span></span>`).join("")
+    : '<span style="color:var(--text-faint); font-size:12px;">본인 논문이 없거나 저자 키워드가 등록되지 않았습니다.</span>';
+
+  $("paperKwOptions").innerHTML = kws.map((k) => `<option value="${esc(k.keyword)}">`).join("");
+}
+
+/** 키워드 배열 전체 교체 (서버가 공백/중복 정리 + 필요 시 재임베딩) */
+async function patchTopicKeywords(topicId, keywords) {
+  const updated = await api(`/api/lr/topics/${topicId}/keywords`, {
+    method: "PATCH", body: JSON.stringify({ keywords }),
+  });
+  const i = state.topics.findIndex((t) => t.id === topicId);
+  if (i >= 0) state.topics[i] = updated;
+  renderTopics();
+  renderPaperKeywords();
+  return updated;
+}
+
+async function addTopicKeyword(topicId) {
+  const input = document.querySelector(`[data-tkwinput="${topicId}"]`);
+  const raw = (input.value || "").trim();
+  if (!raw) return;
+  const topic = state.topics.find((t) => t.id === topicId);
+  const added = raw.split(";").map((s) => s.trim()).filter(Boolean);
+  try {
+    const t = await patchTopicKeywords(topicId, [...(topic.keywords || []), ...added]);
+    toast(t.source_type === "auto" && t.keywords_locked
+      ? "키워드를 추가했습니다. 이 주제는 이제 자동 갱신에서 보호됩니다."
+      : t.revectorized
+      ? "키워드를 추가하고 유사도 기준을 다시 계산했습니다."
+      : "키워드를 추가했습니다. 다음 주 검색부터 반영됩니다.");
+  } catch (e) { toast(e.message); }
+}
+
+async function saveTopicDescription(topicId) {
+  const ta = document.querySelector(`[data-tdesc="${topicId}"]`);
+  const description = ta.value.trim();
+  try {
+    const r = await api(`/api/lr/topics/${topicId}`, {
+      method: "PUT", body: JSON.stringify({ description }),
+    });
+    const i = state.topics.findIndex((t) => t.id === topicId);
+    if (i >= 0) {
+      state.topics[i] = { ...state.topics[i], description, has_vector: r.has_vector };
+    }
+    renderTopics();
+    toast(r.revectorized
+      ? `설명을 저장하고 임베딩을 다시 만들었습니다 (${description.length}자).`
+      : "설명을 저장했습니다.");
+  } catch (e) { toast(e.message); }
+}
+
+document.addEventListener("click", async (e) => {
+  const addBtn = e.target.closest("[data-tkwadd]");
+  if (addBtn) { addTopicKeyword(parseInt(addBtn.dataset.tkwadd, 10)); return; }
+
+  const saveBtn = e.target.closest("[data-tdescsave]");
+  if (saveBtn) { saveTopicDescription(parseInt(saveBtn.dataset.tdescsave, 10)); return; }
+
+  const delBtn = e.target.closest("[data-tkwdel]");
+  if (delBtn) {
+    const tid = parseInt(delBtn.dataset.tkwdel, 10);
+    const idx = parseInt(delBtn.dataset.idx, 10);
+    const topic = state.topics.find((t) => t.id === tid);
+    if (!topic) return;
+    const next = (topic.keywords || []).filter((_, i) => i !== idx);
+    try {
+      await patchTopicKeywords(tid, next);
+      toast(next.length ? "키워드를 삭제했습니다." : "키워드가 모두 삭제되어 이 주제는 검색되지 않습니다.");
+    } catch (err) { toast(err.message); }
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+  const input = e.target.closest("[data-tkwinput]");
+  if (input && e.key === "Enter") {
+    e.preventDefault();
+    addTopicKeyword(parseInt(input.dataset.tkwinput, 10));
+  }
+});
+
+// 글자 수 실시간 표시
+document.addEventListener("input", (e) => {
+  const ta = e.target.closest("[data-tdesc]");
+  if (!ta) return;
+  const c = document.querySelector(`[data-tdesccount="${ta.dataset.tdesc}"]`);
+  if (c) c.textContent = `${ta.value.trim().length}자`;
+});
+
+// ---------- 새 주제 만들기 ----------
+$("newTopicBtn").addEventListener("click", async () => {
+  const name = $("newTopicName").value.trim();
+  const keywords = $("newTopicKw").value.trim();
+  const description = $("newTopicDesc").value.trim();
+  if (!name) { toast("주제 이름을 입력하세요."); return; }
+  if (!keywords && !description) { toast("키워드나 연구 설명 중 하나는 입력해야 합니다."); return; }
+  try {
+    await api(`/api/lr/researchers/${state.me.researcher_id}/topics`, {
+      method: "POST", body: JSON.stringify({ name, keywords, description }),
+    });
+    $("newTopicName").value = "";
+    $("newTopicKw").value = "";
+    $("newTopicDesc").value = "";
+    $("newTopicBox").open = false;
+    await loadMypage();
+    toast(keywords
+      ? "주제를 만들었습니다. 다음 주 검색부터 반영됩니다."
+      : "주제를 만들었습니다. 다만 키워드가 없어 논문 수집은 되지 않습니다.");
+  } catch (e) { toast(e.message); }
+});
+
+// =====================================================================
+// 내 연구 소개 — 여러 건 작성/수정/삭제
+// =====================================================================
+function renderNotes(notes) {
+  state.notes = notes || [];
+  $("noteCount").textContent = `${state.notes.length}건`;
+
+  if (!state.notes.length) {
+    $("noteList").innerHTML = `
+      <div style="padding:14px; border:1px dashed var(--border); border-radius:10px;
+                  font-size:12.5px; color:var(--text-sub);">
+        아직 작성한 연구 소개가 없습니다. 아래 <b>+ 연구 소개 추가</b>로
+        관심 주제별로 나눠 적어 두면 추천 이유가 더 구체적으로 나옵니다.
+      </div>`;
+    return;
+  }
+
+  $("noteList").innerHTML = state.notes.map((n) => `
+    <div class="note-card" data-note="${n.id}">
+      <div class="note-head">
+        <span class="note-title${n.title ? "" : " untitled"}">${esc(n.title || "제목 없음")}</span>
+        <span class="note-actions">
+          <button data-noteedit="${n.id}">수정</button>
+          <button class="danger" data-notedel="${n.id}">삭제</button>
+        </span>
+      </div>
+      <div class="note-body">${esc(n.content)}</div>
+      <div class="note-meta">${n.length}자 · 수정 ${esc((n.updated_at || "").slice(0, 16))}</div>
+      <div class="note-edit">
+        <div class="form-row" style="margin-bottom:8px;">
+          <input type="text" data-noteetitle="${n.id}" maxlength="200"
+                 autocomplete="off"
+                 value="${esc(n.title || "")}" placeholder="제목 (선택)">
+        </div>
+        <textarea class="mp-textarea" data-noteecontent="${n.id}" maxlength="4000">${esc(n.content)}</textarea>
+        <div class="desc-actions">
+          <button class="btn-primary" data-notesave="${n.id}">저장</button>
+          <button class="btn-ghost" data-notecancel="${n.id}">취소</button>
+        </div>
+      </div>
+    </div>`).join("");
+}
+
+$("newNoteContent").addEventListener("input", () => {
+  $("newNoteCount").textContent = `${$("newNoteContent").value.trim().length}자`;
+});
+
+$("newNoteBtn").addEventListener("click", async () => {
+  const content = $("newNoteContent").value.trim();
+  if (!content) { toast("내용을 입력하세요."); return; }
+  try {
+    await api(`/api/lr/researchers/${state.me.researcher_id}/research-notes`, {
+      method: "POST",
+      body: JSON.stringify({ title: $("newNoteTitle").value.trim(), content }),
+    });
+    $("newNoteTitle").value = "";
+    $("newNoteContent").value = "";
+    $("newNoteCount").textContent = "0자";
+    $("newNoteBox").open = false;
+    await loadMypage();
+    toast("연구 소개를 추가했습니다. 다음 추천부터 추천 이유에 반영됩니다.");
+  } catch (e) { toast(e.message); }
+});
+
+document.addEventListener("click", async (e) => {
+  const editBtn = e.target.closest("[data-noteedit]");
+  if (editBtn) {
+    editBtn.closest(".note-card").classList.add("editing");
+    return;
+  }
+
+  const cancelBtn = e.target.closest("[data-notecancel]");
+  if (cancelBtn) {
+    const id = cancelBtn.dataset.notecancel;
+    const card = cancelBtn.closest(".note-card");
+    const orig = state.notes.find((n) => String(n.id) === id);
+    if (orig) {
+      card.querySelector(`[data-noteetitle="${id}"]`).value = orig.title || "";
+      card.querySelector(`[data-noteecontent="${id}"]`).value = orig.content;
+    }
+    card.classList.remove("editing");
+    return;
+  }
+
+  const saveBtn = e.target.closest("[data-notesave]");
+  if (saveBtn) {
+    const id = saveBtn.dataset.notesave;
+    const card = saveBtn.closest(".note-card");
+    const content = card.querySelector(`[data-noteecontent="${id}"]`).value.trim();
+    if (!content) { toast("내용을 비울 수 없습니다. 삭제하려면 삭제 버튼을 쓰세요."); return; }
+    try {
+      await api(`/api/lr/research-notes/${id}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          title: card.querySelector(`[data-noteetitle="${id}"]`).value.trim(),
+          content,
+        }),
+      });
+      await loadMypage();
+      toast("연구 소개를 수정했습니다.");
+    } catch (err) { toast(err.message); }
+    return;
+  }
+
+  const delBtn = e.target.closest("[data-notedel]");
+  if (delBtn) {
+    const note = state.notes.find((n) => String(n.id) === delBtn.dataset.notedel);
+    const label = note && note.title ? `"${note.title}"` : "이 연구 소개";
+    if (!confirm(`${label} 을(를) 삭제할까요? 되돌릴 수 없습니다.`)) return;
+    try {
+      await api(`/api/lr/research-notes/${delBtn.dataset.notedel}`, { method: "DELETE" });
+      await loadMypage();
+      toast("연구 소개를 삭제했습니다.");
+    } catch (err) { toast(err.message); }
+  }
+});
+
+// =====================================================================
+// 추천 주기
+// =====================================================================
+$("cycleSaveBtn").addEventListener("click", async () => {
+  try {
+    await api(`/litreview/api/researchers/${state.me.researcher_id}/settings`, {
+      method: "PUT",
+      body: JSON.stringify({ email_cycle_weeks: parseInt($("cycleSelect").value, 10) }),
+    });
+    toast("추천 주기를 저장했습니다.");
+  } catch (e) { toast(e.message); }
+});
+
+// =====================================================================
+// 관심 키워드 (custom_keywords)
+// =====================================================================
+function renderKwTags(kws) {
+  $("kwTagList").innerHTML = (kws && kws.length)
+    ? kws.map((k) => `<span class="tag">${esc(k.keyword)}<button data-kwdel="${k.id}" title="삭제">&#10005;</button></span>`).join("")
+    : '<span style="color:var(--text-faint); font-size:12px;">등록된 관심 키워드가 없습니다.</span>';
+}
+
+async function addKeyword() {
+  const kw = $("kwInput").value.trim();
+  if (!kw) return;
+  try {
+    await api(`/litreview/api/researchers/${state.me.researcher_id}/keywords`, {
+      method: "POST", body: JSON.stringify({ keyword: kw }),
+    });
+    $("kwInput").value = "";
+    await loadMypage();
+    toast("관심 키워드를 추가했습니다.");
+  } catch (e) { toast(e.message); }
+}
+$("kwAddBtn").addEventListener("click", addKeyword);
+$("kwInput").addEventListener("keydown", (e) => { if (e.key === "Enter") addKeyword(); });
+
+document.addEventListener("click", async (e) => {
+  const del = e.target.closest("[data-kwdel]");
+  if (del) {
+    try {
+      await api(`/litreview/api/researchers/${state.me.researcher_id}/keywords/${del.dataset.kwdel}`, { method: "DELETE" });
+      await loadMypage();
+      toast("관심 키워드를 삭제했습니다.");
+    } catch (err) { toast(err.message); }
+  }
+});
+
+// =====================================================================
+// 관심 저자 — OpenAlex Author ID 기준
+// =====================================================================
+
+function paperLine(p) {
+  const t = esc((p.title || "").slice(0, 80));
+  const link = p.doi
+    ? `<a href="https://doi.org/${encodeURIComponent(p.doi)}" target="_blank" rel="noopener">${t}</a>`
+    : t;
+  const meta = [p.year, p.journal].filter(Boolean).map(esc).join(" · ");
+  const cited = p.cited_by_count != null ? ` · 인용 ${p.cited_by_count}` : "";
+  return `<li>${link}<br><span style="color:var(--text-faint)">${meta}${cited}</span></li>`;
+}
+
+/** 소속·식별자·지표·분야·논문·이표기 — 후보 카드와 등록 목록이 함께 쓴다 */
+function authorDetailBody(a, opts = {}) {
+  const reps = a.representative_papers || [];
+  const recents = a.recent_papers || [];
+  return `
+    <div class="au-affil">${esc(a.affiliation || "소속 정보 없음")}</div>
+    <div class="au-ids">
+      <span class="id-chip">OpenAlex ${esc(a.openalex_author_id || "-")}</span>
+      ${a.orcid ? `<span class="id-chip orcid">ORCID ${esc(a.orcid)}</span>` : ""}
+      ${a.semantic_scholar_author_id ? `<span class="id-chip">S2 ${esc(a.semantic_scholar_author_id)}</span>` : ""}
+    </div>
+    <div class="au-metrics">
+      논문 ${a.works_count ?? "-"}편 · 피인용 ${a.cited_by_count ?? "-"}회
+      ${opts.showTracked && a.new_paper_count ? ` · 추적된 신규 논문 ${a.new_paper_count}편` : ""}
+      ${opts.showTracked && a.last_checked_at ? ` · 마지막 확인 ${esc(a.last_checked_at.slice(0, 16))}` : ""}
+    </div>
+    ${(a.research_topics || []).length ? `
+      <div class="au-topics">${a.research_topics.slice(0, 4).map((t) => `<span class="au-topic">${esc(t)}</span>`).join("")}</div>` : ""}
+    ${reps.length ? `<div class="au-papers"><span class="lbl">대표 논문</span><ul>${reps.slice(0, 3).map(paperLine).join("")}</ul></div>` : ""}
+    ${recents.length ? `<div class="au-papers"><span class="lbl">최근 논문</span><ul>${recents.slice(0, 2).map(paperLine).join("")}</ul></div>` : ""}
+    ${(a.name_alternatives || []).length ? `
+      <div class="au-alts">다른 표기: ${a.name_alternatives.slice(0, 6).map(esc).join(" / ")}</div>` : ""}`;
+}
+
+/** 검색 후보 카드 — 고르기 전이라 상세를 처음부터 펼쳐 보여준다 */
+function authorCard(a, opts = {}) {
+  const following = !!a.following;
+  return `
+    <div class="au-card${following ? " is-following" : ""}">
+      <div class="au-top">
+        <div style="min-width:0;">
+          <div class="au-name">${esc(a.display_name)}</div>
+          ${authorDetailBody(a)}
+        </div>
+        <button class="btn-primary follow-btn${following ? " on" : ""}"
+          data-follow="${a.openalex_author_id}" data-source="${opts.source || "name_search"}"
+          ${following ? "disabled" : ""}>${following ? "✓ 등록됨" : "+ 관심 저자 등록"}</button>
+      </div>
+    </div>`;
+}
+
+/** 등록된 관심 저자 — 목록에서는 이름만, 펼치면 상세 */
+function followedAuthorItem(a) {
+  return `
+    <details class="fa-item">
+      <summary class="fa-summary">
+        <span class="fa-name">${esc(a.display_name)}</span>
+        <button class="btn-ghost fa-unfollow" data-unfollow="${a.internal_author_id}">해제</button>
+      </summary>
+      <div class="fa-detail">${authorDetailBody(a, { showTracked: true })}</div>
+    </details>`;
+}
+
+function renderFollowedAuthors(authors) {
+  state.followed = authors || [];
+  $("followCount").textContent = `${state.followed.length}명`;
+  $("followedList").innerHTML = state.followed.length
+    ? state.followed.map(followedAuthorItem).join("")
+    : '<span style="color:var(--text-faint); font-size:12px;">등록된 관심 저자가 없습니다. 위에서 검색해 등록하세요.</span>';
+}
+
+// 탭 전환
+document.querySelectorAll("[data-autab]").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll("[data-autab]").forEach((t) => t.classList.toggle("active", t === tab));
+    const isName = tab.dataset.autab === "name";
+    $("auPanelName").style.display = isName ? "block" : "none";
+    $("auPanelOrcid").style.display = isName ? "none" : "block";
+    $("auResults").innerHTML = "";
+  });
+});
+
+// 경로 1: 이름 검색
+async function searchAuthors() {
+  const q = $("auQuery").value.trim();
+  if (q.length < 2) { toast("두 글자 이상 입력하세요."); return; }
+  $("auResults").innerHTML = '<div class="au-searching">OpenAlex에서 후보 저자를 찾는 중…</div>';
+  try {
+    const d = await api(`/api/lr/authors/search?q=${encodeURIComponent(q)}&limit=5`);
+    $("auResults").innerHTML = d.candidates.length
+      ? `<div class="hint" style="margin:6px 0 8px;">
+           후보 ${d.count}명입니다. 소속과 연구 분야, 대표 논문을 확인하고 정확한 저자를 고르세요.
+         </div>` + d.candidates.map((c) => authorCard(c, { source: "name_search" })).join("")
+      : '<div class="au-searching">검색 결과가 없습니다. 영문 표기로 다시 시도해 보세요.</div>';
+  } catch (e) {
+    $("auResults").innerHTML = `<div class="au-searching">검색 실패: ${esc(e.message)}</div>`;
+  }
+}
+$("auSearchBtn").addEventListener("click", searchAuthors);
+$("auQuery").addEventListener("keydown", (e) => { if (e.key === "Enter") searchAuthors(); });
+
+// 경로 3: ORCID
+async function lookupOrcid() {
+  const orcid = $("auOrcid").value.trim();
+  if (!orcid) { toast("ORCID를 입력하세요."); return; }
+  $("auResults").innerHTML = '<div class="au-searching">ORCID로 저자를 조회하는 중…</div>';
+  try {
+    const d = await api(`/api/lr/authors/by-orcid?orcid=${encodeURIComponent(orcid)}`);
+    $("auResults").innerHTML =
+      `<div class="hint" style="margin:6px 0 8px;">ORCID ${esc(d.orcid)} 로 조회된 저자입니다. 확인 후 등록하세요.</div>`
+      + authorCard(d.author, { source: "orcid" });
+  } catch (e) {
+    $("auResults").innerHTML = `<div class="au-searching">조회 실패: ${esc(e.message)}</div>`;
+  }
+}
+$("auOrcidBtn").addEventListener("click", lookupOrcid);
+$("auOrcid").addEventListener("keydown", (e) => { if (e.key === "Enter") lookupOrcid(); });
+
+// 등록 / 해제
+document.addEventListener("click", async (e) => {
+  const followBtn = e.target.closest("[data-follow]");
+  if (followBtn) {
+    followBtn.disabled = true;
+    try {
+      const r = await api("/api/lr/authors/follow", {
+        method: "POST",
+        body: JSON.stringify({
+          openalex_author_id: followBtn.dataset.follow,
+          source: followBtn.dataset.source,
+        }),
+      });
+      followBtn.textContent = "✓ 등록됨";
+      followBtn.classList.add("on");
+      followBtn.closest(".au-card").classList.add("is-following");
+      await loadMypage();
+      toast(r.already_following
+        ? "이미 등록된 저자입니다."
+        : `${r.author.display_name} 을(를) 관심 저자로 등록했습니다.`);
+    } catch (err) {
+      followBtn.disabled = false;
+      toast(err.message);
+    }
+    return;
+  }
+
+  const unfollowBtn = e.target.closest("[data-unfollow]");
+  if (unfollowBtn) {
+    // <summary> 안에 있어 그냥 두면 클릭이 펼침 토글까지 일으킨다
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await api(`/api/lr/researchers/${state.me.researcher_id}/authors/${unfollowBtn.dataset.unfollow}`,
+        { method: "DELETE" });
+      await loadMypage();
+      toast("관심 저자를 해제했습니다.");
+    } catch (err) { toast(err.message); }
+  }
+});
+
+// 신규 논문 즉시 확인
+$("auTrackBtn").addEventListener("click", async () => {
+  const btn = $("auTrackBtn");
+  if (!state.followed || !state.followed.length) { toast("등록된 관심 저자가 없습니다."); return; }
+  btn.disabled = true;
+  btn.textContent = "확인 중…";
+  try {
+    const d = await api(`/api/lr/researchers/${state.me.researcher_id}/authors/track`, { method: "POST" });
+    await loadMypage();
+    toast(d.total_new_papers
+      ? `신규 논문 ${d.total_new_papers}편을 찾았습니다. 이 중 ${d.collected_paper_ids.length}편이 추천 대상에 포함됩니다.`
+      : "새로 발표된 논문이 없습니다.");
+  } catch (e) { toast(e.message); }
+  btn.disabled = false;
+  btn.textContent = "지금 신규 논문 확인";
+});
+
+init();
+</script>
+</body>
+</html>
